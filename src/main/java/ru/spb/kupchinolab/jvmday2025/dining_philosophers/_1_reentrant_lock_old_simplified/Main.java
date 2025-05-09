@@ -32,8 +32,8 @@ public class Main {
             Chopstick leftChopstick = chopsticks.get(i);
             Chopstick rightChopstick = chopsticks.get(i != 0 ? i - 1 : PHILOSOPHERS_COUNT - 1);
             Philosopher p = new Philosopher(i, leftChopstick, rightChopstick, stats, latch);
-            Thread.startVirtualThread(p); //<----!!
-//            Thread.ofPlatform().start(p); //<----!!
+//            Thread.startVirtualThread(p); //<----!!
+            Thread.ofPlatform().start(p); //<----!!
         });
 
         System.out.println("before countDown " + Instant.now());

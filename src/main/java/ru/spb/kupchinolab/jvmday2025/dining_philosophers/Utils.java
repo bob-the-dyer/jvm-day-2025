@@ -11,7 +11,7 @@ import static java.lang.String.format;
 public class Utils {
 
     private final static int TIME_TO_RUN_IN_MILLIS = 10_000;
-    public final static int PHILOSOPHERS_COUNT = 1_000_000;
+    public final static int PHILOSOPHERS_COUNT = 1_000;
 
     public static void exitAfterDelay(AtomicLong stats) {
         new Timer().schedule(new TimerTask() {
