@@ -3,16 +3,14 @@ package ru.spb.kupchinolab.jvmday2025.dining_philosophers._1_reentrant_lock_old_
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicLong;
 
-class Philosopher implements Runnable {
+class ReentrantPhilosopher implements Runnable {
 
     private final Chopstick firstChopstick;
     private final Chopstick secondChopstick;
-    private final int order;
     private final AtomicLong stats;
     private final CountDownLatch latch;
 
-    Philosopher(int order, Chopstick leftChopstick, Chopstick rightChopstick, AtomicLong stats, CountDownLatch latch) {
-        this.order = order;
+    ReentrantPhilosopher(int order, Chopstick leftChopstick, Chopstick rightChopstick, AtomicLong stats, CountDownLatch latch) {
         this.stats = stats;
         this.latch = latch;
         if (rightChopstick.order < leftChopstick.order) {

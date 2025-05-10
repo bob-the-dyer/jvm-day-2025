@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.IntStream;
 
@@ -31,14 +30,14 @@ public class Main {
         IntStream.range(0, PHILOSOPHERS_COUNT).forEach(i -> {
             Chopstick leftChopstick = chopsticks.get(i);
             Chopstick rightChopstick = chopsticks.get(i != 0 ? i - 1 : PHILOSOPHERS_COUNT - 1);
-            Philosopher p = new Philosopher(i, leftChopstick, rightChopstick, stats, latch);
-//            Thread.startVirtualThread(p); //<----!!
-            Thread.ofPlatform().start(p); //<----!!
+            ReentrantPhilosopher p = new ReentrantPhilosopher(i, leftChopstick, rightChopstick, stats, latch);
+            Thread.startVirtualThread(p); //<----!!
+//            Thread.ofPlatform().start(p); //<----!!
         });
 
-        System.out.println("before countDown " + Instant.now());
+        System.out.println("count... " + Instant.now());
         latch.countDown();
-        System.out.println(" after countDown " + Instant.now());
+        System.out.println("... down " + Instant.now());
 
         exitAfterDelay(stats);
     }

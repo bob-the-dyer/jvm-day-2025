@@ -18,7 +18,8 @@ public class Utils {
             @Override
             public void run() {
                 System.out.println("  end at " + Instant.now());
-                System.out.println(format("stopping Main with overall eat attempts %s", stats.longValue()));
+                System.out.println(format("stopping with overall eat attempts: %d", stats.longValue()));
+                System.out.println("platform threads count estimate: " + Thread.activeCount());
                 System.exit(0);
             }
         }, TIME_TO_RUN_IN_MILLIS);
