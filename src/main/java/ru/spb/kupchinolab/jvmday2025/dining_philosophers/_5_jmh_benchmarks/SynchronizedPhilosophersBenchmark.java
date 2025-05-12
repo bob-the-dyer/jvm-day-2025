@@ -1,8 +1,10 @@
-package dining_philosophers;
+package ru.spb.kupchinolab.jvmday2025.dining_philosophers._5_jmh_benchmarks;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.RepeatedTest;
+import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.runner.Runner;
+import org.openjdk.jmh.runner.RunnerException;
+import org.openjdk.jmh.runner.options.Options;
+import org.openjdk.jmh.runner.options.OptionsBuilder;
 import ru.spb.kupchinolab.jvmday2025.dining_philosophers.Chopstick;
 import ru.spb.kupchinolab.jvmday2025.dining_philosophers._3_synchronized_pivot.SynchronizedPhilosopher;
 
@@ -12,8 +14,12 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.StructuredTaskScope.ShutdownOnSuccess;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
-public class SynchronizedPhilosophersTest {
+@BenchmarkMode({Mode.AverageTime})
+@OutputTimeUnit(TimeUnit.MILLISECONDS)
+@State(Scope.Thread)
+public class SynchronizedPhilosophersBenchmark {
 
     private static final int TEST_PHILOSOPHERS_COUNT = 1_000;
 
@@ -21,8 +27,7 @@ public class SynchronizedPhilosophersTest {
     static List<SynchronizedPhilosopher> synchronizedPhilosophers = new ArrayList<>();
     static CyclicBarrier barrier = new CyclicBarrier(1 + TEST_PHILOSOPHERS_COUNT);
 
-    @BeforeAll
-    static void initPhilosophersAndChopsticks() {
+    static {
         for (int i = 0; i < TEST_PHILOSOPHERS_COUNT; i++) {
             Chopstick cs = new Chopstick(i);
             chopsticks.add(cs);
@@ -34,19 +39,19 @@ public class SynchronizedPhilosophersTest {
         }
     }
 
-    @BeforeEach
-    void resetBarrierAndPhilosophers() {
+    @TearDown(Level.Invocation)
+    public void resetBarrierAndPhilosophers() {
         barrier.reset();
         synchronizedPhilosophers.forEach(SynchronizedPhilosopher::resetStats);
     }
 
-    @RepeatedTest(100)
-    void test_synchronized_philosophers_with_virtual_threads() throws InterruptedException, BrokenBarrierException {
+    @Benchmark
+    public void test_synchronized_philosophers_with_virtual_threads() throws InterruptedException, BrokenBarrierException {
         test_synchronized_philosophers_internal(Thread.ofVirtual().factory());
     }
 
-    @RepeatedTest(100)
-    void test_synchronized_philosophers_with_platform_threads() throws InterruptedException, BrokenBarrierException {
+    @Benchmark
+    public void test_synchronized_philosophers_with_platform_threads() throws InterruptedException, BrokenBarrierException {
         test_synchronized_philosophers_internal(Thread.ofPlatform().factory());
     }
 
@@ -56,5 +61,17 @@ public class SynchronizedPhilosophersTest {
             barrier.await();
             scope.join();
         }
+    }
+
+    public static void main(String[] args) throws RunnerException {
+        Options opt = new OptionsBuilder()
+                .include(SynchronizedPhilosophersBenchmark.class.getSimpleName())
+                .forks(1)
+                .warmupIterations(2)
+                .measurementIterations(10)
+                .jvmArgs("--enable-preview")
+                .build();
+
+        new Runner(opt).run();
     }
 }
