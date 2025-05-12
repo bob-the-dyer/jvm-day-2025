@@ -12,7 +12,10 @@ TODO
 ## TODO Ссылка на доклад на хайлоде
 
 ## TODO Минимум знаний, необходимый для понимания:
- - concurrency - synchronized, ReentrantLock, CountDownLatch, Structured Concurrency
+ - concurrency - synchronized, ReentrantLock, CyclicBarrier, AtomicInteger (CAS)
+ - junit 5
+ - jmh
+ - Virtual threads, Structured Concurrency - необязательно, но не будут объясняться на пальцах с нуля
  - https://vertx.io (если войдет в доклад)
  
 ## TODO Что разбирается в проекте
@@ -45,35 +48,29 @@ https://openjdk.org/jeps/453
 https://en.wikipedia.org/wiki/Dining_philosophers_problem
 https://vertx.io
 
+## Цитаты для разбора и использования за и против 
+
 Virtual threads are not faster threads — they do not run code any faster than platform threads. They exist to provide scale (higher throughput), not speed (lower latency). There can be many more of them than platform threads, so they enable the higher concurrency needed for higher throughput according to Little's Law.
 
 To put it another way, virtual threads can significantly improve application throughput when
  - The number of concurrent tasks is high (more than a few thousand), and
  - The workload is not CPU-bound, since having many more threads than processor cores cannot improve throughput in that case.
 
-virtual threads are not cooperative.
-
-
-
+Virtual threads are not cooperative.
 
 Typically, a virtual thread will unmount when it blocks on I/O or some other blocking operation in the JDK, such as BlockingQueue.take(). When the blocking operation is ready to complete (e.g., bytes have been received on a socket), it submits the virtual thread back to the scheduler, which will mount the virtual thread on a carrier to resume execution.
 
 The vast majority of blocking operations in the JDK will unmount the virtual thread, freeing its carrier and the underlying OS thread to take on new work. However, some blocking operations in the JDK do not unmount the virtual thread, and thus block both its carrier and the underlying OS thread. This is because of limitations either at the OS level (e.g., many filesystem operations) or at the JDK level (e.g., Object.wait())
 
-
 There are two scenarios in which a virtual thread cannot be unmounted during blocking operations because it is pinned to its carrier:
-
-When it executes code inside a synchronized block or method, or
-When it executes a native method or a foreign function.
+ - When it executes code inside a synchronized block or method, or
+ - When it executes a native method or a foreign function.
 
 The stacks of virtual threads are stored in Java's garbage-collected heap as stack chunk objects.
 
 Unlike platform thread stacks, virtual thread stacks are not GC roots, so the references contained in them are not traversed in a stop-the-world pause by garbage collectors, such as G1, that perform concurrent heap scanning. This also means that if a virtual thread is blocked on, e.g., BlockingQueue.take(), and no other thread can obtain a reference to either the virtual thread or the queue, then the thread can be garbage collected — which is fine, since the virtual thread can never be interrupted or unblocked. Of course, the virtual thread will not be garbage collected if it is running or if it is blocked and could ever be unblocked.
 
-
-
-
-Начало
+## Повествование в формате мозгового штурма и истории героя
 
 Навеяно spring.threads.virtual.enabled=true и все стало быстрее или не стало
 
@@ -86,6 +83,7 @@ Unlike platform thread stacks, virtual thread stacks are not GC roots, so the re
 Какая то проблема с остановкой потоков через exit или Timer?
 Неужели атомик внутри виртуальных потоков что делает что становится хуже платформенных потоков?
 ВИртуальные хуже, по производительности, но платформенных 10К не создать
+
 Кстати, а как узнать сколько платформенных потоков можно создать неэмпирически?
 
 Нет, кажется мы реально просто не успеваем создать все потоки - проверим - вернул барьер
@@ -96,6 +94,14 @@ Unlike platform thread stacks, virtual thread stacks are not GC roots, so the re
 Переключаюсь на опен ждк
 Какие тут возможны выводы - взятие и отпускание блокировок происходит эффективнее, т к пдатформенный поток не уходит в блок
 Но важно отметить, что виртуальные потоки НЕ для этого были сделаны, а как раз наоброт для некооперативного взаимодействия
+
+Оценку доступных платформенных потоков через Thread.activeCount()
+
+Для 5 тыс фил всего 3 платформенных потока! Только один из них сам таймер, второй шатдаун хук жвм, мейн уже ушел, под дебагером вообще куча, сособенно в пулах форк джойна - короче, так себе эстимейт
+
+Для платформенных потоков - 1003 - ну тыс понятно, а 3 оставшихся непонятно
+
+На моей тачке для пользовательского жава процесса 4060+ примерно платформенных потоков : 2,6 GHz 6-Core Intel Core i7  16 GB
 
 тут надо сделать пивот для кода и считать время для 1 тыс до 1млн попыток с jmh, протестировать метод и подтвердить ускорение
 Пивот также поможет нам избавиться от CAS, упростим логику - дождемся пока 1 из философов поест определенное кол-во раз (это будет последний)
@@ -124,10 +130,48 @@ Exception in thread "main" java.lang.OutOfMemoryError: unable to create native t
 1мин 16 сек против 1 мин 9 сек
 
 Очень удобно наш тест превратить в бенчмарк - просто добавляем аннотаций и main
-Правда сгенеренные jmh классы гаследуются от тестов и как тесты тоже воспринимаются, надо их исключить по регэкспу .*jmhType.* или убрать в ide
+Правда сгенеренные jmh классы гаследуются от тестов и как тесты тоже воспринимаются, надо их исключить по регэкспу .*jmhType.* и убрать в ide
 Но в итоге для запуска не очень удобно, копируем в родной src
 
-Для нескольких jdk, для нескольких количеств, окружение будет локальным, но максимально одинаковым 
+openjdk-24.0.1
+
+Benchmark                                                                                  Mode  Cnt    Score    Error  Units
+SynchronizedPhilosophersBenchmark.    test_synchronized_philosophers_with_virtual_threads  avgt   10  554.518 ± 33.901   ms/op
+ReentrantLockPhilosophersBenchmark. test_reentrant_lock_philosophers_with_virtual_threads  avgt   10  628.616 ± 46.746   ms/op
+ReentrantLockPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt   10  815.053 ± 123.329  ms/op
+SynchronizedPhilosophersBenchmark.   test_synchronized_philosophers_with_platform_threads  avgt   10  878.041 ± 13.191   ms/op
+
+
+Для нескольких jdk, для нескольких количеств, окружение будет локальным, но максимально одинаковым - перебор, надо быть прагматичнм 
+Но тем не менее а что там с либерикой фул? не перекомпилируем, байткод от openjdk-24.0.1
+
+liberica-full-24.0.1
+
+Benchmark                                                                                  Mode  Cnt    Score     Error  Units
+SynchronizedPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads      avgt   10  609.942 ± 69.725  ms/op
+ReentrantLockPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt   10  794.222 ±  30.801  ms/op
+ReentrantLockPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt   10  860.768 ± 244.107  ms/op
+SynchronizedPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads     avgt   10  973.529 ± 56.013  ms/op
+
+Ага, т е принципиально все как в openjdk, только немного медленнее
+ЛАдно, обычную либерику, тимурин и все!
+
+liberica-24.0.1
+
+Benchmark                                                                                  Mode  Cnt    Score     Error  Units
+SynchronizedPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads      avgt   10  621.846 ± 17.671  ms/op
+ReentrantLockPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt   10  656.492 ± 46.289  ms/op
+SynchronizedPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads     avgt   10  845.692 ± 74.872  ms/op
+ReentrantLockPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt   10  850.776 ± 313.852  ms/op
+
+temurin-24.0.1
+
+Benchmark                                                                                  Mode  Cnt    Score    Error  Units
+SynchronizedPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads      avgt   10  587.261 ± 40.373  ms/op
+ReentrantLockPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt   10  682.728 ± 68.705  ms/op
+ReentrantLockPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt   10  857.365 ± 300.106  ms/op
+SynchronizedPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads     avgt   10  885.470 ± 78.029  ms/op
+
 
 Интересно, а есть ли разница с синхронайзом? 
 Пишем точно такой же код, тестируем с jmh
@@ -135,10 +179,9 @@ Exception in thread "main" java.lang.OutOfMemoryError: unable to create native t
 Ладно, выяснили что с виртуальными потоками мы можем держать огромное кол-во некооперирующих потоков - хорошо для промышленных стандартных задач! а именно обработка запросов на вебсервере
 
 Но это не покажет нам пининг, так как внутри нет блокирующего метода, так давайте же сделаем - урл(-)? очередь(?)?
-на миллионе хорошо видно что потоки что-то пытаются сделать но  кол-во попыток пришло к 1К потому что все остальное время происходит контеншен за палочки
 
-Оценку доступных платформенных потоков через Thread.activeCount()
-Для 5 тыс фил всего 3 платформенных потока! Только один из них сам таймер, второй шатдаун хук жвм, мейн уже ушел, под дебагером вообще куча, сособенно в пулах форк джойна - короче, так себе эстимейт
-Для платформенных потоков - 1003 - ну тыс понятно, а 3 оставшихся непонятно
-На моей тачке для пользовательского жава процесса 4060+ примерно платформенных потоков
-2,6 GHz 6-Core Intel Core i7  16 GB 
+Модифицируем философов чтобы они принимали в себя рабочую нагрузку через Runnable(?) или что0ть из функция и далее выбираем что-нить с блокировкой и проверяем
+что случится со временем исполнения - TODO next
+
+А теперь предположим что нам попался неудачный клиент или драйвер, который ожидает на активном потоке - TODO next
+
