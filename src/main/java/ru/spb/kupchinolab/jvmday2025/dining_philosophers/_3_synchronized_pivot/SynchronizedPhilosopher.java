@@ -1,5 +1,7 @@
 package ru.spb.kupchinolab.jvmday2025.dining_philosophers._3_synchronized_pivot;
 
+import ru.spb.kupchinolab.jvmday2025.dining_philosophers.Chopstick;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
@@ -15,7 +17,7 @@ class SynchronizedPhilosopher implements Callable<Integer> {
     SynchronizedPhilosopher(int order, Chopstick leftChopstick, Chopstick rightChopstick, CountDownLatch latch) {
         this.stats = 0;
         this.latch = latch;
-        if (rightChopstick.order < leftChopstick.order) {
+        if (rightChopstick.getOrder() < leftChopstick.getOrder()) {
             assert order != 0;
             firstChopstick = rightChopstick;
             secondChopstick = leftChopstick;

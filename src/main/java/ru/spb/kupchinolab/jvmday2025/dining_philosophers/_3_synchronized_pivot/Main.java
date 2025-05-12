@@ -1,5 +1,7 @@
 package ru.spb.kupchinolab.jvmday2025.dining_philosophers._3_synchronized_pivot;
 
+import ru.spb.kupchinolab.jvmday2025.dining_philosophers.Chopstick;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;

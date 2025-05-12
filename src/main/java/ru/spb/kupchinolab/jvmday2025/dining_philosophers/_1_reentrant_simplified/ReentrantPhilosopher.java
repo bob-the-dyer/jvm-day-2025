@@ -1,5 +1,7 @@
 package ru.spb.kupchinolab.jvmday2025.dining_philosophers._1_reentrant_simplified;
 
+import ru.spb.kupchinolab.jvmday2025.dining_philosophers.Chopstick;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -13,7 +15,7 @@ class ReentrantPhilosopher implements Runnable {
     ReentrantPhilosopher(int order, Chopstick leftChopstick, Chopstick rightChopstick, AtomicLong stats, CountDownLatch latch) {
         this.stats = stats;
         this.latch = latch;
-        if (rightChopstick.order < leftChopstick.order) {
+        if (rightChopstick.getOrder() < leftChopstick.getOrder()) {
             assert order != 0;
             firstChopstick = rightChopstick;
             secondChopstick = leftChopstick;
