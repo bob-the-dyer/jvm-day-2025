@@ -1,4 +1,4 @@
-package ru.spb.kupchinolab.jvmday2025.dining_philosophers;
+package ru.spb.kupchinolab.jvmday2025.dining_philosophers._1_reentrant_simplified;
 
 import java.time.Instant;
 import java.util.Date;

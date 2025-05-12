@@ -1,4 +1,4 @@
-package ru.spb.kupchinolab.jvmday2025.dining_philosophers._1_reentrant_lock_old_simplified;
+package ru.spb.kupchinolab.jvmday2025.dining_philosophers._2_reentrant_pivot;
 
 import java.util.concurrent.locks.ReentrantLock;
 

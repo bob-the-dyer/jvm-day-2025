@@ -1,4 +1,4 @@
-package ru.spb.kupchinolab.jvmday2025.dining_philosophers._1_reentrant_lock_old_simplified;
+package ru.spb.kupchinolab.jvmday2025.dining_philosophers._1_reentrant_simplified;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicLong;
@@ -36,8 +36,7 @@ class ReentrantPhilosopher implements Runnable {
             try {
                 secondChopstick.lock();
                 try {
-                    //NO_OP
-                    stats.incrementAndGet();
+                    eat();
                 } finally {
                     secondChopstick.unlock();
                 }
@@ -45,6 +44,11 @@ class ReentrantPhilosopher implements Runnable {
                 firstChopstick.unlock();
             }
         }
+    }
+
+    private void eat() {
+        //NO_OP
+        stats.incrementAndGet();
     }
 
 }
