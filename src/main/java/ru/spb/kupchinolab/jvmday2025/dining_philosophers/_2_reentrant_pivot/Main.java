@@ -5,11 +5,14 @@ import ru.spb.kupchinolab.jvmday2025.dining_philosophers.Chopstick;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.StructuredTaskScope.ShutdownOnSuccess;
+import java.util.concurrent.ThreadFactory;
 import java.util.stream.IntStream;
 
-import static ru.spb.kupchinolab.jvmday2025.dining_philosophers._2_reentrant_pivot.Utils.PHILOSOPHERS_COUNT;
+import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.PHILOSOPHERS_COUNT;
 
 public class Main {
 
@@ -32,8 +35,7 @@ public class Main {
             for (int i = 0; i < PHILOSOPHERS_COUNT; i++) {
                 Chopstick leftChopstick = chopsticks.get(i);
                 Chopstick rightChopstick = chopsticks.get(i != 0 ? i - 1 : PHILOSOPHERS_COUNT - 1);
-                ReentrantPhilosopher p = new ReentrantPhilosopher(i, leftChopstick, rightChopstick, barrier);
-                scope.fork(p);
+                scope.fork(new ReentrantPhilosopher(i, leftChopstick, rightChopstick, barrier));
             }
             System.out.println("count... " + Instant.now());
             barrier.await();

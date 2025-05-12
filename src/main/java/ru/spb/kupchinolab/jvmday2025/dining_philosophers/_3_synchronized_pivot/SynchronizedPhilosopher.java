@@ -2,21 +2,22 @@ package ru.spb.kupchinolab.jvmday2025.dining_philosophers._3_synchronized_pivot;
 
 import ru.spb.kupchinolab.jvmday2025.dining_philosophers.Chopstick;
 
+import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
 
-import static ru.spb.kupchinolab.jvmday2025.dining_philosophers._3_synchronized_pivot.Utils.MAX_EAT_ATTEMPTS;
+import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.MAX_EAT_ATTEMPTS;
 
-class SynchronizedPhilosopher implements Callable<Integer> {
+public class SynchronizedPhilosopher implements Callable<Integer> {
 
     private final Chopstick firstChopstick;
     private final Chopstick secondChopstick;
     private int stats;
-    private final CountDownLatch latch;
+    private final CyclicBarrier barrier;
 
-    SynchronizedPhilosopher(int order, Chopstick leftChopstick, Chopstick rightChopstick, CountDownLatch latch) {
+    public SynchronizedPhilosopher(int order, Chopstick leftChopstick, Chopstick rightChopstick, CyclicBarrier barrier) {
         this.stats = 0;
-        this.latch = latch;
+        this.barrier = barrier;
         if (rightChopstick.getOrder() < leftChopstick.getOrder()) {
             assert order != 0;
             firstChopstick = rightChopstick;
@@ -31,8 +32,8 @@ class SynchronizedPhilosopher implements Callable<Integer> {
     @Override
     public Integer call() {
         try {
-            latch.await();
-        } catch (InterruptedException e) {
+            barrier.await();
+        } catch (InterruptedException | BrokenBarrierException e) {
             throw new RuntimeException(e);
         }
         while (!Thread.currentThread().isInterrupted() && MAX_EAT_ATTEMPTS > stats) {
@@ -48,6 +49,10 @@ class SynchronizedPhilosopher implements Callable<Integer> {
     private void eat() {
         //NO_OP
         stats++;
+    }
+
+    public void resetStats() {
+        stats = 0;
     }
 
 }

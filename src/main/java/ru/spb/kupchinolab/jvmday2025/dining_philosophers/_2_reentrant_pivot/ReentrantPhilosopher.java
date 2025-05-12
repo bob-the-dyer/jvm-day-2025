@@ -6,7 +6,7 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CyclicBarrier;
 
-import static ru.spb.kupchinolab.jvmday2025.dining_philosophers._2_reentrant_pivot.Utils.MAX_EAT_ATTEMPTS;
+import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.MAX_EAT_ATTEMPTS;
 
 public class ReentrantPhilosopher implements Callable<Integer> {
 

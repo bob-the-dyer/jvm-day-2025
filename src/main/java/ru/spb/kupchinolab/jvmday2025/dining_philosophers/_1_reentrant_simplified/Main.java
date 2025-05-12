@@ -5,14 +5,18 @@ import ru.spb.kupchinolab.jvmday2025.dining_philosophers.Chopstick;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.IntStream;
 
-import static ru.spb.kupchinolab.jvmday2025.dining_philosophers._1_reentrant_simplified.Utils.PHILOSOPHERS_COUNT;
-import static ru.spb.kupchinolab.jvmday2025.dining_philosophers._1_reentrant_simplified.Utils.exitAfterDelay;
+import static java.lang.String.format;
+import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.PHILOSOPHERS_COUNT;
 
 public class Main {
+
+    private final static int TIME_TO_RUN_IN_MILLIS = 10_000;
 
     public static void main(String[] args) {
 
@@ -41,6 +45,18 @@ public class Main {
         System.out.println("... down " + Instant.now());
 
         exitAfterDelay(stats);
+    }
+
+    public static void exitAfterDelay(AtomicLong stats) {
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                System.out.println("  end at " + Instant.now());
+                System.out.println(format("stopping with overall eat attempts: %d", stats.longValue()));
+                System.out.println("platform threads count estimate: " + Thread.activeCount());
+                System.exit(0);
+            }
+        }, TIME_TO_RUN_IN_MILLIS);
     }
 
 }
