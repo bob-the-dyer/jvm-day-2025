@@ -257,8 +257,15 @@ ReadingPhilosophersBenchmark.test_synchronized_philosophers_with_platform_thread
 ReadingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt   10   2480.131 ±  348.322  ms/op
 ReadingPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt   10  13798.372 ± 1787.083  ms/op
 
-Виртуальные потоки вообще не очень - почему? Сдается мне бенчмарки могут врать и возможно обманывает оптимизация - следующим этапом надо переработать 
+Повторили - виртуальные потоки вообще не очень - почему? Сдается мне бенчмарки могут врать и возможно обманывает оптимизация - следующим этапом надо переработать 
 под BlackHole и перепроверить - TODO next
 
 А теперь предположим что нам попался неудачный клиент или драйвер, который ожидает на активном потоке
 
+Benchmark                                                                            Mode  Cnt    Score    Error  Units
+LoopingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt   10  183.055 ±  7.296  ms/op
+LoopingPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt   10  197.812 ±  4.353  ms/op
+LoopingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt   10  420.395 ± 89.713  ms/op
+LoopingPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt   10  510.710 ± 70.167  ms/op
+
+Активное ожидание слишком быстрое - либо неправильно оценили время чтения либо оптимизации - точно пора внедрять черную дыру
