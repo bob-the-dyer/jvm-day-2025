@@ -43,10 +43,11 @@ TODO
 
 ## Ссылки
 https://wiki.openjdk.org/display/loom/Main
-https://openjdk.org/jeps/425
-https://openjdk.org/jeps/453
+https://openjdk.org/jeps/444
+https://openjdk.org/jeps/505
 https://en.wikipedia.org/wiki/Dining_philosophers_problem
 https://vertx.io
+https://spring.io/blog/2022/10/11/embracing-virtual-threads
 
 ## Цитаты для разбора и использования за и против 
 

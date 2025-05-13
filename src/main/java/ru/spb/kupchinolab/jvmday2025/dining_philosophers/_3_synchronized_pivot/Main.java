@@ -35,7 +35,7 @@ public class Main {
             for (int i = 0; i < PHILOSOPHERS_COUNT; i++) {
                 Chopstick leftChopstick = chopsticks.get(i);
                 Chopstick rightChopstick = chopsticks.get(i != 0 ? i - 1 : PHILOSOPHERS_COUNT - 1);
-                scope.fork(new SynchronizedPhilosopher(i, leftChopstick, rightChopstick, barrier));
+                scope.fork(new SynchronizedPhilosopher(i, leftChopstick, rightChopstick, barrier, () -> {/*NO_OP*/}));
             }
             System.out.println("count... " + Instant.now());
             barrier.await();

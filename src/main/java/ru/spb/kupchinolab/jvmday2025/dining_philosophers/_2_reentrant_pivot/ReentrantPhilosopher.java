@@ -12,12 +12,14 @@ public class ReentrantPhilosopher implements Callable<Integer> {
 
     private final Chopstick firstChopstick;
     private final Chopstick secondChopstick;
+    private final Runnable eating;
     private int stats;
     private final CyclicBarrier barrier;
 
-    public ReentrantPhilosopher(int order, Chopstick leftChopstick, Chopstick rightChopstick, CyclicBarrier barrier) {
-        this.stats = 0;
+    public ReentrantPhilosopher(int order, Chopstick leftChopstick, Chopstick rightChopstick, CyclicBarrier barrier, Runnable eating) {
         this.barrier = barrier;
+        this.eating = eating;
+        this.stats = 0;
         if (rightChopstick.getOrder() < leftChopstick.getOrder()) {
             assert order != 0;
             firstChopstick = rightChopstick;
@@ -54,7 +56,7 @@ public class ReentrantPhilosopher implements Callable<Integer> {
     }
 
     private void eat() {
-        //NO_OP
+        eating.run();
         stats++;
     }
 
