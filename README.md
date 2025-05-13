@@ -181,8 +181,84 @@ SynchronizedPhilosophersBenchmark.test_synchronized_philosophers_with_platform_t
 
 Но это не покажет нам пининг, так как внутри нет блокирующего метода, так давайте же сделаем - урл(-)? очередь(?)?
 
-Модифицируем философов чтобы они принимали в себя рабочую нагрузку через Runnable(?) или что0ть из функция и далее выбираем что-нить с блокировкой и проверяем
+Модифицируем философов чтобы они принимали в себя рабочую нагрузку через Runnable и далее выбираем что-нить с блокировкой и проверяем
 что случится со временем исполнения - TODO next
 
-А теперь предположим что нам попался неудачный клиент или драйвер, который ожидает на активном потоке - TODO next
+Для удобства объединяем бенчмарки с философами поддерживающими нагрузку
+
+Benchmark                                                                           Mode  Cnt     Score     Error  Units
+UnitedPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt   10   646.277 ±  42.920  ms/op
+UnitedPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt   10   753.216 ±  41.038  ms/op
+UnitedPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt   10   866.056 ± 137.308  ms/op
+UnitedPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt   10  1041.406 ±  68.076  ms/op
+
+Тепреь в теории - что будет если мы уснем внутри кормления: ожидаю что время до 1М сильно увеличится,стоит сделать 3 теста 
+ - просто слип
+ - трушный блокирующий вызов
+ - вызов не отпускающий процессор
+
+Как выбрать слип, что будем тетсировать? Будем целиться в трушный блокирующий вызов, чтобы испытать всю мощь виртуальных потоков
+
+Давайте глянем на кусочек из модного систем дезайн интервью
+
+https://habrastorage.org/r/w1560/getpro/habr/upload_files/20b/769/22f/20b76922f1069403081d4b0818d24970.png
+
+По сети не хочется ходить, можно попробовать читать из файловой системы последовательно - тоже считай поток, но не 1МВ а 4Кб - 1мс * 0,004
+read sequentially from SSD 4КБ
+С 10 млн кормлений вообще не пошло, надо уменьшать. 10К кормлений вроде норм, время получается примерно как в предыдущих измерениях:
+
+Со слипами выглядит так:
+
+2K nano
+
+Benchmark                                                                             Mode  Cnt    Score     Error  Units
+SleepingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt   10  300.200 ±  26.227  ms/op
+SleepingPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt   10  489.348 ±  44.136  ms/op
+SleepingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt   10  558.963 ± 115.968  ms/op
+SleepingPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt   10  911.034 ± 178.677  ms/op
+
+4K nano
+
+Benchmark                                                                             Mode  Cnt    Score     Error  Units
+SleepingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt   10  306.614 ±  28.454  ms/op
+SleepingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt   10  583.215 ±  38.467  ms/op
+SleepingPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt   10  600.634 ±  56.313  ms/op
+SleepingPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt   10  856.902 ± 154.720  ms/op
+
+как-то не очень четко, попробую увеличить
+
+16K nano
+
+Benchmark                                                                             Mode  Cnt     Score     Error  Units
+SleepingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt   10   735.126 ±  62.426  ms/op
+SleepingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt   10   779.768 ±  61.017  ms/op
+SleepingPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt   10   986.950 ± 491.154  ms/op
+SleepingPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt   10  1039.079 ± 115.318  ms/op
+
+Получается что виртульные треды и правда спят эффективнее платформенных, а синхронайзд хуже в 1,5 раза и на платформенных и на виртуальных - почему?
+Пининг или не пининг?
+
+Ладно, теперь блокируещее чтение 16К файла
+
+Benchmark                                                                            Mode  Cnt      Score      Error  Units
+ReadingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt   10    700.584 ±   58.811  ms/op
+ReadingPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt   10    977.999 ±   57.780  ms/op
+ReadingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt   10   2096.228 ±  351.681  ms/op
+ReadingPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt   10  16220.032 ± 3672.652  ms/op
+
+Очень неожиданный результат, есть подозрение что бенчмарка врет, давайте попробуем еще раз сделать что0нить чтобы было честнее - Blackhole!
+Ну или чтение с фаайловой системы не самый лучший выбор!
+
+Но для начала просто повторим 
+
+Benchmark                                                                            Mode  Cnt      Score      Error  Units
+ReadingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt   10    757.588 ±  186.689  ms/op
+ReadingPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt   10    992.817 ±  135.487  ms/op
+ReadingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt   10   2480.131 ±  348.322  ms/op
+ReadingPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt   10  13798.372 ± 1787.083  ms/op
+
+Виртуальные потоки вообще не очень - почему? Сдается мне бенчмарки могут врать и возможно обманывает оптимизация - следующим этапом надо переработать 
+под BlackHole и перепроверить - TODO next
+
+А теперь предположим что нам попался неудачный клиент или драйвер, который ожидает на активном потоке
 
