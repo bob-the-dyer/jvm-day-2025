@@ -1,6 +1,7 @@
 package ru.spb.kupchinolab.jvmday2025.dining_philosophers._5_jmh_benchmarks;
 
 import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
@@ -35,7 +36,7 @@ public class SynchronizedPhilosophersBenchmark {
         for (int i = 0; i < TEST_PHILOSOPHERS_COUNT; i++) {
             Chopstick leftChopstick = chopsticks.get(i);
             Chopstick rightChopstick = chopsticks.get(i != 0 ? i - 1 : TEST_PHILOSOPHERS_COUNT - 1);
-            synchronizedPhilosophers.add(new SynchronizedPhilosopher(i, leftChopstick, rightChopstick, barrier, () -> {/*NO_OP*/}));
+            synchronizedPhilosophers.add(new SynchronizedPhilosopher(i, leftChopstick, rightChopstick, barrier));
         }
     }
 
@@ -46,18 +47,19 @@ public class SynchronizedPhilosophersBenchmark {
     }
 
     @Benchmark
-    public void test_synchronized_philosophers_with_virtual_threads() throws InterruptedException, BrokenBarrierException {
-        test_synchronized_philosophers_internal(Thread.ofVirtual().factory());
+    public void test_synchronized_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_synchronized_philosophers_internal(Thread.ofVirtual().factory(), blackhole);
     }
 
     @Benchmark
-    public void test_synchronized_philosophers_with_platform_threads() throws InterruptedException, BrokenBarrierException {
-        test_synchronized_philosophers_internal(Thread.ofPlatform().factory());
+    public void test_synchronized_philosophers_with_platform_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_synchronized_philosophers_internal(Thread.ofPlatform().factory(), blackhole);
     }
 
-    private void test_synchronized_philosophers_internal(ThreadFactory factory) throws InterruptedException, BrokenBarrierException {
+    private void test_synchronized_philosophers_internal(ThreadFactory factory, Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
         try (ShutdownOnSuccess<Integer> scope = new ShutdownOnSuccess<>(null, factory)) {
             synchronizedPhilosophers.forEach(scope::fork);
+            SynchronizedPhilosopher.eating = (stats) -> {/*NO_OP*/ blackhole.consume(stats);};
             barrier.await();
             scope.join();
         }
@@ -67,8 +69,8 @@ public class SynchronizedPhilosophersBenchmark {
         Options opt = new OptionsBuilder()
                 .include(SynchronizedPhilosophersBenchmark.class.getSimpleName())
                 .forks(1)
-                .warmupIterations(2)
-                .measurementIterations(10)
+                .warmupIterations(1)
+                .measurementIterations(5)
                 .jvmArgs("--enable-preview")
                 .build();
 

@@ -1,6 +1,7 @@
 package ru.spb.kupchinolab.jvmday2025.dining_philosophers._7_jmh_benchmarks_sleeping;
 
 import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
@@ -27,14 +28,6 @@ public class SleepingPhilosophersBenchmark {
     static List<SynchronizedPhilosopher> synchronizedPhilosophers = new ArrayList<>();
     static CyclicBarrier barrier = new CyclicBarrier(1 + TEST_PHILOSOPHERS_COUNT);
 
-    static Runnable eatingBySleeping = () -> {
-        try {
-            Thread.sleep(Duration.ofNanos(16_000)); //emulating sequential read from SSD of 16КБ
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    };
-
     static {
         for (int i = 0; i < TEST_PHILOSOPHERS_COUNT; i++) {
             Chopstick cs = new Chopstick(i);
@@ -43,12 +36,12 @@ public class SleepingPhilosophersBenchmark {
         for (int i = 0; i < TEST_PHILOSOPHERS_COUNT; i++) {
             Chopstick leftChopstick = chopsticks.get(i);
             Chopstick rightChopstick = chopsticks.get(i != 0 ? i - 1 : TEST_PHILOSOPHERS_COUNT - 1);
-            reentrantPhilosophers.add(new ReentrantPhilosopher(i, leftChopstick, rightChopstick, barrier, eatingBySleeping));
+            reentrantPhilosophers.add(new ReentrantPhilosopher(i, leftChopstick, rightChopstick, barrier));
         }
         for (int i = 0; i < TEST_PHILOSOPHERS_COUNT; i++) {
             Chopstick leftChopstick = chopsticks.get(i);
             Chopstick rightChopstick = chopsticks.get(i != 0 ? i - 1 : TEST_PHILOSOPHERS_COUNT - 1);
-            synchronizedPhilosophers.add(new SynchronizedPhilosopher(i, leftChopstick, rightChopstick, barrier, eatingBySleeping));
+            synchronizedPhilosophers.add(new SynchronizedPhilosopher(i, leftChopstick, rightChopstick, barrier));
         }
     }
 
@@ -60,28 +53,37 @@ public class SleepingPhilosophersBenchmark {
     }
 
     @Benchmark
-    public void test_reentrant_lock_philosophers_with_virtual_threads() throws InterruptedException, BrokenBarrierException {
-        test_philosophers_internal(Thread.ofVirtual().factory(), reentrantPhilosophers);
+    public void test_reentrant_lock_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_philosophers_internal(Thread.ofVirtual().factory(), reentrantPhilosophers, blackhole);
     }
 
     @Benchmark
-    public void test_reentrant_lock_philosophers_with_platform_threads() throws InterruptedException, BrokenBarrierException {
-        test_philosophers_internal(Thread.ofPlatform().factory(), reentrantPhilosophers);
+    public void test_reentrant_lock_philosophers_with_platform_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_philosophers_internal(Thread.ofPlatform().factory(), reentrantPhilosophers, blackhole);
     }
 
     @Benchmark
-    public void test_synchronized_philosophers_with_virtual_threads() throws InterruptedException, BrokenBarrierException {
-        test_philosophers_internal(Thread.ofVirtual().factory(), synchronizedPhilosophers);
+    public void test_synchronized_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_philosophers_internal(Thread.ofVirtual().factory(), synchronizedPhilosophers, blackhole);
     }
 
     @Benchmark
-    public void test_synchronized_philosophers_with_platform_threads() throws InterruptedException, BrokenBarrierException {
-        test_philosophers_internal(Thread.ofPlatform().factory(), synchronizedPhilosophers);
+    public void test_synchronized_philosophers_with_platform_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_philosophers_internal(Thread.ofPlatform().factory(), synchronizedPhilosophers, blackhole);
     }
 
-    private void test_philosophers_internal(ThreadFactory factory, List<? extends Callable<Integer>> philosophers) throws InterruptedException, BrokenBarrierException {
+    private void test_philosophers_internal(ThreadFactory factory, List<? extends Callable<Integer>> philosophers, Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
         try (ShutdownOnSuccess<Integer> scope = new ShutdownOnSuccess<>(null, factory)) {
             philosophers.forEach(scope::fork);
+            ReentrantPhilosopher.eating = (stats) -> {
+                try {
+                    Thread.sleep(Duration.ofNanos(16_000)); //emulating sequential read from SSD of 16КБ
+                    blackhole.consume(stats);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            };
+            SynchronizedPhilosopher.eating = ReentrantPhilosopher.eating;
             barrier.await();
             scope.join();
         }
@@ -91,8 +93,8 @@ public class SleepingPhilosophersBenchmark {
         Options opt = new OptionsBuilder()
                 .include(SleepingPhilosophersBenchmark.class.getSimpleName())
                 .forks(1)
-                .warmupIterations(2)
-                .measurementIterations(10)
+                .warmupIterations(1)
+                .measurementIterations(5)
                 .jvmArgs("--enable-preview")
                 .build();
 

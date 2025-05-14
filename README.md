@@ -16,23 +16,24 @@ TODO
  - junit 5
  - jmh
  - Virtual threads, Structured Concurrency - необязательно, но не будут объясняться на пальцах с нуля
- - https://vertx.io (если войдет в доклад)
+ - https://vertx.io (если войдет в доклад) - только то что надо для понимания доклада
  
 ## TODO Что разбирается в проекте
 
-Тут надо определить какие именно феномены хочется продемонстрировать и мифы развенчать
+Тут надо определить какие именно феномены хочется продемонстрировать и мифы развенчать:
 
-Претенднты
+Претенденты
  - очевидный - кол-во потоков 10К, 1М
- - switch context
+ - switch context (быстрее) 
  - blocking (on IO)
+ - есть пининг или реально починили
 
 Формат разбора задач: 
  1. постановка задачи
  1. решение synchronized
  1. решение ReentrantLock
  1. (под вопросом) решение на vert.x без блокировок
- 1. сравнение производиельности, результаты JMH  
+ 1. сравнение производительности, результаты JMH  
  1. масштабирование раз  
  1. масштабирование два  
  1. сравнительный анализ
@@ -49,7 +50,7 @@ https://en.wikipedia.org/wiki/Dining_philosophers_problem
 https://vertx.io
 https://spring.io/blog/2022/10/11/embracing-virtual-threads
 
-## Цитаты для разбора и использования за и против 
+## Цитаты для разбора и использования за и против и затравки
 
 Virtual threads are not faster threads — they do not run code any faster than platform threads. They exist to provide scale (higher throughput), not speed (lower latency). There can be many more of them than platform threads, so they enable the higher concurrency needed for higher throughput according to Little's Law.
 
@@ -75,7 +76,7 @@ Unlike platform thread stacks, virtual thread stacks are not GC roots, so the re
 
 Навеяно spring.threads.virtual.enabled=true и все стало быстрее или не стало
 
-Я делал доклад. Смотрите как там все было
+Я делал доклад. Смотрите как там все было (ссыдка на хайлод)
 
 И в подумал а что будет если просто взять и поменять потоки на виртуальные например на философах
 
@@ -83,7 +84,7 @@ Unlike platform thread stacks, virtual thread stacks are not GC roots, so the re
 
 Какая то проблема с остановкой потоков через exit или Timer?
 Неужели атомик внутри виртуальных потоков что делает что становится хуже платформенных потоков?
-ВИртуальные хуже, по производительности, но платформенных 10К не создать
+Виртуальные хуже, по производительности, но платформенных 10К не создать
 
 Кстати, а как узнать сколько платформенных потоков можно создать неэмпирически?
 
@@ -108,7 +109,9 @@ Unlike platform thread stacks, virtual thread stacks are not GC roots, so the re
 Пивот также поможет нам избавиться от CAS, упростим логику - дождемся пока 1 из философов поест определенное кол-во раз (это будет последний)
 И остановимся- вот теперь можно считать время выполнения и пилить бенчмарк на JMH
 Также кажется что нам может помочь Structured Concurrency - заодно проверим как оно работает и что требует от кода.
+
 Не забываем включить --enable-preview в аргументы компилятора и рантайма для 24й жавы, релиз планируется в 25 - ну-ну
+
 Так как по умолчанию под капотом виртуальные потоки то явно передаем фабрику
 С платформенными потоками все как ожидается:
 [0.701s][warning][os,thread] Failed to start thread "Unknown thread" - pthread_create failed (EAGAIN) for attributes: stacksize: 1024k, guardsize: 4k, detached.
@@ -192,10 +195,11 @@ UnitedPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_thread
 UnitedPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt   10   866.056 ± 137.308  ms/op
 UnitedPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt   10  1041.406 ±  68.076  ms/op
 
-Тепреь в теории - что будет если мы уснем внутри кормления: ожидаю что время до 1М сильно увеличится,стоит сделать 3 теста 
+Теперь в теории - что будет если мы уснем внутри кормления: ожидаю что время до 1М сильно увеличится,стоит сделать 3 теста 
  - просто слип
  - трушный блокирующий вызов
  - вызов не отпускающий процессор
+И сравнить
 
 Как выбрать слип, что будем тетсировать? Будем целиться в трушный блокирующий вызов, чтобы испытать всю мощь виртуальных потоков
 
@@ -203,8 +207,8 @@ UnitedPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads
 
 https://habrastorage.org/r/w1560/getpro/habr/upload_files/20b/769/22f/20b76922f1069403081d4b0818d24970.png
 
-По сети не хочется ходить, можно попробовать читать из файловой системы последовательно - тоже считай поток, но не 1МВ а 4Кб - 1мс * 0,004
-read sequentially from SSD 4КБ
+По сети не хочется ходить, можно попробовать читать из файловой системы последовательно - тоже считай поток, но не 1МВ а 16Кб - 1мс * 0,016
+read sequentially from SSD 16КБ
 С 10 млн кормлений вообще не пошло, надо уменьшать. 10К кормлений вроде норм, время получается примерно как в предыдущих измерениях:
 
 Со слипами выглядит так:
@@ -269,3 +273,58 @@ LoopingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_thre
 LoopingPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt   10  510.710 ± 70.167  ms/op
 
 Активное ожидание слишком быстрое - либо неправильно оценили время чтения либо оптимизации - точно пора внедрять черную дыру
+
+Внедряю черную дыру, решаю что тесты буду гонять с самого начала для 10К максимальных кормлений чтобы одинаково для всех
+
+Юнит Тесты на 100 повторов на 1К фил:
+
+12.45 s ReentrantLockPhilosophersTest
+11.90 s test_reentrant_lock_philosophers_with_platform_threads()
+555 ms test_reentrant_lock_philosophers_with_virtual_threads()
+11.51 s SynchronizedPhilosophersTest
+11.13 s test_synchronized_philosophers_with_platform_threads()
+385 ms test_synchronized_philosophers_with_virtual_threads()
+
+Виртуальные потоки на несколько порядков лучше за счет переключ контекста
+
+UnitedPhilosophersBenchmark
+
+Benchmark                                                                           Mode  Cnt    Score    Error  Units
+UnitedPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt    5    3.046 ±  0.455  ms/op
+UnitedPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt    5    3.161 ±  0.333  ms/op
+UnitedPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt    5  154.629 ± 20.801  ms/op
+UnitedPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt    5  189.116 ± 95.836  ms/op
+
+Виртуальные потоки на 2 порядка лучше за счет переключ контекста
+
+SleepingPhilosophersBenchmark
+Benchmark                                                                             Mode  Cnt    Score     Error  Units
+SleepingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt    5  575.961 ± 126.248  ms/op
+SleepingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt    5  729.972 ± 123.697  ms/op
+SleepingPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt    5  729.597 ± 109.290  ms/op
+SleepingPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt    5  793.082 ± 174.496  ms/op
+
+Со слипами все странно, надо повторить
+
+ReadingPhilosophersBenchmark
+
+Benchmark                                                                            Mode  Cnt     Score     Error  Units
+LoopingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt    5  175.759 ±  13.147  ms/op
+LoopingPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt    5  177.814 ±  24.459  ms/op
+LoopingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt    5  397.453 ±  68.143  ms/op
+LoopingPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt    5  458.060 ± 240.942  ms/op
+
+Чтение из файла в 2 раза лучше на блокирующих операциях - это прямо то что говорят коллеги!
+
+LoopingPhilosophersBenchmark
+
+Benchmark                                                                            Mode  Cnt    Score     Error  Units
+LoopingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt    5  187.176 ±  16.312  ms/op
+LoopingPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt    5  192.061 ±  10.334  ms/op
+LoopingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt    5  426.538 ± 178.700  ms/op
+LoopingPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt    5  521.847 ± 138.848  ms/op
+
+Тут похоже на ожидания: виртуальные треды ведут себя лучше за счет более легкого переключения контекста хотя не то чтобы сильно 
+отличалось от трушной блокировки, Может не угадали с оценкой длительности операции, не видно что cpu bound операция прибивает виртуальный поток
+
+Как сделать так чтобы было видно?

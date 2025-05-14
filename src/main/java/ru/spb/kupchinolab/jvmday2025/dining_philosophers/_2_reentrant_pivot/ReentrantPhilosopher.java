@@ -5,20 +5,20 @@ import ru.spb.kupchinolab.jvmday2025.dining_philosophers.Chopstick;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CyclicBarrier;
+import java.util.function.Consumer;
 
 import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.MAX_EAT_ATTEMPTS;
 
 public class ReentrantPhilosopher implements Callable<Integer> {
 
+    public static volatile Consumer<Integer> eating;
     private final Chopstick firstChopstick;
     private final Chopstick secondChopstick;
-    private final Runnable eating;
     private int stats;
     private final CyclicBarrier barrier;
 
-    public ReentrantPhilosopher(int order, Chopstick leftChopstick, Chopstick rightChopstick, CyclicBarrier barrier, Runnable eating) {
+    public ReentrantPhilosopher(int order, Chopstick leftChopstick, Chopstick rightChopstick, CyclicBarrier barrier) {
         this.barrier = barrier;
-        this.eating = eating;
         this.stats = 0;
         if (rightChopstick.getOrder() < leftChopstick.getOrder()) {
             assert order != 0;
@@ -56,8 +56,7 @@ public class ReentrantPhilosopher implements Callable<Integer> {
     }
 
     private void eat() {
-        eating.run();
-        stats++;
+        eating.accept(stats++);
     }
 
     public void resetStats() {

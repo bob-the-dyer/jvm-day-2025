@@ -29,7 +29,7 @@ public class SynchronizedPhilosophersTest {
         for (int i = 0; i < TEST_PHILOSOPHERS_COUNT; i++) {
             Chopstick leftChopstick = chopsticks.get(i);
             Chopstick rightChopstick = chopsticks.get(i != 0 ? i - 1 : TEST_PHILOSOPHERS_COUNT - 1);
-            synchronizedPhilosophers.add(new SynchronizedPhilosopher(i, leftChopstick, rightChopstick, barrier, () -> {/*NO_OP*/}));
+            synchronizedPhilosophers.add(new SynchronizedPhilosopher(i, leftChopstick, rightChopstick, barrier));
         }
     }
 
@@ -52,6 +52,7 @@ public class SynchronizedPhilosophersTest {
     private void test_synchronized_philosophers_internal(ThreadFactory factory) throws InterruptedException, BrokenBarrierException {
         try (ShutdownOnSuccess<Integer> scope = new ShutdownOnSuccess<>(null, factory)) {
             synchronizedPhilosophers.forEach(scope::fork);
+            SynchronizedPhilosopher.eating = (stats) -> {/*NO_OP*/};
             barrier.await();
             scope.join();
         }
