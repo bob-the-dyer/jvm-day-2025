@@ -326,5 +326,42 @@ LoopingPhilosophersBenchmark.test_synchronized_philosophers_with_platform_thread
 
 Тут похоже на ожидания: виртуальные треды ведут себя лучше за счет более легкого переключения контекста хотя не то чтобы сильно 
 отличалось от трушной блокировки, Может не угадали с оценкой длительности операции, не видно что cpu bound операция прибивает виртуальный поток
+Соотношения по временам между вирт и платф потоками одинаковые, т е что трушный блок что активной ожидание на процессоре не показывает сильного отличия
 
-Как сделать так чтобы было видно?
+Как сделать так чтобы было видно? Давайте сильно увеличим размер файла и поднимем время активного ожидания? До 64КБ
+
+Benchmark                                                                            Mode  Cnt      Score       Error  Units
+ReadingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt    5   1152.440 ±   331.182  ms/op
+ReadingPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt    5   1408.999 ±   530.439  ms/op
+ReadingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt    5  12158.605 ±  2612.381  ms/op
+ReadingPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt    5  42778.921 ± 13806.293  ms/op
+
+Что за нафиг, почему трушный блок так плох на виртуальных тредах??? Почему синхронайзд так плох на виртуальных потоках - пининг не починили а еще и сломали?
+Прям уверен что фигня, когда время улетает за 10 сек это нон сенс
+
+LoopingPhilosophersBenchmark - на 64КБ
+
+Benchmark                                                                            Mode  Cnt     Score     Error  Units
+LoopingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt    5   871.130 ± 201.806  ms/op
+LoopingPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt    5   912.384 ± 429.636  ms/op
+LoopingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt    5  1186.837 ± 607.236  ms/op
+LoopingPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt    5  1807.083 ± 649.841  ms/op
+
+Тут виртуальные потоки лучше, может побольше сделать размер? 256КБ
+
+
+Benchmark                                                                            Mode  Cnt     Score     Error  Units
+LoopingPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt    5  3142.873 ± 211.048  ms/op
+LoopingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt    5  3176.046 ± 474.272  ms/op
+LoopingPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt    5  4788.984 ± 678.514  ms/op
+LoopingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt    5  5083.694 ± 972.692  ms/op
+
+Я вот не знаю как эти результаты интепретировать - разброс сильный, виртуальные потоки выглядят лучше, но..  
+
+Может нафиг этих филосовов, давайте отделим мух от котлет?
+Еще раз что мы хотим
+ - проверить пининг на синкронайзд
+ - проверить трушную блокировку
+ - проверить "плохой" драйвер
+
+Нужен конкретный бенчмарк на это!

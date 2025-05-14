@@ -79,7 +79,7 @@ public class LoopingPhilosophersBenchmark {
                 long currentTimeInNanos;
                 do {
                     currentTimeInNanos = System.nanoTime();
-                } while (currentTimeInNanos < startTimeInNanos + 16_000);
+                } while (currentTimeInNanos < startTimeInNanos + 524_288 / 2); //read sequentially from SSD with speed of 1MB in 1M nanosec, 256KB
                 blackhole.consume(currentTimeInNanos);
                 blackhole.consume(stats);
             };

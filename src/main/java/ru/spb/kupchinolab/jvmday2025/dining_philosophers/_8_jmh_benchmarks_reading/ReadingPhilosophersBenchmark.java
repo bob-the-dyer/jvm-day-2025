@@ -78,9 +78,10 @@ public class ReadingPhilosophersBenchmark {
         try (ShutdownOnSuccess<Integer> scope = new ShutdownOnSuccess<>(null, factory)) {
             philosophers.forEach(scope::fork);
             ReentrantPhilosopher.eating = (stats) -> {
-                try (InputStream in = Path.of("16K_file.txt").toFile().toURI().toURL().openStream()) {//read sequentially from SSD 16КБ
+                try (InputStream in = Path.of("64KB_file.txt").toFile().toURI().toURL().openStream()) {//read sequentially from SSD with speed of 1MB in 1M nanosec
                     byte[] bytes = in.readAllBytes();
                     blackhole.consume(bytes.length);
+                    blackhole.consume(stats);
                 } catch (IOException e) {
                     Thread.currentThread().interrupt();
                 }
