@@ -1,4 +1,4 @@
-package ru.spb.kupchinolab.jvmday2025.dining_philosophers._1_reentrant_simplified;
+package ru.spb.kupchinolab.jvmday2025.dining_philosophers._01_reentrant_naive;
 
 import ru.spb.kupchinolab.jvmday2025.dining_philosophers.Chopstick;
 

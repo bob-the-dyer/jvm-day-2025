@@ -1,4 +1,4 @@
-package ru.spb.kupchinolab.jvmday2025.dining_philosophers._3_synchronized_pivot;
+package ru.spb.kupchinolab.jvmday2025.dining_philosophers._03_synchronized_pivot;
 
 import ru.spb.kupchinolab.jvmday2025.dining_philosophers.Chopstick;
 

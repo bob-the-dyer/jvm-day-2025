@@ -11,6 +11,7 @@
 
     <properties>
         <argLine>--enable-preview</argLine>
+        <vertx.version>4.5.14</vertx.version>
     </properties>
 
     <dependencies>
@@ -54,6 +55,14 @@
             <artifactId>jmh-generator-annprocess</artifactId>
             <version>1.37</version>
         </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-junit5</artifactId>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -64,6 +73,13 @@
                 <version>5.11.2</version>
                 <scope>import</scope>
                 <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>io.vertx</groupId>
+                <artifactId>vertx-stack-depchain</artifactId>
+                <version>${vertx.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

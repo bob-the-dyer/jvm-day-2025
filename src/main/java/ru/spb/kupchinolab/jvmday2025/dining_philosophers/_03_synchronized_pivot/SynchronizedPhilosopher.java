@@ -1,4 +1,4 @@
-package ru.spb.kupchinolab.jvmday2025.dining_philosophers._2_reentrant_pivot;
+package ru.spb.kupchinolab.jvmday2025.dining_philosophers._03_synchronized_pivot;
 
 import ru.spb.kupchinolab.jvmday2025.dining_philosophers.Chopstick;
 
@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 
 import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.MAX_EAT_ATTEMPTS;
 
-public class ReentrantPhilosopher implements Callable<Integer> {
+public class SynchronizedPhilosopher implements Callable<Integer> {
 
     public static volatile Consumer<Integer> eating;
     private final Chopstick firstChopstick;
@@ -17,7 +17,7 @@ public class ReentrantPhilosopher implements Callable<Integer> {
     private int stats;
     private final CyclicBarrier barrier;
 
-    public ReentrantPhilosopher(int order, Chopstick leftChopstick, Chopstick rightChopstick, CyclicBarrier barrier) {
+    public SynchronizedPhilosopher(int order, Chopstick leftChopstick, Chopstick rightChopstick, CyclicBarrier barrier) {
         this.barrier = barrier;
         this.stats = 0;
         if (rightChopstick.getOrder() < leftChopstick.getOrder()) {
@@ -39,19 +39,12 @@ public class ReentrantPhilosopher implements Callable<Integer> {
             throw new RuntimeException(e);
         }
         while (!Thread.currentThread().isInterrupted() && MAX_EAT_ATTEMPTS > stats) {
-            firstChopstick.lock();
-            try {
-                secondChopstick.lock();
-                try {
+            synchronized (firstChopstick) {
+                synchronized (secondChopstick) {
                     eat();
-                } finally {
-                    secondChopstick.unlock();
                 }
-            } finally {
-                firstChopstick.unlock();
             }
         }
-
         return stats;
     }
 
@@ -60,6 +53,9 @@ public class ReentrantPhilosopher implements Callable<Integer> {
     }
 
     public void resetStats() {
+        // Важно! Тут надо хорошо понимать когда сброс статистики сработает без доп синхронизации,
+        // а именно только внутри потока, создавшего философа, т е тело теста, бенчмарка или мейна
         stats = 0;
     }
+
 }

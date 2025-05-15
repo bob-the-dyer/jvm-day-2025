@@ -1,10 +1,11 @@
-package ru.spb.kupchinolab.jvmday2025.dining_philosophers;
+package ru.spb.kupchinolab.jvmday2025.dining_philosophers._04_junit_tests;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.RepeatedTest;
-import ru.spb.kupchinolab.jvmday2025.dining_philosophers._2_reentrant_pivot.ReentrantPhilosopher;
-import ru.spb.kupchinolab.jvmday2025.dining_philosophers._3_synchronized_pivot.SynchronizedPhilosopher;
+import ru.spb.kupchinolab.jvmday2025.dining_philosophers.Chopstick;
+import ru.spb.kupchinolab.jvmday2025.dining_philosophers._02_reentrant_pivot.ReentrantPhilosopher;
+import ru.spb.kupchinolab.jvmday2025.dining_philosophers._03_synchronized_pivot.SynchronizedPhilosopher;
 
 import java.util.ArrayList;
 import java.util.List;

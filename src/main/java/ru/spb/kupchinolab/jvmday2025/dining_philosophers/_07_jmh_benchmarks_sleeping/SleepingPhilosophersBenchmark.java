@@ -1,4 +1,4 @@
-package ru.spb.kupchinolab.jvmday2025.dining_philosophers._8_jmh_benchmarks_reading;
+package ru.spb.kupchinolab.jvmday2025.dining_philosophers._07_jmh_benchmarks_sleeping;
 
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
@@ -7,12 +7,10 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import ru.spb.kupchinolab.jvmday2025.dining_philosophers.Chopstick;
-import ru.spb.kupchinolab.jvmday2025.dining_philosophers._2_reentrant_pivot.ReentrantPhilosopher;
-import ru.spb.kupchinolab.jvmday2025.dining_philosophers._3_synchronized_pivot.SynchronizedPhilosopher;
+import ru.spb.kupchinolab.jvmday2025.dining_philosophers._02_reentrant_pivot.ReentrantPhilosopher;
+import ru.spb.kupchinolab.jvmday2025.dining_philosophers._03_synchronized_pivot.SynchronizedPhilosopher;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -21,7 +19,7 @@ import java.util.concurrent.StructuredTaskScope.ShutdownOnSuccess;
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Thread)
-public class ReadingPhilosophersBenchmark {
+public class SleepingPhilosophersBenchmark {
 
     private static final int TEST_PHILOSOPHERS_COUNT = 1_000;
 
@@ -74,11 +72,10 @@ public class ReadingPhilosophersBenchmark {
         try (ShutdownOnSuccess<Integer> scope = new ShutdownOnSuccess<>(null, factory)) {
             philosophers.forEach(scope::fork);
             ReentrantPhilosopher.eating = (stats) -> {
-                try (InputStream in = Path.of("64KB_file.txt").toFile().toURI().toURL().openStream()) {//read sequentially from SSD with speed of 1MB in 1M nanosec
-                    byte[] bytes = in.readAllBytes();
-                    blackhole.consume(bytes.length);
+                try {
+                    Thread.sleep(Duration.ofNanos(16_000)); //emulating sequential read from SSD of 16КБ
                     blackhole.consume(stats);
-                } catch (IOException e) {
+                } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
             };
@@ -90,7 +87,7 @@ public class ReadingPhilosophersBenchmark {
 
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
-                .include(ReadingPhilosophersBenchmark.class.getSimpleName())
+                .include(SleepingPhilosophersBenchmark.class.getSimpleName())
                 .forks(1)
                 .warmupIterations(1)
                 .measurementIterations(5)

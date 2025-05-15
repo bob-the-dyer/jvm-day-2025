@@ -1,4 +1,4 @@
-package ru.spb.kupchinolab.jvmday2025.dining_philosophers._6_jmh_benchmarks_united;
+package ru.spb.kupchinolab.jvmday2025.dining_philosophers._06_jmh_benchmarks_united;
 
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
@@ -7,8 +7,8 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import ru.spb.kupchinolab.jvmday2025.dining_philosophers.Chopstick;
-import ru.spb.kupchinolab.jvmday2025.dining_philosophers._2_reentrant_pivot.ReentrantPhilosopher;
-import ru.spb.kupchinolab.jvmday2025.dining_philosophers._3_synchronized_pivot.SynchronizedPhilosopher;
+import ru.spb.kupchinolab.jvmday2025.dining_philosophers._02_reentrant_pivot.ReentrantPhilosopher;
+import ru.spb.kupchinolab.jvmday2025.dining_philosophers._03_synchronized_pivot.SynchronizedPhilosopher;
 
 import java.util.ArrayList;
 import java.util.List;

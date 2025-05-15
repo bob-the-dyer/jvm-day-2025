@@ -1,4 +1,4 @@
-package ru.spb.kupchinolab.jvmday2025.dining_philosophers._3_synchronized_pivot;
+package ru.spb.kupchinolab.jvmday2025.dining_philosophers._02_reentrant_pivot;
 
 import ru.spb.kupchinolab.jvmday2025.dining_philosophers.Chopstick;
 
@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 
 import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.MAX_EAT_ATTEMPTS;
 
-public class SynchronizedPhilosopher implements Callable<Integer> {
+public class ReentrantPhilosopher implements Callable<Integer> {
 
     public static volatile Consumer<Integer> eating;
     private final Chopstick firstChopstick;
@@ -17,7 +17,7 @@ public class SynchronizedPhilosopher implements Callable<Integer> {
     private int stats;
     private final CyclicBarrier barrier;
 
-    public SynchronizedPhilosopher(int order, Chopstick leftChopstick, Chopstick rightChopstick, CyclicBarrier barrier) {
+    public ReentrantPhilosopher(int order, Chopstick leftChopstick, Chopstick rightChopstick, CyclicBarrier barrier) {
         this.barrier = barrier;
         this.stats = 0;
         if (rightChopstick.getOrder() < leftChopstick.getOrder()) {
@@ -39,12 +39,19 @@ public class SynchronizedPhilosopher implements Callable<Integer> {
             throw new RuntimeException(e);
         }
         while (!Thread.currentThread().isInterrupted() && MAX_EAT_ATTEMPTS > stats) {
-            synchronized (firstChopstick) {
-                synchronized (secondChopstick) {
+            firstChopstick.lock();
+            try {
+                secondChopstick.lock();
+                try {
                     eat();
+                } finally {
+                    secondChopstick.unlock();
                 }
+            } finally {
+                firstChopstick.unlock();
             }
         }
+
         return stats;
     }
 
@@ -53,7 +60,8 @@ public class SynchronizedPhilosopher implements Callable<Integer> {
     }
 
     public void resetStats() {
+        // Важно! Тут надо хорошо понимать когда сброс статистики сработает без доп синхронизации,
+        // а именно только внутри потока, создавшего философа, т е тело теста, бенчмарка или мейна
         stats = 0;
     }
-
 }
