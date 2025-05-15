@@ -47,8 +47,10 @@ https://wiki.openjdk.org/display/loom/Main
 https://openjdk.org/jeps/444
 https://openjdk.org/jeps/505
 https://en.wikipedia.org/wiki/Dining_philosophers_problem
-https://vertx.io
 https://spring.io/blog/2022/10/11/embracing-virtual-threads
+https://vertx.io
+https://vertx.io/docs/4.5.14/vertx-core/java/#virtual_threads
+https://vertx.io/docs/4.5.14/vertx-junit5/java/
 
 ## Цитаты для разбора и использования за и против и затравки
 
@@ -384,4 +386,17 @@ finish eating at 2025-05-15T16:08:50.767393Z, msg: VerticalPhilosopher #859 has 
 
 Ведь на 10К точно должны перестать слать себе лупы
 Время получается какое-то бешеное
+
+Но мы понимаем что у нас на моем компе 12 или 24 потоков в мультиреакторе, давайте пробовать
+ВИРТУАЛЬНЫЕ ВЕРТИКЛЫ
+
+A virtual thread verticle is just like a standard verticle but it’s executed using virtual threads, rather than using an event loop.
+
+Virtual thread verticles are designed to use an async/await model with Vert.x futures.
+
+Ага, просто DeploymentOptions deploymentOptions = new DeploymentOptions().setThreadingModel(ThreadingModel.VIRTUAL_THREAD);
+не канает!
+
+НАдо  переписать код в async/await манере - https://vertx.io/docs/4.5.14/vertx-core/java/#virtual_threads
+
 

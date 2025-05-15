@@ -23,6 +23,7 @@ public class VerticalPhilosophersTest {
     @BeforeAll
     static void initPhilosophersAndChopsticks(Vertx vertx, VertxTestContext testContext) {
         Checkpoint verticlesDeployed = testContext.checkpoint(PHILOSOPHERS_COUNT);
+//        DeploymentOptions deploymentOptions = new DeploymentOptions().setThreadingModel(ThreadingModel.VIRTUAL_THREAD);
         DeploymentOptions deploymentOptions = new DeploymentOptions();
         for (int i = 0; i < PHILOSOPHERS_COUNT; i++) {
             vertx.deployVerticle(new VerticalPhilosopher(i), deploymentOptions).onComplete(_ -> verticlesDeployed.flag());
