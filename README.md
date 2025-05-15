@@ -372,6 +372,16 @@ LoopingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_thre
 
 Код получился чище - без конкарренси совсем! Скорость будем мерять в тестах и бенчмарках, фаза инициализации пока слеплена с основным циклом, 
 потом подумаю как разделить создание вертиклов чтобы было отдельно и их переисползование, пока все в одном флаконе 
+Затащил тестовуб библиотеку для вертекса, получилось отделить инициализацию от кормления
 
+С кодом есть какие то приколы, пока не могу объяснить как может получиться такое:
 
+finish eating at 2025-05-15T16:08:50.767155Z, msg: VerticalPhilosopher #859 has reached 10003 attempts to eat!
+finish eating at 2025-05-15T16:08:50.767202Z, msg: VerticalPhilosopher #859 has reached 10004 attempts to eat!
+finish eating at 2025-05-15T16:08:50.767249Z, msg: VerticalPhilosopher #859 has reached 10005 attempts to eat!
+finish eating at 2025-05-15T16:08:50.767310Z, msg: VerticalPhilosopher #859 has reached 10006 attempts to eat!
+finish eating at 2025-05-15T16:08:50.767393Z, msg: VerticalPhilosopher #859 has reached 10007 attempts to eat!
+
+Ведь на 10К точно должны перестать слать себе лупы
+Время получается какое-то бешеное
 

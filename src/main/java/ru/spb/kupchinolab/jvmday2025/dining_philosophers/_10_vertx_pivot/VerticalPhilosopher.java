@@ -10,17 +10,15 @@ import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.MAX_EAT_AT
 import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.PHILOSOPHERS_COUNT;
 
 public class VerticalPhilosopher extends AbstractVerticle {
-    private static int globalOrder = 0;
     private final int firstChopstick;
     private final int secondChopstick;
     private final int order;
     private int stats;
     private MessageConsumer<Object> eatingConsumer;
 
-    public VerticalPhilosopher() {
-        this.order = globalOrder;
+    public VerticalPhilosopher(int order) {
+        this.order = order;
         this.stats = 0;
-        globalOrder++;
         if (order == 0) {
             firstChopstick = order;
             secondChopstick = (PHILOSOPHERS_COUNT - 1);
@@ -34,31 +32,44 @@ public class VerticalPhilosopher extends AbstractVerticle {
     public void start() {
         eatingConsumer = vertx.eventBus().consumer("loop_myself_" + order, (_) -> eat());
         vertx.eventBus().consumer("start_barrier", _ -> {
+            stats = 0;
             eatingConsumer.resume();
             vertx.eventBus().send("loop_myself_" + order, "loop!");
+        });
+        vertx.eventBus().consumer("reset_" + order, msg -> {
+            stats = 0;
+            eatingConsumer.pause();
+            msg.reply("yes, sir!");
         });
     }
 
     private void eat() {
         SharedData sharedData = vertx.sharedData();
         sharedData.getLock("chopstick_" + firstChopstick, firstLock -> {
-            Lock chopstick_1 = firstLock.result();
-            sharedData.getLock("chopstick_" + secondChopstick, secondLock -> {
-                Lock chopstick_2 = secondLock.result();
-                updateStats();
-                chopstick_2.release();
+            if (firstLock.succeeded()) {
+                Lock chopstick_1 = firstLock.result();
+                sharedData.getLock("chopstick_" + secondChopstick, secondLock -> {
+                    if (secondLock.succeeded()) {
+                        Lock chopstick_2 = secondLock.result();
+                        updateStats();
+                        chopstick_2.release();
+                    }
+                });
                 chopstick_1.release();
-                vertx.eventBus().send("loop_myself_" + order, "loop!");
-            });
+            }
         });
     }
 
     private void updateStats() {
         stats++;
         if (stats >= MAX_EAT_ATTEMPTS) {
-            vertx.eventBus().send("max_eat_attempts_has_reached", format("%s #%s has reached %s attempts to eat!", VerticalPhilosopher.class.getSimpleName(), order, stats));
-            globalOrder = 0;
+            vertx.eventBus().send(
+                    "max_eat_attempts_has_reached",
+                    format("%s #%s has reached %s attempts to eat!", VerticalPhilosopher.class.getSimpleName(), order, stats)
+            );
             eatingConsumer.pause();
+        } else {
+            vertx.eventBus().send("loop_myself_" + order, "loop!");
         }
     }
 }
