@@ -1,4 +1,4 @@
-package ru.spb.kupchinolab.jvmday2025.dining_philosophers._07_jmh_benchmarks_sleeping;
+package ru.spb.kupchinolab.jvmday2025.dining_philosophers._07_jmh_benchmarks_jdk_sleeping;
 
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
@@ -16,26 +16,26 @@ import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.StructuredTaskScope.ShutdownOnSuccess;
 
+import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.PHILOSOPHERS_COUNT;
+
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Thread)
 public class SleepingPhilosophersBenchmark {
 
-    private static final int TEST_PHILOSOPHERS_COUNT = 1_000;
-
     static List<Chopstick> chopsticks = new ArrayList<>();
     static List<ReentrantPhilosopher> reentrantPhilosophers = new ArrayList<>();
     static List<SynchronizedPhilosopher> synchronizedPhilosophers = new ArrayList<>();
-    static CyclicBarrier barrier = new CyclicBarrier(1 + TEST_PHILOSOPHERS_COUNT);
+    static CyclicBarrier barrier = new CyclicBarrier(1 + PHILOSOPHERS_COUNT);
 
     static {
-        for (int i = 0; i < TEST_PHILOSOPHERS_COUNT; i++) {
+        for (int i = 0; i < PHILOSOPHERS_COUNT; i++) {
             Chopstick cs = new Chopstick(i);
             chopsticks.add(cs);
         }
-        for (int i = 0; i < TEST_PHILOSOPHERS_COUNT; i++) {
+        for (int i = 0; i < PHILOSOPHERS_COUNT; i++) {
             Chopstick leftChopstick = chopsticks.get(i);
-            Chopstick rightChopstick = chopsticks.get(i != 0 ? i - 1 : TEST_PHILOSOPHERS_COUNT - 1);
+            Chopstick rightChopstick = chopsticks.get(i != 0 ? i - 1 : PHILOSOPHERS_COUNT - 1);
             reentrantPhilosophers.add(new ReentrantPhilosopher(i, leftChopstick, rightChopstick, barrier));
             synchronizedPhilosophers.add(new SynchronizedPhilosopher(i, leftChopstick, rightChopstick, barrier));
         }

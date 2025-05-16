@@ -1,4 +1,4 @@
-package ru.spb.kupchinolab.jvmday2025.dining_philosophers._04_junit_tests;
+package ru.spb.kupchinolab.jvmday2025.dining_philosophers._04_junit5_tests_jdk;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -13,23 +13,23 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.StructuredTaskScope.ShutdownOnSuccess;
 import java.util.concurrent.ThreadFactory;
 
-public class ReentrantLockPhilosophersTest {
+import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.PHILOSOPHERS_COUNT;
 
-    private static final int TEST_PHILOSOPHERS_COUNT = 1_000;
+public class ReentrantLockPhilosophersTest {
 
     static List<Chopstick> chopsticks = new ArrayList<>();
     static List<ReentrantPhilosopher> reentrantPhilosophers = new ArrayList<>();
-    static CyclicBarrier barrier = new CyclicBarrier(1 + TEST_PHILOSOPHERS_COUNT);
+    static CyclicBarrier barrier = new CyclicBarrier(1 + PHILOSOPHERS_COUNT);
 
     @BeforeAll
     static void initPhilosophersAndChopsticks() {
-        for (int i = 0; i < TEST_PHILOSOPHERS_COUNT; i++) {
+        for (int i = 0; i < PHILOSOPHERS_COUNT; i++) {
             Chopstick cs = new Chopstick(i);
             chopsticks.add(cs);
         }
-        for (int i = 0; i < TEST_PHILOSOPHERS_COUNT; i++) {
+        for (int i = 0; i < PHILOSOPHERS_COUNT; i++) {
             Chopstick leftChopstick = chopsticks.get(i);
-            Chopstick rightChopstick = chopsticks.get(i != 0 ? i - 1 : TEST_PHILOSOPHERS_COUNT - 1);
+            Chopstick rightChopstick = chopsticks.get(i != 0 ? i - 1 : PHILOSOPHERS_COUNT - 1);
             reentrantPhilosophers.add(new ReentrantPhilosopher(i, leftChopstick, rightChopstick, barrier));
         }
     }

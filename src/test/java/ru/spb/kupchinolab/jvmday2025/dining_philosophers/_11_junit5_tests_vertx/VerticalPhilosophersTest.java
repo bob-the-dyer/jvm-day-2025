@@ -1,4 +1,4 @@
-package ru.spb.kupchinolab.jvmday2025.dining_philosophers._11_junit_tests;
+package ru.spb.kupchinolab.jvmday2025.dining_philosophers._11_junit5_tests_vertx;
 
 import io.vertx.core.Vertx;
 import io.vertx.junit5.Checkpoint;
