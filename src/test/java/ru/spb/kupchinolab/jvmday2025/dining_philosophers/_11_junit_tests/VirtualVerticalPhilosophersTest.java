@@ -1,6 +1,7 @@
 package ru.spb.kupchinolab.jvmday2025.dining_philosophers._11_junit_tests;
 
 import io.vertx.core.DeploymentOptions;
+import io.vertx.core.ThreadingModel;
 import io.vertx.core.Vertx;
 import io.vertx.junit5.Checkpoint;
 import io.vertx.junit5.Timeout;
@@ -10,7 +11,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.extension.ExtendWith;
-import ru.spb.kupchinolab.jvmday2025.dining_philosophers._10_vertx_pivot.VerticalPhilosopher;
+import ru.spb.kupchinolab.jvmday2025.dining_philosophers._10_vertx_pivot.VirtualVerticalPhilosopher;
 
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
@@ -18,14 +19,14 @@ import java.util.concurrent.TimeUnit;
 import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.PHILOSOPHERS_COUNT;
 
 @ExtendWith(VertxExtension.class)
-public class VerticalPhilosophersTest {
+public class VirtualVerticalPhilosophersTest {
 
     @BeforeAll
     static void initPhilosophersAndChopsticks(Vertx vertx, VertxTestContext testContext) {
         Checkpoint verticlesDeployed = testContext.checkpoint(PHILOSOPHERS_COUNT);
-        DeploymentOptions deploymentOptions = new DeploymentOptions();
+        DeploymentOptions deploymentOptions = new DeploymentOptions().setThreadingModel(ThreadingModel.VIRTUAL_THREAD);
         for (int i = 0; i < PHILOSOPHERS_COUNT; i++) {
-            vertx.deployVerticle(new VerticalPhilosopher(i), deploymentOptions).onComplete(_ -> verticlesDeployed.flag());
+            vertx.deployVerticle(new VirtualVerticalPhilosopher(i), deploymentOptions).onComplete(_ -> verticlesDeployed.flag());
         }
         System.out.println("all verticles deployed at " + Instant.now());
     }
