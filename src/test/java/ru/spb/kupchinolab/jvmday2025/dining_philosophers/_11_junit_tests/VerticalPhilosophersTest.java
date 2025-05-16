@@ -1,6 +1,7 @@
 package ru.spb.kupchinolab.jvmday2025.dining_philosophers._11_junit_tests;
 
 import io.vertx.core.DeploymentOptions;
+import io.vertx.core.ThreadingModel;
 import io.vertx.core.Vertx;
 import io.vertx.junit5.Checkpoint;
 import io.vertx.junit5.Timeout;
@@ -23,8 +24,8 @@ public class VerticalPhilosophersTest {
     @BeforeAll
     static void initPhilosophersAndChopsticks(Vertx vertx, VertxTestContext testContext) {
         Checkpoint verticlesDeployed = testContext.checkpoint(PHILOSOPHERS_COUNT);
-//        DeploymentOptions deploymentOptions = new DeploymentOptions().setThreadingModel(ThreadingModel.VIRTUAL_THREAD);
-        DeploymentOptions deploymentOptions = new DeploymentOptions();
+        DeploymentOptions deploymentOptions = new DeploymentOptions().setThreadingModel(ThreadingModel.VIRTUAL_THREAD);
+//        DeploymentOptions deploymentOptions = new DeploymentOptions();
         for (int i = 0; i < PHILOSOPHERS_COUNT; i++) {
             vertx.deployVerticle(new VerticalPhilosopher(i), deploymentOptions).onComplete(_ -> verticlesDeployed.flag());
         }
@@ -35,7 +36,9 @@ public class VerticalPhilosophersTest {
     void resetPhilosophersAndChopsticks(Vertx vertx, VertxTestContext testContext) {
         Checkpoint verticlesReset = testContext.checkpoint(PHILOSOPHERS_COUNT);
         for (int i = 0; i < PHILOSOPHERS_COUNT; i++) {
-            vertx.eventBus().request("reset_" + i, "No-no-no!", _ -> verticlesReset.flag());
+            vertx.eventBus()
+                    .request("reset_" + i, "No-no-no!")
+                    .onComplete(_ -> verticlesReset.flag());
         }
         System.out.println("all verticles reset at " + Instant.now());
     }

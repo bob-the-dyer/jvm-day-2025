@@ -1,6 +1,8 @@
 package ru.spb.kupchinolab.jvmday2025.dining_philosophers._10_vertx_pivot;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.shareddata.Lock;
 import io.vertx.core.shareddata.SharedData;
@@ -45,17 +47,19 @@ public class VerticalPhilosopher extends AbstractVerticle {
 
     private void eat() {
         SharedData sharedData = vertx.sharedData();
-        sharedData.getLock("chopstick_" + firstChopstick, firstLock -> {
-            if (firstLock.succeeded()) {
-                Lock chopstick_1 = firstLock.result();
-                sharedData.getLock("chopstick_" + secondChopstick, secondLock -> {
-                    if (secondLock.succeeded()) {
+        Future<Lock> firstLock = sharedData.getLock("chopstick_" + firstChopstick);
+        firstLock.onComplete((AsyncResult<Lock> ar1) -> {
+            if (ar1.succeeded()) {
+                Lock chopstick_1 = ar1.result();
+                Future<Lock> secondLock = sharedData.getLock("chopstick_" + secondChopstick);
+                secondLock.onComplete((AsyncResult<Lock> ar2) -> {
+                    if (ar2.succeeded()) {
                         Lock chopstick_2 = secondLock.result();
                         updateStats();
                         chopstick_2.release();
                     }
+                    chopstick_1.release();
                 });
-                chopstick_1.release();
             }
         });
     }
