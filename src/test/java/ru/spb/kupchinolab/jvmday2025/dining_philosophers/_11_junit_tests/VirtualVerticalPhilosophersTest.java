@@ -21,27 +21,6 @@ import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.PHILOSOPHE
 @ExtendWith(VertxExtension.class)
 public class VirtualVerticalPhilosophersTest {
 
-    @BeforeAll
-    static void initPhilosophersAndChopsticks(Vertx vertx, VertxTestContext testContext) {
-        Checkpoint verticlesDeployed = testContext.checkpoint(PHILOSOPHERS_COUNT);
-        DeploymentOptions deploymentOptions = new DeploymentOptions().setThreadingModel(ThreadingModel.VIRTUAL_THREAD);
-        for (int i = 0; i < PHILOSOPHERS_COUNT; i++) {
-            vertx.deployVerticle(new VirtualVerticalPhilosopher(i), deploymentOptions).onComplete(_ -> verticlesDeployed.flag());
-        }
-        System.out.println("all verticles deployed at " + Instant.now());
-    }
-
-    @AfterEach
-    void resetPhilosophersAndChopsticks(Vertx vertx, VertxTestContext testContext) {
-        Checkpoint verticlesReset = testContext.checkpoint(PHILOSOPHERS_COUNT);
-        for (int i = 0; i < PHILOSOPHERS_COUNT; i++) {
-            vertx.eventBus()
-                    .request("reset_" + i, "No-no-no!")
-                    .onComplete(_ -> verticlesReset.flag());
-        }
-        System.out.println("all verticles reset at " + Instant.now());
-    }
-
     @RepeatedTest(100)
     @Timeout(value = 10, timeUnit = TimeUnit.SECONDS)
     void test_vertical_philosophers_as_is(Vertx vertx, VertxTestContext testContext) {
@@ -49,9 +28,16 @@ public class VirtualVerticalPhilosophersTest {
     }
 
     private void test_philosophers_internal(Vertx vertx, VertxTestContext testContext) {
+        Checkpoint verticlesDeployed = testContext.checkpoint(PHILOSOPHERS_COUNT);
+        Checkpoint maxEatAttemptsHasReached = testContext.laxCheckpoint(1);
+        DeploymentOptions deploymentOptions = new DeploymentOptions().setThreadingModel(ThreadingModel.VIRTUAL_THREAD);
+        for (int i = 0; i < PHILOSOPHERS_COUNT; i++) {
+            vertx.deployVerticle(new VirtualVerticalPhilosopher(i), deploymentOptions).onComplete(_ -> verticlesDeployed.flag());
+        }
+        System.out.println("all verticles deployed at " + Instant.now());
         vertx.eventBus().consumer("max_eat_attempts_has_reached", msg -> {
             System.out.println("finish eating at " + Instant.now() + ", msg: " + msg.body());
-            testContext.completeNow();
+            maxEatAttemptsHasReached.flag();
         });
         System.out.println("start  eating at " + Instant.now());
         vertx.eventBus().publish("start_barrier", "Go-go-go!");

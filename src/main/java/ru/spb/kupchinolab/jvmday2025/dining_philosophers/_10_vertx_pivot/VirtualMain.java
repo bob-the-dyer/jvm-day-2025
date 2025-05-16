@@ -1,5 +1,7 @@
 package ru.spb.kupchinolab.jvmday2025.dining_philosophers._10_vertx_pivot;
 
+import io.vertx.core.DeploymentOptions;
+import io.vertx.core.ThreadingModel;
 import io.vertx.core.Vertx;
 
 import java.time.Duration;
@@ -8,7 +10,7 @@ import java.time.temporal.ChronoUnit;
 
 import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.PHILOSOPHERS_COUNT;
 
-public class Main {
+public class VirtualMain {
 
     public static void main(String[] args) throws InterruptedException {
         Vertx vertx = Vertx.vertx();
@@ -16,8 +18,9 @@ public class Main {
             System.out.println("finish eating at " + Instant.now() + ", msg: " + msg.body());
             vertx.close();
         });
+        DeploymentOptions deploymentOptions = new DeploymentOptions().setThreadingModel(ThreadingModel.VIRTUAL_THREAD);
         for (int i = 0; i < PHILOSOPHERS_COUNT; i++) {
-            vertx.deployVerticle(new VerticalPhilosopher(i));
+            vertx.deployVerticle(new VerticalPhilosopher(i), deploymentOptions);
         }
         Thread.sleep(Duration.of(1, ChronoUnit.SECONDS));
         vertx.eventBus().publish("start_barrier", "Go-go-go!");

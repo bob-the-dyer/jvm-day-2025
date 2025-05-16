@@ -3,7 +3,6 @@ package ru.spb.kupchinolab.jvmday2025.dining_philosophers._10_vertx_pivot;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.VerticleBase;
-import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.shareddata.Lock;
 import io.vertx.core.shareddata.SharedData;
 
@@ -17,7 +16,6 @@ public class VerticalPhilosopher extends VerticleBase {
     private final int secondChopstick;
     private final int order;
     private int stats;
-    private MessageConsumer<Object> eatingConsumer;
 
     public VerticalPhilosopher(int order) {
         this.order = order;
@@ -33,16 +31,9 @@ public class VerticalPhilosopher extends VerticleBase {
 
     @Override
     public Future<?> start() {
-        eatingConsumer = vertx.eventBus().consumer("loop_myself_" + order, (_) -> eat());
+        vertx.eventBus().consumer("loop_myself_" + order, (_) -> eat());
         vertx.eventBus().consumer("start_barrier", _ -> {
-            stats = 0;
-            eatingConsumer.resume();
             vertx.eventBus().send("loop_myself_" + order, "loop!");
-        });
-        vertx.eventBus().consumer("reset_" + order, msg -> {
-            stats = 0;
-            eatingConsumer.pause();
-            msg.reply("yes, sir!");
         });
         return succeededFuture();
     }
@@ -73,7 +64,6 @@ public class VerticalPhilosopher extends VerticleBase {
                     "max_eat_attempts_has_reached",
                     format("%s #%s has reached %s attempts to eat!", VerticalPhilosopher.class.getSimpleName(), order, stats)
             );
-            eatingConsumer.pause();
         } else {
             vertx.eventBus().send("loop_myself_" + order, "loop!");
         }
