@@ -3,6 +3,7 @@ package ru.spb.kupchinolab.jvmday2025.dining_philosophers._10_vertx_pivot;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.VerticleBase;
+import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.shareddata.Lock;
 import io.vertx.core.shareddata.SharedData;
 
@@ -16,6 +17,7 @@ public class VerticalPhilosopher extends VerticleBase {
     private final int secondChopstick;
     private final int order;
     private int stats;
+    private MessageConsumer<Object> loopMyselfConsumer;
 
     public VerticalPhilosopher(int order) {
         this.order = order;
@@ -31,10 +33,13 @@ public class VerticalPhilosopher extends VerticleBase {
 
     @Override
     public Future<?> start() {
-        vertx.eventBus().consumer("loop_myself_" + order, (_) -> eat());
-        vertx.eventBus().consumer("start_barrier", _ -> {
-            vertx.eventBus().send("loop_myself_" + order, "loop!");
-        });
+        loopMyselfConsumer = vertx.eventBus().consumer("loop_myself_" + order, (_) -> eat());
+        vertx.eventBus().consumer("start_barrier", _ -> loopMyselfOnce());
+        return succeededFuture();
+    }
+
+    public Future<?> stop() {
+        loopMyselfConsumer.unregister();
         return succeededFuture();
     }
 
@@ -50,9 +55,17 @@ public class VerticalPhilosopher extends VerticleBase {
                         Lock chopstick_2 = secondLock.result();
                         updateStats();
                         chopstick_2.release();
+                    } else {
+                        System.out.printf("chopstick_2 lock for #%s failed: %s", order, ar2.cause().getLocalizedMessage());
+                        System.out.println();
+                        loopMyselfOnce();
                     }
                     chopstick_1.release();
                 });
+            } else {
+                System.out.printf("chopstick_1 lock for #%s failed: %s", order, ar1.cause().getLocalizedMessage());
+                System.out.println();
+                loopMyselfOnce();
             }
         });
     }
@@ -65,7 +78,11 @@ public class VerticalPhilosopher extends VerticleBase {
                     format("%s #%s has reached %s attempts to eat!", VerticalPhilosopher.class.getSimpleName(), order, stats)
             );
         } else {
-            vertx.eventBus().send("loop_myself_" + order, "loop!");
+            loopMyselfOnce();
         }
+    }
+
+    private void loopMyselfOnce() {
+        vertx.eventBus().send("loop_myself_" + order, "loop!");
     }
 }

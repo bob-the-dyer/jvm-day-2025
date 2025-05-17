@@ -2,6 +2,7 @@ package ru.spb.kupchinolab.jvmday2025.dining_philosophers._10_vertx_pivot;
 
 import io.vertx.core.Future;
 import io.vertx.core.VerticleBase;
+import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.shareddata.Lock;
 import io.vertx.core.shareddata.SharedData;
 
@@ -15,6 +16,7 @@ public class VirtualVerticalPhilosopher extends VerticleBase {
     private final int secondChopstick;
     private final int order;
     private int stats;
+    private MessageConsumer<Object> loopMyselfConsumer;
 
     public VirtualVerticalPhilosopher(int order) {
         this.order = order;
@@ -30,10 +32,13 @@ public class VirtualVerticalPhilosopher extends VerticleBase {
 
     @Override
     public Future<?> start() {
-        vertx.eventBus().consumer("loop_myself_" + order, (_) -> eat());
-        vertx.eventBus().consumer("start_barrier", _ -> {
-            vertx.eventBus().send("loop_myself_" + order, "loop!");
-        });
+        loopMyselfConsumer = vertx.eventBus().consumer("loop_myself_" + order, (_) -> eat());
+        vertx.eventBus().consumer("start_barrier", _ -> loopMyselfOnce());
+        return succeededFuture();
+    }
+
+    public Future<?> stop() {
+        loopMyselfConsumer.unregister().await();
         return succeededFuture();
     }
 
@@ -46,9 +51,10 @@ public class VirtualVerticalPhilosopher extends VerticleBase {
             secondLock = sharedData.getLock("chopstick_" + secondChopstick).await();
             updateStats();
         } catch (Exception e) {
-            // NO_OP
-            // ТУТ может лететь исключение, если взять лок не получилось, например в кластерном окружении из-за сети
-            // У нас на практике оно летит сейчас после остановки вертекса так как луп еще работает, нам это не критично
+            // ТУТ может лететь исключение, если взять лок не получилось, например в кластерном окружении из-за сети или еще чего-то
+            System.out.printf("chopstick lock for #%s failed: %s", order, e.getLocalizedMessage());
+            System.out.println();
+            loopMyselfOnce();
         } finally {
             if (secondLock != null) secondLock.release();
             if (firstLock != null) firstLock.release();
@@ -63,7 +69,11 @@ public class VirtualVerticalPhilosopher extends VerticleBase {
                     format("%s #%s has reached %s attempts to eat!", VirtualVerticalPhilosopher.class.getSimpleName(), order, stats)
             );
         } else {
-            vertx.eventBus().send("loop_myself_" + order, "loop!");
+            loopMyselfOnce();
         }
+    }
+
+    private void loopMyselfOnce() {
+        vertx.eventBus().send("loop_myself_" + order, "loop!");
     }
 }
