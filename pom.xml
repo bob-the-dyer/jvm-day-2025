@@ -101,7 +101,15 @@
                     <source>24</source>
                     <target>24</target>
                     <compilerArgs>
-                        --enable-preview
+                        <compilerArg>
+                            --enable-preview
+                        </compilerArg>
+                        <compilerArg>
+                            -Xlint:preview
+                        </compilerArg>
+                        <compilerArg>
+                            -Xlint:unchecked
+                        </compilerArg>
                     </compilerArgs>
                     <annotationProcessorPaths>
                         <path>

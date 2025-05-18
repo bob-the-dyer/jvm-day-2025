@@ -1,4 +1,4 @@
-package ru.spb.kupchinolab.jvmday2025.dining_philosophers._06_jmh_benchmarks_jdk_united;
+package ru.spb.kupchinolab.jvmday2025.dining_philosophers._06_jmh_benchmarks_jdk_noop;
 
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
@@ -22,29 +22,33 @@ import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.PHILOSOPHE
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Thread)
-public class UnitedPhilosophersBenchmark {
+public class NoopPhilosophersBenchmark {
 
-    @Benchmark
-    public void test_reentrant_lock_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_philosophers_internal(Thread.ofVirtual().factory(), ReentrantPhilosopher::from, blackhole);
+    private static Consumer<Integer> constructNoopEating(Blackhole blackhole) {
+        return blackhole::consume;
     }
 
     @Benchmark
-    public void test_reentrant_lock_philosophers_with_platform_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_philosophers_internal(Thread.ofPlatform().factory(), ReentrantPhilosopher::from, blackhole);
+    public void test_reentrant_lock_noop_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_philosophers_internal(Thread.ofVirtual().factory(), ReentrantPhilosopher::from, constructNoopEating(blackhole));
     }
 
     @Benchmark
-    public void test_synchronized_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_philosophers_internal(Thread.ofVirtual().factory(), SynchronizedPhilosopher::from, blackhole);
+    public void test_reentrant_lock_noop_philosophers_with_platform_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_philosophers_internal(Thread.ofPlatform().factory(), ReentrantPhilosopher::from, constructNoopEating(blackhole));
     }
 
     @Benchmark
-    public void test_synchronized_philosophers_with_platform_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_philosophers_internal(Thread.ofPlatform().factory(), SynchronizedPhilosopher::from, blackhole);
+    public void test_synchronized_noop_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_philosophers_internal(Thread.ofVirtual().factory(), SynchronizedPhilosopher::from, constructNoopEating(blackhole));
     }
 
-    private void test_philosophers_internal(ThreadFactory factory, Function<List<Object>, ? extends Callable<Integer>> philosopherSupplier, Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+    @Benchmark
+    public void test_synchronized_noop_philosophers_with_platform_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_philosophers_internal(Thread.ofPlatform().factory(), SynchronizedPhilosopher::from, constructNoopEating(blackhole));
+    }
+
+    private void test_philosophers_internal(ThreadFactory factory, Function<List<Object>, ? extends Callable<Integer>> philosopherSupplier, Consumer<Integer> eating) throws InterruptedException, BrokenBarrierException {
         List<Chopstick> chopsticks = new ArrayList<>();
         List<Callable<Integer>> philosophers = new ArrayList<>();
         CyclicBarrier barrier = new CyclicBarrier(1 + PHILOSOPHERS_COUNT);
@@ -55,7 +59,7 @@ public class UnitedPhilosophersBenchmark {
         for (int i = 0; i < PHILOSOPHERS_COUNT; i++) {
             Chopstick leftChopstick = chopsticks.get(i);
             Chopstick rightChopstick = chopsticks.get(i != 0 ? i - 1 : PHILOSOPHERS_COUNT - 1);
-            philosophers.add(philosopherSupplier.apply(List.of(i, leftChopstick, rightChopstick, barrier, (Consumer<Integer>) blackhole::consume)));
+            philosophers.add(philosopherSupplier.apply(List.of(i, leftChopstick, rightChopstick, barrier, eating)));
         }
         try (ShutdownOnSuccess<Integer> scope = new ShutdownOnSuccess<>(null, factory)) {
             philosophers.forEach(scope::fork);
@@ -66,13 +70,12 @@ public class UnitedPhilosophersBenchmark {
 
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
-                .include(UnitedPhilosophersBenchmark.class.getSimpleName())
+                .include(NoopPhilosophersBenchmark.class.getSimpleName())
                 .forks(1)
-                .warmupIterations(2)
-                .measurementIterations(10)
+                .warmupIterations(1)
+                .measurementIterations(5)
                 .jvmArgs("--enable-preview")
                 .build();
-
         new Runner(opt).run();
     }
 }

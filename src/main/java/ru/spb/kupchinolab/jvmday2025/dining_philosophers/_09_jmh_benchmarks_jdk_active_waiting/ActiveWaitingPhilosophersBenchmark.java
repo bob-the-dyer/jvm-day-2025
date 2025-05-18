@@ -1,4 +1,4 @@
-package ru.spb.kupchinolab.jvmday2025.dining_philosophers._07_jmh_benchmarks_jdk_sleeping;
+package ru.spb.kupchinolab.jvmday2025.dining_philosophers._09_jmh_benchmarks_jdk_active_waiting;
 
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
@@ -10,7 +10,6 @@ import ru.spb.kupchinolab.jvmday2025.dining_philosophers.Chopstick;
 import ru.spb.kupchinolab.jvmday2025.dining_philosophers._02_reentrant_pivot.ReentrantPhilosopher;
 import ru.spb.kupchinolab.jvmday2025.dining_philosophers._03_synchronized_pivot.SynchronizedPhilosopher;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -23,37 +22,38 @@ import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.PHILOSOPHE
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Thread)
-public class SleepingPhilosophersBenchmark {
+public class ActiveWaitingPhilosophersBenchmark {
 
-    private static Consumer<Integer> constructSleepingEating(Blackhole blackhole) {
+    private static Consumer<Integer> constructActiveWaitingEating(Blackhole blackhole) {
         return (stats) -> {
-            try {
-                Thread.sleep(Duration.ofNanos(16_000)); //read sequentially from SSD with speed of 1MB in 1M nanosec
-                blackhole.consume(stats);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+            long startTimeInNanos = System.nanoTime();
+            long currentTimeInNanos;
+            do {
+                currentTimeInNanos = System.nanoTime();
+            } while (currentTimeInNanos < startTimeInNanos + 16_000); //read sequentially from SSD with speed of 1MB in 1M nanosec
+            blackhole.consume(currentTimeInNanos);
+            blackhole.consume(stats);
         };
     }
 
     @Benchmark
-    public void test_reentrant_lock_sleeping_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_philosophers_internal(Thread.ofVirtual().factory(), ReentrantPhilosopher::from, constructSleepingEating(blackhole));
+    public void test_reentrant_lock_active_waiting_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_philosophers_internal(Thread.ofVirtual().factory(), ReentrantPhilosopher::from, constructActiveWaitingEating(blackhole));
     }
 
     @Benchmark
-    public void test_reentrant_lock_sleeping_philosophers_with_platform_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_philosophers_internal(Thread.ofPlatform().factory(), ReentrantPhilosopher::from, constructSleepingEating(blackhole));
+    public void test_reentrant_lock_active_waiting_philosophers_with_platform_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_philosophers_internal(Thread.ofPlatform().factory(), ReentrantPhilosopher::from, constructActiveWaitingEating(blackhole));
     }
 
     @Benchmark
-    public void test_synchronized_sleeping_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_philosophers_internal(Thread.ofVirtual().factory(), SynchronizedPhilosopher::from, constructSleepingEating(blackhole));
+    public void test_synchronized_active_waiting_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_philosophers_internal(Thread.ofVirtual().factory(), SynchronizedPhilosopher::from, constructActiveWaitingEating(blackhole));
     }
 
     @Benchmark
-    public void test_synchronized_sleeping_philosophers_with_platform_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_philosophers_internal(Thread.ofPlatform().factory(), SynchronizedPhilosopher::from, constructSleepingEating(blackhole));
+    public void test_synchronized_active_waiting_philosophers_with_platform_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_philosophers_internal(Thread.ofPlatform().factory(), SynchronizedPhilosopher::from, constructActiveWaitingEating(blackhole));
     }
 
     private void test_philosophers_internal(ThreadFactory factory, Function<List<Object>, ? extends Callable<Integer>> philosopherSupplier, Consumer<Integer> eating) throws InterruptedException, BrokenBarrierException {
@@ -78,7 +78,7 @@ public class SleepingPhilosophersBenchmark {
 
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
-                .include(SleepingPhilosophersBenchmark.class.getSimpleName())
+                .include(ActiveWaitingPhilosophersBenchmark.class.getSimpleName())
                 .forks(1)
                 .warmupIterations(1)
                 .measurementIterations(5)

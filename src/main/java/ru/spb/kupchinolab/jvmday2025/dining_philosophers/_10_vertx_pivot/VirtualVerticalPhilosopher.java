@@ -6,6 +6,7 @@ import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.shareddata.Lock;
 import io.vertx.core.shareddata.SharedData;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 import static io.vertx.core.Future.succeededFuture;
@@ -79,4 +80,16 @@ public class VirtualVerticalPhilosopher extends VerticleBase {
     private void loopMyselfOnce() {
         vertx.eventBus().send("loop_myself_" + order, "loop!");
     }
+
+    public static VirtualVerticalPhilosopher from(Integer order, Consumer<Integer> statsConsumer) {
+        return new VirtualVerticalPhilosopher(order, statsConsumer);
+    }
+
+    public static VirtualVerticalPhilosopher from(List<Object> from) {
+        return from(
+                (Integer) from.get(0),
+                (Consumer<Integer>) from.get(1)
+        );
+    }
+
 }
