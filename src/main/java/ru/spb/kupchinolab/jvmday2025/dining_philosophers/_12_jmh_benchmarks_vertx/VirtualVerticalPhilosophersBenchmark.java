@@ -50,8 +50,8 @@ public class VirtualVerticalPhilosophersBenchmark {
         Options opt = new OptionsBuilder()
                 .include(VirtualVerticalPhilosophersBenchmark.class.getSimpleName())
                 .forks(1)
-                .warmupIterations(1)
-                .measurementIterations(5)
+                .warmupIterations(2)
+                .measurementIterations(10)
                 .build();
         new Runner(opt).run();
     }

@@ -51,10 +51,9 @@ public class VirtualVerticalPhilosopher extends VerticleBase {
             secondLock = sharedData.getLock("chopstick_" + secondChopstick).await();
             updateStats();
         } catch (Exception e) {
-            // ТУТ может лететь исключение, если взять лок не получилось, например в кластерном окружении из-за сети или еще чего-то
-            System.out.printf("chopstick lock for #%s failed: %s", order, e.getLocalizedMessage());
-            System.out.println();
-            loopMyselfOnce();
+//            ТУТ может лететь исключение, если взять лок не получилось, например в кластерном окружении из-за сети или на остановке вертекса
+//            System.out.println(format("chopstick lock for #%s failed: %s", order, e.getLocalizedMessage()));
+//            loopMyselfOnce();
         } finally {
             if (secondLock != null) secondLock.release();
             if (firstLock != null) firstLock.release();

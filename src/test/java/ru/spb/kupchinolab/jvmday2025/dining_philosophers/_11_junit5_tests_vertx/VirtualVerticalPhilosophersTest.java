@@ -19,13 +19,13 @@ import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.PHILOSOPHE
 @ExtendWith(VertxExtension.class)
 public class VirtualVerticalPhilosophersTest {
 
-    @RepeatedTest(100)
+    @RepeatedTest(25) // тут меньше итераций так как сильно дольше работает
     @Timeout(value = 10, timeUnit = TimeUnit.SECONDS)
-    void test_vertical_philosophers_as_is(Vertx vertx, VertxTestContext testContext) {
-        test_philosophers_internal(vertx, testContext);
+    void test_virtual_vertical_philosophers_as_is(Vertx vertx, VertxTestContext testContext) {
+        test_virtual_philosophers_internal(vertx, testContext);
     }
 
-    private void test_philosophers_internal(Vertx vertx, VertxTestContext testContext) {
+    private void test_virtual_philosophers_internal(Vertx vertx, VertxTestContext testContext) {
         Checkpoint verticlesDeployed = testContext.checkpoint(PHILOSOPHERS_COUNT);
         Checkpoint maxEatAttemptsHasReached = testContext.laxCheckpoint(1);
         DeploymentOptions deploymentOptions = new DeploymentOptions().setThreadingModel(ThreadingModel.VIRTUAL_THREAD);

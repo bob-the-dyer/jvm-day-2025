@@ -2,6 +2,7 @@ package ru.spb.kupchinolab.jvmday2025.dining_philosophers._02_reentrant_pivot;
 
 import ru.spb.kupchinolab.jvmday2025.dining_philosophers.Chopstick;
 
+import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CyclicBarrier;
@@ -11,14 +12,15 @@ import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.MAX_EAT_AT
 
 public class ReentrantPhilosopher implements Callable<Integer> {
 
-    public static volatile Consumer<Integer> eating;
     private final Chopstick firstChopstick;
     private final Chopstick secondChopstick;
     private int stats;
     private final CyclicBarrier barrier;
+    private final Consumer<Integer> eating;
 
-    public ReentrantPhilosopher(int order, Chopstick leftChopstick, Chopstick rightChopstick, CyclicBarrier barrier) {
+    public ReentrantPhilosopher(int order, Chopstick leftChopstick, Chopstick rightChopstick, CyclicBarrier barrier, Consumer<Integer> eating) {
         this.barrier = barrier;
+        this.eating = eating;
         this.stats = 0;
         if (rightChopstick.getOrder() < leftChopstick.getOrder()) {
             assert order != 0;
@@ -59,9 +61,18 @@ public class ReentrantPhilosopher implements Callable<Integer> {
         eating.accept(stats++);
     }
 
-    public void resetStats() {
-        // Важно! Тут надо хорошо понимать когда сброс статистики сработает без доп синхронизации,
-        // а именно только внутри потока, создавшего философа, т е тело теста, бенчмарка или мейна
-        stats = 0;
+    public static ReentrantPhilosopher from(Integer order, Chopstick leftChopstick, Chopstick rightChopstick, CyclicBarrier barrier, Consumer<Integer> statsConsumer) {
+        return new ReentrantPhilosopher(order, leftChopstick, rightChopstick, barrier, statsConsumer);
     }
+
+    public static ReentrantPhilosopher from(List<Object> from) {
+        return from(
+                (Integer) from.get(0),
+                (Chopstick) from.get(1),
+                (Chopstick) from.get(2),
+                (CyclicBarrier) from.get(3),
+                (Consumer<Integer>) from.get(4)
+        );
+    }
+
 }

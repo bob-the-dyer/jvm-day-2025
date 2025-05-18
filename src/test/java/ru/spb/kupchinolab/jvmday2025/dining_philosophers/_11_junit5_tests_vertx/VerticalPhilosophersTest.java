@@ -17,7 +17,7 @@ import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.PHILOSOPHE
 @ExtendWith(VertxExtension.class)
 public class VerticalPhilosophersTest {
 
-    @RepeatedTest(100)
+    @RepeatedTest(25) // тут меньше итераций так как сильно дольше работает
     @Timeout(value = 10, timeUnit = TimeUnit.SECONDS)
     void test_vertical_philosophers_as_is(Vertx vertx, VertxTestContext testContext) {
         test_philosophers_internal(vertx, testContext);

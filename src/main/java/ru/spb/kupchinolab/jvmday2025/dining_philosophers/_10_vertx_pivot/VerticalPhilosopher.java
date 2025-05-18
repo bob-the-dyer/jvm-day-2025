@@ -56,16 +56,16 @@ public class VerticalPhilosopher extends VerticleBase {
                         updateStats();
                         chopstick_2.release();
                     } else {
-                        System.out.printf("chopstick_2 lock for #%s failed: %s", order, ar2.cause().getLocalizedMessage());
-                        System.out.println();
-                        loopMyselfOnce();
+//                        ТУТ может быть неудача, если взять лок не получилось, например в кластерном окружении из-за сети или на остановке вертекса
+//                        System.out.println(format("chopstick_2 lock for #%s failed: %s", order, ar2.cause().getLocalizedMessage()));
+//                        loopMyselfOnce();
                     }
                     chopstick_1.release();
                 });
             } else {
-                System.out.printf("chopstick_1 lock for #%s failed: %s", order, ar1.cause().getLocalizedMessage());
-                System.out.println();
-                loopMyselfOnce();
+//                ТУТ может быть неудача, если взять лок не получилось, например в кластерном окружении из-за сети или на остановке вертекса
+//                System.out.println(format("chopstick_1 lock for #%s failed: %s", order, ar1.cause().getLocalizedMessage()));
+//                loopMyselfOnce();
             }
         });
     }
