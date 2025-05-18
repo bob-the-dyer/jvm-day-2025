@@ -27,7 +27,8 @@ public class VerticalPhilosophersTest {
         Checkpoint verticlesDeployed = testContext.checkpoint(PHILOSOPHERS_COUNT);
         Checkpoint maxEatAttemptsHasReached = testContext.laxCheckpoint(1);
         for (int i = 0; i < PHILOSOPHERS_COUNT; i++) {
-            vertx.deployVerticle(new VerticalPhilosopher(i)).onComplete(_ -> verticlesDeployed.flag());
+            vertx.deployVerticle(new VerticalPhilosopher(i, _ -> {/*NO_OP*/}))
+                    .onComplete(_ -> verticlesDeployed.flag());
         }
         System.out.println("all verticles deployed at " + Instant.now());
         vertx.eventBus().consumer("max_eat_attempts_has_reached", msg -> {

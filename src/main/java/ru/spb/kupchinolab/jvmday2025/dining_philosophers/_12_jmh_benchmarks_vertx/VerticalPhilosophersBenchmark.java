@@ -2,6 +2,7 @@ package ru.spb.kupchinolab.jvmday2025.dining_philosophers._12_jmh_benchmarks_ver
 
 import io.vertx.core.Vertx;
 import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
@@ -20,16 +21,17 @@ import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.PHILOSOPHE
 public class VerticalPhilosophersBenchmark {
 
     @Benchmark
-    public void test_vertical_philosophers() throws InterruptedException {
-        test_vertical_philosophers_internal();
+    public void test_vertical_philosophers(Blackhole blackhole) throws InterruptedException {
+        test_vertical_philosophers_internal(blackhole);
     }
 
-    private void test_vertical_philosophers_internal() throws InterruptedException {
+    private void test_vertical_philosophers_internal(Blackhole blackhole) throws InterruptedException {
         Vertx vertx = Vertx.vertx();
         CountDownLatch allVerticalsDeployedLatch = new CountDownLatch(PHILOSOPHERS_COUNT);
         CountDownLatch finishEatingLatch = new CountDownLatch(1);
         for (int i = 0; i < PHILOSOPHERS_COUNT; i++) {
-            vertx.deployVerticle(new VerticalPhilosopher(i)).onComplete(_ -> allVerticalsDeployedLatch.countDown());
+            vertx.deployVerticle(new VerticalPhilosopher(i, blackhole::consume))
+                    .onComplete(_ -> allVerticalsDeployedLatch.countDown());
         }
         vertx.eventBus().consumer("max_eat_attempts_has_reached", msg -> {
             System.out.println("finish eating at " + Instant.now() + ", msg: " + msg.body());

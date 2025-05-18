@@ -22,7 +22,8 @@ public class VirtualMain {
         });
         DeploymentOptions deploymentOptions = new DeploymentOptions().setThreadingModel(ThreadingModel.VIRTUAL_THREAD);
         for (int i = 0; i < PHILOSOPHERS_COUNT; i++) {
-            vertx.deployVerticle(new VerticalPhilosopher(i), deploymentOptions).onComplete(_ -> allVerticalsDeployedLatch.countDown());
+            vertx.deployVerticle(new VerticalPhilosopher(i, _ -> {/*NO_OP*/}), deploymentOptions)
+                    .onComplete(_ -> allVerticalsDeployedLatch.countDown());
         }
         vertx.eventBus().publish("start_barrier", "Go-go-go!");
         System.out.println("start  eating at " + Instant.now());

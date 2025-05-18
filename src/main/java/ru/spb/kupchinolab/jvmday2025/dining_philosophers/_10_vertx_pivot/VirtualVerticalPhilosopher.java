@@ -6,6 +6,8 @@ import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.shareddata.Lock;
 import io.vertx.core.shareddata.SharedData;
 
+import java.util.function.Consumer;
+
 import static io.vertx.core.Future.succeededFuture;
 import static java.lang.String.format;
 import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.MAX_EAT_ATTEMPTS;
@@ -17,9 +19,11 @@ public class VirtualVerticalPhilosopher extends VerticleBase {
     private final int order;
     private int stats;
     private MessageConsumer<Object> loopMyselfConsumer;
+    private final Consumer<Integer> eating;
 
-    public VirtualVerticalPhilosopher(int order) {
+    public VirtualVerticalPhilosopher(int order, Consumer<Integer> eating) {
         this.order = order;
+        this.eating = eating;
         this.stats = 0;
         if (order == 0) {
             firstChopstick = order;
@@ -61,7 +65,7 @@ public class VirtualVerticalPhilosopher extends VerticleBase {
     }
 
     private void updateStats() {
-        stats++;
+        eating.accept(stats++);
         if (stats >= MAX_EAT_ATTEMPTS) {
             vertx.eventBus().send(
                     "max_eat_attempts_has_reached",

@@ -30,7 +30,8 @@ public class VirtualVerticalPhilosophersTest {
         Checkpoint maxEatAttemptsHasReached = testContext.laxCheckpoint(1);
         DeploymentOptions deploymentOptions = new DeploymentOptions().setThreadingModel(ThreadingModel.VIRTUAL_THREAD);
         for (int i = 0; i < PHILOSOPHERS_COUNT; i++) {
-            vertx.deployVerticle(new VirtualVerticalPhilosopher(i), deploymentOptions).onComplete(_ -> verticlesDeployed.flag());
+            vertx.deployVerticle(new VirtualVerticalPhilosopher(i, _ -> {/*NO_OP*/}), deploymentOptions)
+                    .onComplete(_ -> verticlesDeployed.flag());
         }
         System.out.println("all verticles deployed at " + Instant.now());
         vertx.eventBus().consumer("max_eat_attempts_has_reached", msg -> {

@@ -2,9 +2,7 @@ package ru.spb.kupchinolab.jvmday2025.dining_philosophers._10_vertx_pivot;
 
 import io.vertx.core.Vertx;
 
-import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.concurrent.CountDownLatch;
 
 import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.PHILOSOPHERS_COUNT;
@@ -21,7 +19,8 @@ public class Main {
             finishEatingLatch.countDown();
         });
         for (int i = 0; i < PHILOSOPHERS_COUNT; i++) {
-            vertx.deployVerticle(new VerticalPhilosopher(i)).onComplete(_ -> allVerticalsDeployedLatch.countDown());
+            vertx.deployVerticle(new VerticalPhilosopher(i, _ -> {/*NO_OP*/}))
+                    .onComplete(_ -> allVerticalsDeployedLatch.countDown());
         }
         vertx.eventBus().publish("start_barrier", "Go-go-go!");
         System.out.println("start  eating at " + Instant.now());
