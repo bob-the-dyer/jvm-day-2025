@@ -15,7 +15,7 @@ import static java.lang.String.format;
 import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.MAX_EAT_ATTEMPTS;
 import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.PHILOSOPHERS_COUNT;
 
-public class VerticalPhilosopher extends VerticleBase {
+public class VerticlePhilosopher extends VerticleBase {
     private final int firstChopstick;
     private final int secondChopstick;
     private final int order;
@@ -23,7 +23,7 @@ public class VerticalPhilosopher extends VerticleBase {
     private MessageConsumer<Object> loopMyselfConsumer;
     private final Consumer<Integer> eating;
 
-    public VerticalPhilosopher(int order, Consumer<Integer> eating) {
+    public VerticlePhilosopher(int order, Consumer<Integer> eating) {
         this.order = order;
         this.eating = eating;
         this.stats = 0;
@@ -80,7 +80,7 @@ public class VerticalPhilosopher extends VerticleBase {
         if (stats >= MAX_EAT_ATTEMPTS) {
             vertx.eventBus().send(
                     "max_eat_attempts_has_reached",
-                    format("%s #%s has reached %s attempts to eat!", VerticalPhilosopher.class.getSimpleName(), order, stats)
+                    format("%s #%s has reached %s attempts to eat!", VerticlePhilosopher.class.getSimpleName(), order, stats)
             );
         } else {
             loopMyselfOnce();
@@ -91,11 +91,11 @@ public class VerticalPhilosopher extends VerticleBase {
         vertx.eventBus().send("loop_myself_" + order, "loop!");
     }
 
-    public static VerticalPhilosopher from(Integer order, Consumer<Integer> statsConsumer) {
-        return new VerticalPhilosopher(order, statsConsumer);
+    public static VerticlePhilosopher from(Integer order, Consumer<Integer> statsConsumer) {
+        return new VerticlePhilosopher(order, statsConsumer);
     }
 
-    public static VerticalPhilosopher from(List<Object> from) {
+    public static VerticlePhilosopher from(List<Object> from) {
         return from(
                 (Integer) from.get(0),
                 (Consumer<Integer>) from.get(1)

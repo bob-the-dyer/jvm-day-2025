@@ -9,7 +9,7 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
-import ru.spb.kupchinolab.jvmday2025.dining_philosophers._10_vertx_pivot.VirtualVerticalPhilosopher;
+import ru.spb.kupchinolab.jvmday2025.dining_philosophers._10_vertx_pivot.VerticlePhilosopher;
 
 import java.time.Instant;
 import java.util.List;
@@ -18,36 +18,35 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static io.vertx.core.ThreadingModel.VIRTUAL_THREAD;
 import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.PHILOSOPHERS_COUNT;
 
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Thread)
-public class NoopVirtualVerticalPhilosophersBenchmark {
+public class NoopVerticlePhilosophersBenchmark {
 
     private static Consumer<Integer> constructNoopEating(Blackhole blackhole) {
         return blackhole::consume;
     }
 
     @Benchmark
-    public void test_virtual_noop_vertical_philosophers(Blackhole blackhole) throws InterruptedException {
-        test_vertical_philosophers_internal(VirtualVerticalPhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD));
+    public void test_verticle_noop_philosophers(Blackhole blackhole) throws InterruptedException {
+        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions());
     }
 
-    private void test_vertical_philosophers_internal(Function<List<Object>, ? extends VerticleBase> philosopherSupplier, Consumer<Integer> eating, DeploymentOptions deploymentOptions) throws InterruptedException {
+    private void test_verticle_philosophers_internal(Function<List<Object>, ? extends VerticleBase> philosopherSupplier, Consumer<Integer> eating, DeploymentOptions deploymentOptions) throws InterruptedException {
         Vertx vertx = Vertx.vertx();
-        CountDownLatch allVerticalsDeployedLatch = new CountDownLatch(PHILOSOPHERS_COUNT);
+        CountDownLatch allVerticlesDeployedLatch = new CountDownLatch(PHILOSOPHERS_COUNT);
         CountDownLatch finishEatingLatch = new CountDownLatch(1);
         for (int i = 0; i < PHILOSOPHERS_COUNT; i++) {
-            vertx.deployVerticle(philosopherSupplier.apply(List.of(i, eating)), deploymentOptions).onComplete(_ -> allVerticalsDeployedLatch.countDown());
+            vertx.deployVerticle(philosopherSupplier.apply(List.of(i, eating)), deploymentOptions).onComplete(_ -> allVerticlesDeployedLatch.countDown());
         }
         vertx.eventBus().consumer("max_eat_attempts_has_reached", msg -> {
             System.out.println("finish eating at " + Instant.now() + ", msg: " + msg.body());
             finishEatingLatch.countDown();
             vertx.close();
         });
-        allVerticalsDeployedLatch.await();
+        allVerticlesDeployedLatch.await();
         System.out.println("all verticles deployed at " + Instant.now());
         System.out.println("start eating at " + Instant.now());
         vertx.eventBus().publish("start_barrier", "Go-go-go!");
@@ -56,7 +55,7 @@ public class NoopVirtualVerticalPhilosophersBenchmark {
 
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
-                .include(NoopVirtualVerticalPhilosophersBenchmark.class.getSimpleName())
+                .include(NoopVerticlePhilosophersBenchmark.class.getSimpleName())
                 .forks(1)
                 .warmupIterations(1)
                 .measurementIterations(5)

@@ -385,11 +385,11 @@ LoopingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_thre
 
 С кодом есть какие то приколы, пока не могу объяснить как может получиться такое:
 
-finish eating at 2025-05-15T16:08:50.767155Z, msg: VerticalPhilosopher #859 has reached 10003 attempts to eat!
-finish eating at 2025-05-15T16:08:50.767202Z, msg: VerticalPhilosopher #859 has reached 10004 attempts to eat!
-finish eating at 2025-05-15T16:08:50.767249Z, msg: VerticalPhilosopher #859 has reached 10005 attempts to eat!
-finish eating at 2025-05-15T16:08:50.767310Z, msg: VerticalPhilosopher #859 has reached 10006 attempts to eat!
-finish eating at 2025-05-15T16:08:50.767393Z, msg: VerticalPhilosopher #859 has reached 10007 attempts to eat!
+finish eating at 2025-05-15T16:08:50.767155Z, msg: VerticlePhilosopher #859 has reached 10003 attempts to eat!
+finish eating at 2025-05-15T16:08:50.767202Z, msg: VerticlePhilosopher #859 has reached 10004 attempts to eat!
+finish eating at 2025-05-15T16:08:50.767249Z, msg: VerticlePhilosopher #859 has reached 10005 attempts to eat!
+finish eating at 2025-05-15T16:08:50.767310Z, msg: VerticlePhilosopher #859 has reached 10006 attempts to eat!
+finish eating at 2025-05-15T16:08:50.767393Z, msg: VerticlePhilosopher #859 has reached 10007 attempts to eat!
 
 Ведь на 10К точно должны перестать слать себе лупы
 Время получается какое-то бешеное
@@ -409,7 +409,7 @@ Virtual thread verticles are designed to use an async/await model with Vert.x fu
 И 5.0.0 прям токает чтобы перейти на Future - не путать с жавовой Future
 Вот теперь в тестах вертекса получается 20 сек на 100 повторов проотив 13 и 14 сек на платформенных потоков
 
-VerticalPhilosophersTest (1): 100 total, 100 passed 20.53 s
+VerticlePhilosophersTest (1): 100 total, 100 passed 20.53 s
 
 И теперь переводим наши вертиклы в виртуальные потоки !
 
@@ -429,7 +429,7 @@ VerticalPhilosophersTest (1): 100 total, 100 passed 20.53 s
 Отступление - купил подписку на ультимейт и не смог ее применить даже с впн, это супер странно, НО допер скачать комьюнити
 и получить поддержку последних java. Так и произошло. 
 
-Теперь стоит перепрогнать мейны, тесты и бенчмерки и зафиксировать тайминги. TODO next переписать и упростить тесты и бенчмарки и мейны - слить
+Теперь стоит перепрогнать мейны, тесты и бенчмерки и зафиксировать тайминги. Переписываем и упросщаем тесты и бенчмарки и мейны - слить
 инит и кормление, для простоты и поднять кол-во прогонов. 
 
 Отключаю логирование для вертекса чтоб побыстрее пролетали тесты и бенчмарки: когда стопается вертекс летят ошибки от еще работающих вертиклов, нам это не страшно
@@ -439,5 +439,76 @@ VerticalPhilosophersTest (1): 100 total, 100 passed 20.53 s
 Тепреь когда новый код готов можно собрать финальную статистику для тестов и бенчмарков и решить
  - будем ли клепать суррогатное решение для ловли пининга, слипов, блоков и активного ожидания
  - будем ли клепать на вертексе решение для ловли пининга, слипов, блоков и активного ожидания
+
+Benchmark                                                                                            Mode  Cnt    Score     Error  Units
+
+Noop
+
+UnitedPhilosophersBenchmark.test_reentrant_lock_noop_philosophers_with_virtual_threads               avgt    5    1.952 ±   0.188  ms/op
+UnitedPhilosophersBenchmark.test_synchronized_noop_philosophers_with_virtual_threads                 avgt    5    2.184 ±   0.439  ms/op
+UnitedPhilosophersBenchmark.test_synchronized_noop_philosophers_with_platform_threads                avgt    5  107.555 ±  19.364  ms/op
+UnitedPhilosophersBenchmark.test_reentrant_lock_noop_philosophers_with_platform_threads              avgt    5  126.863 ±  24.680  ms/op
+
+Очевидно виртуальные потоки рвут платформенные по скорости работы с блокировками и/или переключениями контекста на 2 порядка!
+Различия в reentrant_lock и synchronized в пределах погрешности, несущественны
+
+Thread.sleep()
+
+UnitedPhilosophersBenchmark.test_reentrant_lock_sleeping_philosophers_with_platform_threads          avgt    5  504.907 ±  28.813  ms/op
+UnitedPhilosophersBenchmark.test_synchronized_sleeping_philosophers_with_platform_threads            avgt    5  804.849 ± 742.218  ms/op
+UnitedPhilosophersBenchmark.test_synchronized_sleeping_philosophers_with_virtual_threads             avgt    5  893.064 ± 222.928  ms/op
+UnitedPhilosophersBenchmark.test_reentrant_lock_sleeping_philosophers_with_virtual_threads           avgt    5  918.538 ± 147.244  ms/op
+
+Результаты сомнительные, погрешности одного порядка со средним, 
+перепроверка показывает что среднее для reentrant_lock на platform_threads немного лучше, результаты ложатся плотнее. 
+Есть идея погонять на большем числе повторов
+
+InputStream.readAllBytes()
+
+UnitedPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_virtual_threads     avgt    5    1.478 ±   0.020  ms/op
+UnitedPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_virtual_threads   avgt    5    1.551 ±   0.126  ms/op
+UnitedPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_platform_threads    avgt    5   87.908 ±   7.980  ms/op
+UnitedPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_platform_threads  avgt    5   95.959 ±  10.921  ms/op
+
+UnitedPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_virtual_threads     avgt    5     1.472 ±   0.049  ms/op
+UnitedPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_virtual_threads   avgt    5     1.562 ±   0.583  ms/op
+UnitedPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_platform_threads    avgt    5    83.233 ±   1.020  ms/op
+UnitedPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_platform_threads  avgt    5    95.311 ±  46.612  ms/op
+
+Очевидно виртуальные потоки рвут платформенные по скорости работы с блокировками и/или переключениями контекста на 2 порядок! 
+Чтение из файла в виртуальных потоках не вносит значимого вклада по сравнению с noop версией, перепроверено
+
+while(System.nanoTime() > )
+
+UnitedPhilosophersBenchmark.test_reentrant_lock_active_waiting_philosophers_with_virtual_threads     avgt    5  176.553 ±   4.187  ms/op
+UnitedPhilosophersBenchmark.test_synchronized_active_waiting_philosophers_with_virtual_threads       avgt    5  177.363 ±   9.932  ms/op
+UnitedPhilosophersBenchmark.test_synchronized_active_waiting_philosophers_with_platform_threads      avgt    5  321.945 ±  53.122  ms/op
+UnitedPhilosophersBenchmark.test_reentrant_lock_active_waiting_philosophers_with_platform_threads    avgt    5  386.645 ±  54.445  ms/op
+
+Виртуальные потоки в 2 раза лучше активно ожидают чем платформенные?=) Нет конечно, все тот же контекст свитч и работа с блокировками
+Лучше чем слипы более чем в 2 раза и хуже чем чтение файла на 1 порядок для платформенных и на 2 порядка для виртуальных - звучит логично
+
+Vertx Noop
+
+UnitedPhilosophersBenchmark.test_virtual_noop_verticle_philosophers                                  avgt    5  188.270 ±  19.858  ms/op
+UnitedPhilosophersBenchmark.test_verticle_noop_philosophers                                          avgt    5  275.030 ±  40.458  ms/op
+UnitedPhilosophersBenchmark.test_virtual_active_waiting_verticle_philosophers                        avgt    5   700.654 ±  33.354  ms/op
+UnitedPhilosophersBenchmark.test_virtual_blocking_reading_verticle_philosophers                      avgt    5  2208.642 ± 895.805  ms/op
+UnitedPhilosophersBenchmark.test_virtual_sleeping_verticle_philosophers                              avgt    5  4323.274 ±  25.593  ms/op
+
+Виртуальные вертиклы лучше классических, бегущих в event loop на четверть
+На виртуальных вертиклах активное ожидание почти в 1,5 раза лучше блокирующего чтения, и в 4 раза лучше слипа
+активное ожидание сравнимо со слипом на классике, блокирующее чтение и слип хуже минимум в 2 раза
+В целом проигрывают по производительности классике, но не по удобству программной модели и сложности реализации.
+--------------
+--------------
+Результаты интересные, надо докрутить для вертекса все варианты, но с учетом того что
+ - ивент луп блокировать нельзя, блокирующее чтение и слипы запрещены - это надо делать либо в рабочих вертиклах либо в виртуальных, 
+т е существующие стратегии constructXXXEating() по хорошему не подойдут для event loop вертиклов 
+ - в вертексе есть асинхронное/неблокирующее чтение файла - надо решить насколько честно было использовать его
+ - также можно через таймер красиво решить активное ожидание
+
+Пока решаю что используем точно такие же constructXXXEating как и для классики.
+Также решаю что реализую всех философов ХОТЯ это и нарушит правила для ивент лупа! Не, нафиг - вертекс страшно ругается в консоли, убираю
 
 
