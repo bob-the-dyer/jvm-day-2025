@@ -465,18 +465,20 @@ UnitedPhilosophersBenchmark.test_reentrant_lock_sleeping_philosophers_with_virtu
 
 InputStream.readAllBytes()
 
-UnitedPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_virtual_threads     avgt    5    1.478 ±   0.020  ms/op
-UnitedPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_virtual_threads   avgt    5    1.551 ±   0.126  ms/op
-UnitedPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_platform_threads    avgt    5   87.908 ±   7.980  ms/op
-UnitedPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_platform_threads  avgt    5   95.959 ±  10.921  ms/op
+BlockingReadingPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_platform_threads  avgt   10    585.786 ±   68.270  ms/op
+BlockingReadingPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_platform_threads    avgt   10    844.112 ±   41.460  ms/op
+BlockingReadingPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_virtual_threads   avgt   10   7490.787 ± 2143.440  ms/op
+BlockingReadingPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_virtual_threads     avgt   10  11868.748 ± 3361.973  ms/op
 
-UnitedPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_virtual_threads     avgt    5     1.472 ±   0.049  ms/op
-UnitedPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_virtual_threads   avgt    5     1.562 ±   0.583  ms/op
-UnitedPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_platform_threads    avgt    5    83.233 ±   1.020  ms/op
-UnitedPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_platform_threads  avgt    5    95.311 ±  46.612  ms/op
+BlockingReadingPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_platform_threads  avgt   10    575.464 ±   32.893  ms/op
+BlockingReadingPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_platform_threads    avgt   10    885.836 ±   62.762  ms/op
+BlockingReadingPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_virtual_threads   avgt   10   3972.985 ±  830.251  ms/op
+BlockingReadingPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_virtual_threads     avgt   10  18758.470 ± 3171.521  ms/op
 
-Очевидно виртуальные потоки рвут платформенные по скорости работы с блокировками и/или переключениями контекста на 2 порядок! 
-Чтение из файла в виртуальных потоках не вносит значимого вклада по сравнению с noop версией, перепроверено
+А вот это странное, платформенные потоки гораздо лучше читают файл??? Перепроверил. Так и есть, несмотря на погрешность
+И кажется реентрант лок получше синхронайзда
+
+ТУТ ТАКОЕ РЕЗЮМЕ - все сложено в одну корзинку, чтобы точно понять чо за нафиг - надо писать бенчмарк отдельно от философов на чтение и все остальное
 
 while(System.nanoTime() > )
 
@@ -488,18 +490,19 @@ UnitedPhilosophersBenchmark.test_reentrant_lock_active_waiting_philosophers_with
 Виртуальные потоки в 2 раза лучше активно ожидают чем платформенные?=) Нет конечно, все тот же контекст свитч и работа с блокировками
 Лучше чем слипы более чем в 2 раза и хуже чем чтение файла на 1 порядок для платформенных и на 2 порядка для виртуальных - звучит логично
 
-Vertx Noop
+Vertx
 
-UnitedPhilosophersBenchmark.test_virtual_noop_verticle_philosophers                                  avgt    5  188.270 ±  19.858  ms/op
-UnitedPhilosophersBenchmark.test_verticle_noop_philosophers                                          avgt    5  275.030 ±  40.458  ms/op
-UnitedPhilosophersBenchmark.test_virtual_active_waiting_verticle_philosophers                        avgt    5   700.654 ±  33.354  ms/op
-UnitedPhilosophersBenchmark.test_virtual_blocking_reading_verticle_philosophers                      avgt    5  2208.642 ± 895.805  ms/op
-UnitedPhilosophersBenchmark.test_virtual_sleeping_verticle_philosophers                              avgt    5  4323.274 ±  25.593  ms/op
+UnitedPhilosophersBenchmark.test_virtual_noop_verticle_philosophers                                  avgt    5    204.009 ±   20.128  ms/op
+UnitedPhilosophersBenchmark.test_verticle_noop_philosophers                                          avgt    5    287.172 ±   31.099  ms/op
+UnitedPhilosophersBenchmark.test_virtual_active_waiting_verticle_philosophers                        avgt    5    838.508 ±  983.339  ms/op
+UnitedPhilosophersBenchmark.test_virtual_blocking_reading_verticle_philosophers                      avgt    5   3328.586 ±   90.783  ms/op
+UnitedPhilosophersBenchmark.test_virtual_sleeping_verticle_philosophers                              avgt    5   4239.687 ±  349.430  ms/op
 
 Виртуальные вертиклы лучше классических, бегущих в event loop на четверть
 На виртуальных вертиклах активное ожидание почти в 1,5 раза лучше блокирующего чтения, и в 4 раза лучше слипа
-Активное ожидание сравнимо со слипом на классике, блокирующее чтение и слип хуже минимум в 2 раза. Но это из-за прямолинейной реализации, не через
-В целом проигрывают по производительности классике на 2 порядка, но не по удобству программной модели и сложности реализации.
+Активное ожидание сравнимо со слипом на классике, блокирующее чтение и слип хуже минимум в 2 раза. 
+В целом проигрывают по производительности классике на 2 порядка, но не по удобству программной модели и простоте реализации.
+Активное ожидание какое-то стремное...
 
 --------------
 --------------
@@ -565,3 +568,4 @@ NoopVerticlePhilosophersBenchmark.test_verticle_noop_philosophers  avgt    5  26
 Т е все это время мы ничего не читали потому что ошиблись именем файла????!!!!
 И все "бенчмарки на смарку"
 Ну что ж - переделаем!
+Переделал, стало интереснее, обновил результаты, хорошо бы запилить суррогатный бенчмарк без палочек, точнее с одной палочкой!

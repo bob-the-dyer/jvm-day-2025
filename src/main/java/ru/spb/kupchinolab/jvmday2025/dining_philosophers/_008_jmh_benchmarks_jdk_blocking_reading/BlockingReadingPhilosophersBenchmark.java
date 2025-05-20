@@ -34,7 +34,7 @@ public class BlockingReadingPhilosophersBenchmark {
                 blackhole.consume(bytes.length);
                 blackhole.consume(stats);
             } catch (IOException e) {
-                Thread.currentThread().interrupt();
+                throw new RuntimeException(e);
             }
         };
     }
@@ -84,7 +84,7 @@ public class BlockingReadingPhilosophersBenchmark {
                 .include(BlockingReadingPhilosophersBenchmark.class.getSimpleName())
                 .forks(1)
                 .warmupIterations(1)
-                .measurementIterations(5)
+                .measurementIterations(10)
                 .jvmArgs("--enable-preview")
                 .build();
         new Runner(opt).run();

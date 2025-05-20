@@ -35,7 +35,7 @@ public class BlockingReadingVerticlePhilosophersBenchmark {
                 blackhole.consume(bytes.length);
                 blackhole.consume(stats);
             } catch (IOException e) {
-                Thread.currentThread().interrupt();
+                throw new RuntimeException(e);
             }
         };
     }
