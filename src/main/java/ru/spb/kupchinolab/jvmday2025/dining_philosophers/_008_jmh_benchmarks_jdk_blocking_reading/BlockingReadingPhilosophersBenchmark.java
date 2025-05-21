@@ -83,8 +83,8 @@ public class BlockingReadingPhilosophersBenchmark {
         Options opt = new OptionsBuilder()
                 .include(BlockingReadingPhilosophersBenchmark.class.getSimpleName())
                 .forks(1)
-                .warmupIterations(1)
-                .measurementIterations(10)
+                .warmupIterations(3)
+                .measurementIterations(7)
                 .jvmArgs("--enable-preview")
                 .build();
         new Runner(opt).run();

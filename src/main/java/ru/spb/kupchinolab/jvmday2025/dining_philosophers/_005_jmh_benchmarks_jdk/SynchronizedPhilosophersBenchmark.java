@@ -64,8 +64,8 @@ public class SynchronizedPhilosophersBenchmark {
         Options opt = new OptionsBuilder()
                 .include(SynchronizedPhilosophersBenchmark.class.getSimpleName())
                 .forks(1)
-                .warmupIterations(1)
-                .measurementIterations(5)
+                .warmupIterations(3)
+                .measurementIterations(7)
                 .jvmArgs("--enable-preview")
                 .build();
         new Runner(opt).run();

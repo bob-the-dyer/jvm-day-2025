@@ -64,8 +64,8 @@ public class SleepingVerticlePhilosophersBenchmark {
         Options opt = new OptionsBuilder()
                 .include(SleepingVerticlePhilosophersBenchmark.class.getSimpleName())
                 .forks(1)
-                .warmupIterations(1)
-                .measurementIterations(5)
+                .warmupIterations(3)
+                .measurementIterations(7)
                 .build();
         new Runner(opt).run();
     }

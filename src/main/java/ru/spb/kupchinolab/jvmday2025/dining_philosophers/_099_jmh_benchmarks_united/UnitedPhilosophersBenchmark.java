@@ -159,6 +159,21 @@ public class UnitedPhilosophersBenchmark {
     }
 
     @Benchmark
+    public void test_sleeping_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
+        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructSleepingEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD));
+    }
+
+    @Benchmark
+    public void test_blocking_reading_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
+        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructBlockingReadingEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD));
+    }
+
+    @Benchmark
+    public void test_active_waiting_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
+        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructActiveWaitingEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD));
+    }
+
+    @Benchmark
     public void test_virtual_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
         test_verticle_philosophers_internal(VirtualVerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD));
     }
@@ -220,9 +235,9 @@ public class UnitedPhilosophersBenchmark {
         Options opt = new OptionsBuilder()
                 .include(UnitedPhilosophersBenchmark.class.getSimpleName())
                 .forks(1)
-                .warmupIterations(1)
-                .measurementIterations(5)
-                .jvmArgs("--enable-preview")
+                .warmupIterations(3)
+                .measurementIterations(7)
+                .jvmArgs("--enable-preview", "-Xmx4096m")
                 .build();
         new Runner(opt).run();
     }

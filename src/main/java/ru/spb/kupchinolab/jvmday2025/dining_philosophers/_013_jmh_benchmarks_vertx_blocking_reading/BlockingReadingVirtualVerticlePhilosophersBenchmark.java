@@ -68,8 +68,8 @@ public class BlockingReadingVirtualVerticlePhilosophersBenchmark {
         Options opt = new OptionsBuilder()
                 .include(BlockingReadingVirtualVerticlePhilosophersBenchmark.class.getSimpleName())
                 .forks(1)
-                .warmupIterations(1)
-                .measurementIterations(5)
+                .warmupIterations(3)
+                .measurementIterations(7)
                 .build();
         new Runner(opt).run();
     }

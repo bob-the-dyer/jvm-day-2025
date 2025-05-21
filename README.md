@@ -1,639 +1,519 @@
 # TODO тут будет название доклада
 
 ## Описание
+
 TODO тут будет описание доклада
 
-## Кому может быть интересно
+## Кому может быть интересно, целевая аудитория
+
 TODO
 
 ## Мотивация к появлению данного доклада
-TODO
- 
-## TODO Ссылка на доклад на хайлоде
 
-## TODO Минимум знаний, необходимый для понимания:
- - concurrency - synchronized, ReentrantLock, CyclicBarrier, AtomicInteger (CAS)
- - junit 5
- - jmh
- - Virtual threads, Structured Concurrency - необязательно, но не будут объясняться на пальцах с нуля
- - https://vertx.io (если войдет в доклад) - только то что надо для понимания доклада
- 
-## TODO Что разбирается в проекте
+### 1
 
-Тут надо определить какие именно феномены хочется продемонстрировать и мифы развенчать:
+Я делал доклад в 2019 на хайлоде, кому интересно проходите по ссылке.
 
-Претенденты
- - очевидный - кол-во потоков 10К, 1М
- - switch context (быстрее) 
- - blocking (on IO)
- - есть пининг или реально починили
+В докладе сравнивал решения для 3 классических задач многопоточности на "классике" и вертексе, потому что классику
+сложная, а в вертексе прикольный API и подход.
 
-Формат разбора задач: 
- 1. постановка задачи
- 1. решение synchronized
- 1. решение ReentrantLock
- 1. (под вопросом) решение на vert.x без блокировок
- 1. сравнение производительности, результаты JMH  
- 1. масштабирование раз  
- 1. масштабирование два  
- 1. сравнительный анализ
- 1. добавляем виртуальности во все и все заново
- 1. общее сравнение
+У меня остался открытый гештальт - честно измерить производительность решений.
 
-## TODO Итоги выводы
+### 2
+
+Коллеги говорят, установили spring.threads.virtual.enabled=true и все стало быстрее в 2 раза
+
+### 3
+
+Другие коллеги говорят, установили spring.threads.virtual.enabled=true и ничего не изменилось
+
+### 4
+
+Другие коллеги говорят, установили spring.threads.virtual.enabled=true и ничего не изменилось
+
+### 4
+
+Вышли виртуальные потоки
+
+## Ссылка на доклад на хайлоде
+
+https://youtu.be/BpjpPrH_0p0
+
+## Минимум знаний, необходимый но недостаточный для полноценного понимания материала:
+
+- concurrency - synchronized, ReentrantLock, CyclicBarrier, AtomicInteger (CAS)
+- virtual threads, structured concurrency - необязательно, но не будут объясняться на пальцах с нуля
+- junit 5
+- jmh
+- vert.x
+
+## Что разбирается в проекте
+
+Феномены, которые хочется продемонстрировать, мифы которые хочется развенчать.
+
+- виртуальные потоки создаются легко в большом количестве: 10К, 100К, 1КК
+- switch context виртуальных потоков быстрее платформенных
+- blocking (on IO) на виртуальных потоках быстрее
+- пининг на synchronized реально починили
+- решения на вертекс сравнимы по производительности с "классикой"
+  (тут и далее под классикой понимаем java concurrency и инструментарий из java.util.concurrent, включая project loom)
+- решения на вертекс проще и нагляднее с точки зрения АПИ чем классика
+- synchronized по производительности работает хуже ReentrantLock
+- инженерный подход (измеряю-анализирую-синтезирую-измеряю) применим
 
 ## Ссылки
+
 https://wiki.openjdk.org/display/loom/Main
 https://openjdk.org/jeps/444
 https://openjdk.org/jeps/505
 https://en.wikipedia.org/wiki/Dining_philosophers_problem
 https://spring.io/blog/2022/10/11/embracing-virtual-threads
-https://vertx.io
-https://vertx.io/docs/4.5.14/vertx-core/java/#virtual_threads
-https://vertx.io/docs/4.5.14/vertx-junit5/java/
+https://vertx.io/docs/5.0.0/vertx-core/java/#virtual_threads
+https://vertx.io/docs/5.0.0/vertx-junit5/java/
 
 ## Цитаты для разбора и использования за и против и затравки
 
-Virtual threads are not faster threads — they do not run code any faster than platform threads. They exist to provide scale (higher throughput), not speed (lower latency). There can be many more of them than platform threads, so they enable the higher concurrency needed for higher throughput according to Little's Law.
+### Loom
 
-To put it another way, virtual threads can significantly improve application throughput when
- - The number of concurrent tasks is high (more than a few thousand), and
- - The workload is not CPU-bound, since having many more threads than processor cores cannot improve throughput in that case.
+> Virtual threads are not faster threads — they do not run code any faster than platform threads. They exist to provide
+> scale (higher throughput), not speed (lower latency). There can be many more of them than platform threads, so they
+> enable the higher concurrency needed for higher throughput according to Little's Law.
 
-Virtual threads are not cooperative.
+> To put it another way, virtual threads can significantly improve application throughput when
+> - The number of concurrent tasks is high (more than a few thousand), and
+> - The workload is not CPU-bound, since having many more threads than processor cores cannot improve throughput in that
+    case.
 
-Typically, a virtual thread will unmount when it blocks on I/O or some other blocking operation in the JDK, such as BlockingQueue.take(). When the blocking operation is ready to complete (e.g., bytes have been received on a socket), it submits the virtual thread back to the scheduler, which will mount the virtual thread on a carrier to resume execution.
+> Virtual threads are not cooperative.
 
-The vast majority of blocking operations in the JDK will unmount the virtual thread, freeing its carrier and the underlying OS thread to take on new work. However, some blocking operations in the JDK do not unmount the virtual thread, and thus block both its carrier and the underlying OS thread. This is because of limitations either at the OS level (e.g., many filesystem operations) or at the JDK level (e.g., Object.wait())
+> Typically, a virtual thread will unmount when it blocks on I/O or some other blocking operation in the JDK, such as
+> BlockingQueue.take(). When the blocking operation is ready to complete (e.g., bytes have been received on a socket),
+> it
+> submits the virtual thread back to the scheduler, which will mount the virtual thread on a carrier to resume
+> execution.
 
-There are two scenarios in which a virtual thread cannot be unmounted during blocking operations because it is pinned to its carrier:
- - When it executes code inside a synchronized block or method, or
- - When it executes a native method or a foreign function.
+> The vast majority of blocking operations in the JDK will unmount the virtual thread, freeing its carrier and the
+> underlying OS thread to take on new work. However, some blocking operations in the JDK do not unmount the virtual
+> thread, and thus block both its carrier and the underlying OS thread. This is because of limitations either at the OS
+> level (e.g., many filesystem operations) or at the JDK level (e.g., Object.wait())
 
-The stacks of virtual threads are stored in Java's garbage-collected heap as stack chunk objects.
+> There are two scenarios in which a virtual thread cannot be unmounted during blocking operations because it is pinned
+> to its carrier:
+> - When it executes code inside a synchronized block or method, or
+> - When it executes a native method or a foreign function.
 
-Unlike platform thread stacks, virtual thread stacks are not GC roots, so the references contained in them are not traversed in a stop-the-world pause by garbage collectors, such as G1, that perform concurrent heap scanning. This also means that if a virtual thread is blocked on, e.g., BlockingQueue.take(), and no other thread can obtain a reference to either the virtual thread or the queue, then the thread can be garbage collected — which is fine, since the virtual thread can never be interrupted or unblocked. Of course, the virtual thread will not be garbage collected if it is running or if it is blocked and could ever be unblocked.
+> The stacks of virtual threads are stored in Java's garbage-collected heap as stack chunk objects.
 
-## Повествование в формате мозгового штурма и истории героя
+> Unlike platform thread stacks, virtual thread stacks are not GC roots, so the references contained in them are not
+> traversed in a stop-the-world pause by garbage collectors, such as G1, that perform concurrent heap scanning. This
+> also
+> means that if a virtual thread is blocked on, e.g., BlockingQueue.take(), and no other thread can obtain a reference
+> to
+> either the virtual thread or the queue, then the thread can be garbage collected — which is fine, since the virtual
+> thread can never be interrupted or unblocked. Of course, the virtual thread will not be garbage collected if it is
+> running or if it is blocked and could ever be unblocked.
 
-Навеяно spring.threads.virtual.enabled=true и все стало быстрее или не стало
+### Vert'x
 
-Я делал доклад. Смотрите как там все было (ссыдка на хайлод)
+> A virtual thread verticle is just like a standard verticle but it’s executed using virtual threads, rather than using
+> an event loop.
 
-Еще остался открытый гештально про точные измерения, тесты конечно показывали сравнительно схожие результаты, но без официальных
-jmh замеров я не чувствовал что могу что-то утверждать, формулировки были обтекаемые
+> Virtual thread verticles are designed to use an async/await model with Vert.x futures.
 
-И в подумал а что будет если просто взять и на философах все померять. Дополнитеьно зарелилился проект Лум поэтому стало 
-актуально провести измерения и для  виртуальных потоков
+## История героя
 
-ТУТ МОЖНО провести голосования про ожидания по скорости для философов для 1К штук, для ReentrantLock synchronized и вертекса для 
-платформенных и виртуальных потоков - зафиксировать и может даже сразу заспойлерить как оно вышло. 
+### Представляюсь, мотивация, прошлый доклад, для кого, озвучиваю план крупными мазками
 
-Взял старый код. упростил его до предела и запустил и .. неповерил
+### Беру прошлое решение для философов на ReentrantLock с хайлода и сильно его упрощаю: убираю случайную задержку на кормлении и смотрю что получается
 
-Какая то проблема с остановкой потоков через exit или Timer?
-Неужели атомик внутри виртуальных потоков что делает что становится хуже платформенных потоков?
-Виртуальные хуже, по производительности, но платформенных 10К не создать
+[_001_reentrant_naive](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_001_reentrant_naive)
+Почему философов: хорошо масштабируются. Ну и восток наше все!
+Начал с ReentrantLock, погонял на платформенных потоках и на виртуальных;
+На глаз может показаться что виртуальные потоки показывают худшее время, но я решил не верить не бенчмаркам или тестам;
+Но чтобы написать тест или бенчмарк нам не подойдет решение, которое бежит указанное время, надо сделать pivot
 
-Кстати, а как узнать сколько платформенных потоков можно создать неэмпирически?
+### Pivot для ReentrantLock + structured concurrency
 
-Нет, кажется мы реально просто не успеваем создать все потоки - проверим - вернул барьер
-Может проблема в jdk? Меняем с либерики на оракл, с платформенными потоками тот же рез (24,0,1) а с виртуальными в 2 раза лучше!!!
-Вот это да, может проблема в полной версии - качаю не полную версию либерики - результат лучше чем у полной, хуже чем у оракловой
-Ну и контролный выстрел в голову - проверить чо как на ea openjdk 25й - не завелось в IDE : it is configured to use JDK 0, but IDE supports compilation using JDK 7 and newer only
-Итого - ничего не понятно, пару раз на фул тоже показало норм результат, еще залипает барьер, это совсем нехорошо - РАЗОБРАТЬСЯ БЫ ПОЧСЕПУ, все равно всплывет на тестах jmh
-Переключаюсь на опен ждк
-Какие тут возможны выводы - взятие и отпускание блокировок происходит эффективнее, т к пдатформенный поток не уходит в блок
-Но важно отметить, что виртуальные потоки НЕ для этого были сделаны, а как раз наоброт для некооперативного взаимодействия
+[_002_reentrant_pivot](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_002_reentrant_pivot)
+Переписываю логику, чтобы иметь возможность мерять время выполнения с указанным числом философов до того момента когда
+один из философов совершит указанное число кормлений;
+И для пивота, оказывается, очень подходит structured concurrency: оно само остановит выполнение по достижении одним из
+философов указанного числа кормлений.
+Вот теперь можно писать тесты и бенчмарки, но прежде ...
 
-Оценку доступных платформенных потоков через Thread.activeCount()
+### Решение для synchronized + Pivot
 
-Для 5 тыс фил всего 3 платформенных потока! Только один из них сам таймер, второй шатдаун хук жвм, мейн уже ушел, под дебагером вообще куча, сособенно в пулах форк джойна - короче, так себе эстимейт
+[_003_synchronized_pivot](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_003_synchronized_pivot)
+Беру прошлое решение для философов с synchronized с хайлода и сильно его упрощаю и сразу делаю pivot
 
-Для платформенных потоков - 1003 - ну тыс понятно, а 3 оставшихся непонятно
+### Решение для synchronized + Pivot
 
-На моей тачке для пользовательского жава процесса 4060+ примерно платформенных потоков : 2,6 GHz 6-Core Intel Core i7  16 GB
+[_004_junit5_tests_jdk](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_004_junit5_tests_jdk)
+Теперь можно написать юнит тесты.
+Нам хорошо подойдет @RepeatedTest(200), уже можно будет сравнивать платформенные потоки с виртуальными и ReentrantLock с
+synchronized.
+На 200 повторов с 1К философов и 10К кормлений в пике результаты такие:
 
-тут надо сделать пивот для кода и считать время для 1 тыс до 1млн попыток с jmh, протестировать метод и подтвердить ускорение
-Пивот также поможет нам избавиться от CAS, упростим логику - дождемся пока 1 из философов поест определенное кол-во раз (это будет последний)
-И остановимся- вот теперь можно считать время выполнения и пилить бенчмарк на JMH
-Также кажется что нам может помочь Structured Concurrency - заодно проверим как оно работает и что требует от кода.
+[Test Results - _004_junit5_tests_jdk_in_jvm-day-2025.html](Test%20Results%20-%20_004_junit5_tests_jdk_in_jvm-day-2025.html)
+По тестам можно решить что виртуальные треды на порядок рвут платформенные, при этом под синхронайзом они быстрее
+реентрант лока. Это мы проверим на бенчмарках! Позже!
 
-Не забываем включить --enable-preview в аргументы компилятора и рантайма для 24й жавы, релиз планируется в 25 - ну-ну
+### Нюансы с компилятором, рантаймом и железом
 
-Так как по умолчанию под капотом виртуальные потоки то явно передаем фабрику
-С платформенными потоками все как ожидается:
-[0.701s][warning][os,thread] Failed to start thread "Unknown thread" - pthread_create failed (EAGAIN) for attributes: stacksize: 1024k, guardsize: 4k, detached.
-[0.702s][warning][os,thread] Failed to start the native thread for java.lang.Thread "Thread-4065"
-Exception in thread "main" java.lang.OutOfMemoryError: unable to create native thread: possibly out of memory or process/resource limits reached
+На разных jdk + jvm были немного разные результаты по погрешностям, разбор почему так происходит выходит за рамки
+доклада;
+Средние значения если и различались то несущественно.
 
-ТОлько что-то очень быстро... Не верю меняем булеан на инт
-И таки да - 200мс на платформенных тредах
-А что на виртуальных - где-то также, давайте поднимем до 10М кормлений 
-10М кормлений - вот теперь больше секунды на виртуальных, и меньше секунды на платформенных - можно и подрубать jmh и разбираться как так!
+Проверки делались на:
 
-Но до этого давайте проверим а есть ли разница с синхронайзами вместо ReentrantLock
-На первый взгляд платформенные типа секунды а виртульные пошустрее, опять же жмх покажет
+- openjdk-24.0.1
+- liberica-full-24.0.1
+- liberica-24.0.1
+- temurin-24.0.1
 
-Кстати а может можно не только jmh попробовать для оценки? Может ли юнит тестом?
-Это может быть удобно для отделения логики инициализации от логики "кормления". Также идея показывает время исполнения а еще можно заюзать параметризованные тесты для множественных прогонов с разным колвом философов
-С разным получилось неудовно отделять инит от кормления, погонял с 1К заюзал @RepeatableTest
-Разница на 100 прогонов: 
-1мин 15 сек против 1 мин 2 сек
-1мин 16 сек против 1 мин 9 сек
+В дальнейшем все компилировалось и бежало на openjdk-24.0.1, конечные результаты приведены также для нее.
+Также все эксперименты кроме скалирования приведены для 1К философов и до 10К кормлений в пике для первого философа.
+Все тестировалось на моей локельной тачке macOS 15.5:  2,6 GHz 6-Core Intel Core i7 16 GB, диск APPLE SSD AP0512N
+На моей тачке для пользовательского жава процесса доступно примерно 4060+ платформенных потоков.
+При переборе летит, как и ожидалось:
+> [0.701s][warning][os,thread] Failed to start thread "Unknown thread" - pthread_create failed (EAGAIN) for attributes:
+> stacksize: 1024k, guardsize: 4k, detached.
+> [0.702s][warning][os,thread] Failed to start the native thread for java.lang.Thread "Thread-4065"
+> Exception in thread "main" java.lang.OutOfMemoryError: unable to create native thread: possibly out of memory or
+> process/resource limits reached
 
-Очень удобно наш тест превратить в бенчмарк - просто добавляем аннотаций и main
-Правда сгенеренные jmh классы гаследуются от тестов и как тесты тоже воспринимаются, надо их исключить по регэкспу .*jmhType.* и убрать в ide
-Но в итоге для запуска не очень удобно, копируем в родной src
+Конкретнее покажет Thread.activeCount(), но не точно, а примерно. Для виртуальных тредов под дебагером вообще остается
+один активный;
+И не забываем включить опцию для компилятора и VM --enable-preview чтоб заработало structured concurrency, релиз
+планируется в 25 - ну-ну
 
-openjdk-24.0.1
+### Нюансы с методологией тестирования и замерами
 
-Benchmark                                                                                  Mode  Cnt    Score    Error  Units
-SynchronizedPhilosophersBenchmark.    test_synchronized_philosophers_with_virtual_threads  avgt   10  554.518 ± 33.901   ms/op
-ReentrantLockPhilosophersBenchmark. test_reentrant_lock_philosophers_with_virtual_threads  avgt   10  628.616 ± 46.746   ms/op
-ReentrantLockPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt   10  815.053 ± 123.329  ms/op
-SynchronizedPhilosophersBenchmark.   test_synchronized_philosophers_with_platform_threads  avgt   10  878.041 ± 13.191   ms/op
+Изначально я задумывал разделить в тестах и бенчмарках логику инициализации философов и их прогоны, чтобы время
+инициализации не считалось и не входило в конечный замер. Однако это сильно усложнило логику сброса состояния философов
+между прогонами и в итоге я решил от этого отказаться. Абсолютные числа получились больше, но они ничего не значат сами
+по себе, важен только порядок и отношения.
 
+Эмпирически было установлено что 3 разогревочных прогонов почти всегда хватает чтобы боевые замеры ложились кучнее
 
-Для нескольких jdk, для нескольких количеств, окружение будет локальным, но максимально одинаковым - перебор, надо быть прагматичнм 
-Но тем не менее а что там с либерикой фул? не перекомпилируем, байткод от openjdk-24.0.1
+Макс Размер хипа для форкнутого бенчмарка в 4Гб хватало чтобы не ловить OOM в кишках вертекса типа такого на небольших
+кол-вах филосовов и кормлений:
+> Exception: java.lang.OutOfMemoryError thrown from the UncaughtExceptionHandler in thread "
+> vertx-blocked-thread-checker"
+> Exception: java.lang.OutOfMemoryError thrown from the UncaughtExceptionHandler in thread "
+> ru.spb.kupchinolab.jvmday2025.dining_philosophers._
+>
+999_jmh_benchmarks_scaled.ScaledPhilosophersBenchmark.test_1000K_1000K_virtual_noop_verticle_philosophers-jmh-worker-1"
 
-liberica-full-24.0.1
+Однако на больших кол-вах процессы просто замирали. Доказывать причину не пошел, есть стойкое ощущение что это затык на
+внутренней шине - кол-во подписок и внутренних событий штормило и убивало полезную логику
 
-Benchmark                                                                                  Mode  Cnt    Score     Error  Units
-SynchronizedPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads      avgt   10  609.942 ± 69.725  ms/op
-ReentrantLockPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt   10  794.222 ±  30.801  ms/op
-ReentrantLockPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt   10  860.768 ± 244.107  ms/op
-SynchronizedPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads     avgt   10  973.529 ± 56.013  ms/op
+Вертекс в тестах и бенчмарках по-честному стопается, это занимает некоторое время, но убирает ругань в логах вертекса на
+жесткое выключение под работающими вертиклами и честно стопает процесс, в противном случае:
+> JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 9 seconds more...
 
-Ага, т е принципиально все как в openjdk, только немного медленнее
-ЛАдно, обычную либерику, тимурин и все!
+Логирование для вертекса было отключено чтобы не тратить время на вывод в консоль.
 
-liberica-24.0.1
+### Пишем первые бенчмарки чтобы уже на что-то опираться - jmh
 
-Benchmark                                                                                  Mode  Cnt    Score     Error  Units
-SynchronizedPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads      avgt   10  621.846 ± 17.671  ms/op
-ReentrantLockPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt   10  656.492 ± 46.289  ms/op
-SynchronizedPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads     avgt   10  845.692 ± 74.872  ms/op
-ReentrantLockPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt   10  850.776 ± 313.852  ms/op
+[_005_jmh_benchmarks_jdk](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_005_jmh_benchmarks_jdk)
+Сначала казалось, что если обогатить юнит тест правильными аннотациями и дописать мейн метод то юнит тест легко
+заработает и как бенчмарк.
+Но оказалось, что сгенеренный jmh код тоже воспринимается как тесты ибо наследуется от тестов и в итоге запускается как
+тест. Поэтому решил не экономить на копипасте. Используем черную дыру для исключения эффектов оптимизаций.
 
-temurin-24.0.1
+Benchmark Mode Cnt Score Error Units
+ReentrantLockPhilosophersBenchmark.test_reentrant_lock_noop_philosophers_with_virtual_threads avgt 7 2.088 ± 0.122 ms/op
+SynchronizedPhilosophersBenchmark.test_synchronized_noop_philosophers_with_virtual_threads avgt 7 2.235 ± 0.100 ms/op
+SynchronizedPhilosophersBenchmark.test_synchronized_noop_philosophers_with_platform_threads avgt 7 114.038 ± 16.327
+ms/op
+ReentrantLockPhilosophersBenchmark.test_reentrant_lock_noop_philosophers_with_platform_threads avgt 7 137.708 ± 13.519
+ms/op
+Benchmark Mode Cnt Score Error Units
 
-Benchmark                                                                                  Mode  Cnt    Score    Error  Units
-SynchronizedPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads      avgt   10  587.261 ± 40.373  ms/op
-ReentrantLockPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt   10  682.728 ± 68.705  ms/op
-ReentrantLockPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt   10  857.365 ± 300.106  ms/op
-SynchronizedPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads     avgt   10  885.470 ± 78.029  ms/op
+Видно что виртуальные потоки справляются лучше платформенных на 2 порядка, а synchronized и ReentrantLock сравнимы в
+пределах погрешности
 
+### Методология проверки пининга синхронайза на блокирующем вызове
 
-Интересно, а есть ли разница с синхронайзом? 
-Пишем точно такой же код, тестируем с jmh
+Выяснили что с виртуальными потоками мы можем держать огромное кол-во некооперирующих потоков - хорошо для промышленных
+стандартных задач! А именно обработка запросов на вебсервере
 
-Ладно, выяснили что с виртуальными потоками мы можем держать огромное кол-во некооперирующих потоков - хорошо для промышленных стандартных задач! а именно обработка запросов на вебсервере
+Но наш филосов не покажет нам пининг, так как внутри кормления нет блокирующего метода, так давайте же сделаем.
 
-Но это не покажет нам пининг, так как внутри нет блокирующего метода, так давайте же сделаем - урл(-)? очередь(?)?
+Какие варианты устроить настоящую блокировку:
 
-Модифицируем философов чтобы они принимали в себя рабочую нагрузку через Runnable и далее выбираем что-нить с блокировкой и проверяем
-что случится со временем исполнения - TODO next
+- поход по сети по урлу (непредсказуемо из-за самой сети или упремся в сервер)
+- вызов блокирующего вызова на блокующей очереди (сложно сделать непротиворечивую логику)
+- чтение файла (не идеально, но предсказуемей на SSD и на последовательном чтении)
 
-Для удобства объединяем бенчмарки с философами поддерживающими нагрузку
+А сравнивать по производительности будем с
 
-Benchmark                                                                           Mode  Cnt     Score     Error  Units
-UnitedPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt   10   646.277 ±  42.920  ms/op
-UnitedPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt   10   753.216 ±  41.038  ms/op
-UnitedPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt   10   866.056 ± 137.308  ms/op
-UnitedPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt   10  1041.406 ±  68.076  ms/op
+- активным ожиданием (читай итерация в цикле по времени) на время сопоставимое со временем последовательрного чтения из
+  файла на SSD
+- слипами потока на время сопоставимое со временем последовательрного чтения из файла на SSD
 
-Теперь в теории - что будет если мы уснем внутри кормления: ожидаю что время до 1М сильно увеличится,стоит сделать 3 теста 
- - просто слип
- - трушный блокирующий вызов
- - вызов не отпускающий процессор
-И сравнить
+Модифицируем всех философов, чтобы они принимали в себя рабочую нагрузку и поочередно замеряем.
 
-Как выбрать слип, что будем тетсировать? Будем целиться в трушный блокирующий вызов, чтобы испытать всю мощь виртуальных потоков
-
-Давайте глянем на кусочек из модного систем дезайн интервью
-
+Давайте глянем на кусочек из модного систем дезайн интервью:
 https://habrastorage.org/r/w1560/getpro/habr/upload_files/20b/769/22f/20b76922f1069403081d4b0818d24970.png
 
-По сети не хочется ходить, можно попробовать читать из файловой системы последовательно - тоже считай поток, но не 1МВ а 16Кб - 1мс * 0,016
-read sequentially from SSD 16КБ
-С 10 млн кормлений вообще не пошло, надо уменьшать. 10К кормлений вроде норм, время получается примерно как в предыдущих измерениях:
+Тут находим опорное значени для чтения, опытным путем приходим к "правильному" размеру файла - 16КB: не слишком долго и
+не слишком мало.
+Ожидаемое Время - 16К nanosec
 
-Со слипами выглядит так:
+### Модифицируем философов так, чтобы они принимали в себя рабочую нагрузку
 
-2K nano
+### Модифицируем бенчмарки так, чтобы они отдавали в филосовов рабочую нагрузку и тестируем в 4 вариантах
 
-Benchmark                                                                             Mode  Cnt    Score     Error  Units
-SleepingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt   10  300.200 ±  26.227  ms/op
-SleepingPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt   10  489.348 ±  44.136  ms/op
-SleepingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt   10  558.963 ± 115.968  ms/op
-SleepingPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt   10  911.034 ± 178.677  ms/op
+[_006_jmh_benchmarks_jdk_noop](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_006_jmh_benchmarks_jdk_noop)
 
-4K nano
+Benchmark Mode Cnt Score Error Units
+NoopPhilosophersBenchmark.test_reentrant_lock_noop_philosophers_with_virtual_threads avgt 7 1.898 ± 0.048 ms/op
+NoopPhilosophersBenchmark.test_synchronized_noop_philosophers_with_virtual_threads avgt 7 1.927 ± 0.058 ms/op
+NoopPhilosophersBenchmark.test_synchronized_noop_philosophers_with_platform_threads avgt 7 96.351 ± 0.709 ms/op
+NoopPhilosophersBenchmark.test_reentrant_lock_noop_philosophers_with_platform_threads avgt 7 129.329 ± 15.365 ms/op
 
-Benchmark                                                                             Mode  Cnt    Score     Error  Units
-SleepingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt   10  306.614 ±  28.454  ms/op
-SleepingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt   10  583.215 ±  38.467  ms/op
-SleepingPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt   10  600.634 ±  56.313  ms/op
-SleepingPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt   10  856.902 ± 154.720  ms/op
+Виртуальные потоки на 2 порядка лучше, а synchronized и ReentrantLock сравнимы в пределах погрешности, тут все бьется с
+предыдущими измерениями
 
-как-то не очень четко, попробую увеличить
+Будем аккуратно сравнивать между собой следующие 3 бенчмарки, т к можем промахнуться с оценкой операции чтения с ССД
 
-16K nano
+[_007_jmh_benchmarks_jdk_sleeping](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_007_jmh_benchmarks_jdk_sleeping)
 
-Benchmark                                                                             Mode  Cnt     Score     Error  Units
-SleepingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt   10   735.126 ±  62.426  ms/op
-SleepingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt   10   779.768 ±  61.017  ms/op
-SleepingPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt   10   986.950 ± 491.154  ms/op
-SleepingPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt   10  1039.079 ± 115.318  ms/op
+Benchmark Mode Cnt Score Error Units
+SleepingPhilosophersBenchmark.test_reentrant_lock_sleeping_philosophers_with_platform_threads avgt 7 619.487 ± 57.005
+ms/op
+SleepingPhilosophersBenchmark.test_synchronized_sleeping_philosophers_with_platform_threads avgt 7 695.648 ± 47.757
+ms/op
+SleepingPhilosophersBenchmark.test_synchronized_sleeping_philosophers_with_virtual_threads avgt 7 743.421 ± 111.426
+ms/op
+SleepingPhilosophersBenchmark.test_reentrant_lock_sleeping_philosophers_with_virtual_threads avgt 7 757.324 ± 85.793
+ms/op
 
-Получается что виртульные треды и правда спят эффективнее платформенных, а синхронайзд хуже в 1,5 раза и на платформенных и на виртуальных - почему?
-Пининг или не пининг?
+Тут нет однозначности, я бы сказал со слипом что все сравнимо в пределах погрешностей. Если судить только по средним
+как-будто платформенные потоки лучше засыпают и просыпаются, с чего бы это на самом деле?...
 
-Ладно, теперь блокируещее чтение 16К файла
+[_008_jmh_benchmarks_jdk_blocking_reading](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_008_jmh_benchmarks_jdk_blocking_reading)
 
-Benchmark                                                                            Mode  Cnt      Score      Error  Units
-ReadingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt   10    700.584 ±   58.811  ms/op
-ReadingPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt   10    977.999 ±   57.780  ms/op
-ReadingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt   10   2096.228 ±  351.681  ms/op
-ReadingPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt   10  16220.032 ± 3672.652  ms/op
+Benchmark Mode Cnt Score Error Units
+BlockingReadingPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_platform_threads avgt 7
+585.240 ± 94.912 ms/op
+BlockingReadingPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_platform_threads avgt 7
+906.057 ± 107.330 ms/op
+BlockingReadingPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_virtual_threads avgt 7
+3610.834 ± 744.468 ms/op
+BlockingReadingPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_virtual_threads avgt 7
+17666.041 ± 5157.029 ms/op
+
+Как я вижу эти результаты?
+
+- виртуальные потоки на порядок или 2 хуже платформенных даже с учетом погрешности
+- последнюю строчку я бы интерпретировал даже не как пининг виртуального на блокирующем апи при внутри synchronized, а
+  провокацию или багу! я смотрю на synchronized в платформенном потоке и не понимаю почему виртуальному настолько плохо
+- самое вероятное объяснение - методология плоха тем что смешивает измерение производительности при борьбе за
+  палочки/мониторы и блокирующее чтение ИЛИ чтение файла было не самой лучшей идеей
+- лучшие результаты по блокирующему чтению под мониторами по времени похожи на слип но хуже в 2,5 раза активного
+  ожидания
+
+ТУТ ПОКА ОТКРЫТЫЙ ВОПРОС ЧТО ДЕЛАТЬ
+
+[_009_jmh_benchmarks_jdk_active_waiting](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_009_jmh_benchmarks_jdk_active_waiting)
+
+Benchmark Mode Cnt Score Error Units
+ActiveWaitingPhilosophersBenchmark.test_synchronized_active_waiting_philosophers_with_virtual_threads avgt 7 170.812 ±
+7.355 ms/op
+ActiveWaitingPhilosophersBenchmark.test_reentrant_lock_active_waiting_philosophers_with_virtual_threads avgt 7 178.575 ±
+16.057 ms/op
+ActiveWaitingPhilosophersBenchmark.test_synchronized_active_waiting_philosophers_with_platform_threads avgt 7 303.367 ±
+12.389 ms/op
+ActiveWaitingPhilosophersBenchmark.test_reentrant_lock_active_waiting_philosophers_with_platform_threads avgt 7
+416.446 ± 92.891 ms/op
+
+Активное ожидание показывает лучшие результаты на виртуальных потоках в 1,5 раза, остальное в пределах погрешностей.
+
+Косвенно это может означать что если вам не повезло с драйвером и он не уходит в IO то на виртуальных потоках под
+нагрузкой все равно может получиться профит за счет более быстрого переключения контекста, НО ТОЛЬКО если нет затыков на
+самом
+драйвере.
+
+Другой осторожный вывод: активно ждать эффективнее слипа
+
+### В этом месте по идее надо уходить и строить специальный тест без захвата 2-х палок чисто на блокирующее чтение из-под монитора.
+
+### Вместо этого мы слегка уходим в сторону и возвращаемся к акторной модели и вертексу
+
+### Минимальный ликбез по вертексу+акторной модели
+
+- Мультиреактор
+- На моем компе 12 логических ядер - в вертексе будет мультиреактор на 12 потоков
+- Виды вертиклов
+- Особенность кода для виртуальных вертиклов
+- Очереди+топики+sharedata - то что надо понять для примеров
+
+### Реализуем философов на вертексе сразу так, чтобы затаскивать в тесты и в бенчмарки (pivot)
+
+[_010_vertx_pivot](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_010_vertx_pivot)
+
+Код получился чище - без классической конкарренси совсем!
+
+[_011_junit5_tests_vertx](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_011_junit5_tests_vertx)
+
+Затащил тестовую библиотеку для вертекса. Удобно.
+
+[Test Results - _011_junit5_tests_vertx_in_jvm-day-2025.html](Test%20Results%20-%20_011_junit5_tests_vertx_in_jvm-day-2025.html)
+
+По тестам виртуальные вертиклы рвут те что в event-loop в 1,5 раза, посмотрим как в бенчмарке
+
+[_012_jmh_benchmarks_vertx_noop](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_012_jmh_benchmarks_vertx_noop)
+[_013_jmh_benchmarks_vertx_blocking_reading](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_013_jmh_benchmarks_vertx_blocking_reading)
+[_014_jmh_benchmarks_vertx_active_waiting](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_014_jmh_benchmarks_vertx_active_waiting)
+[_015_jmh_benchmarks_vertx_sleeping](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_015_jmh_benchmarks_vertx_sleeping)
+
+Тут следующие допущения:
+
+- ивент луп блокировать нельзя, блокирующее чтение и слипы в в ертексе запрещены - это надо делать либо в рабочих
+  вертиклах либо в виртуальных,
+  т е существующие стратегии constructXXXEating() по хорошему не подойдут для event loop вертиклов НО МЫ НАРУШИМ
+- в вертексе есть асинхронное/неблокирующее чтение файла - надо решить насколько честно было использовать его - НО МЫ НЕ
+  БУДЕМ ЕГО ИСПОЛЬЗОВАТЬ
+- также можно через таймер красиво решить активное ожидание - НО МЫ НЕ БУДЕМ ЭТОГО ДЕЛАТЬ
+
+### Объединенные бенчмарки по всем типам
+
+[_099_jmh_benchmarks_united](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_099_jmh_benchmarks_united)
+Для удобства проведения всех измерений за один прогон объединил все бенчмарки в один
+
+Benchmark Mode Cnt Score Error Units
+UnitedPhilosophersBenchmark.test_reentrant_lock_noop_philosophers_with_virtual_threads avgt 7 2.093 ± 0.220 ms/op
+UnitedPhilosophersBenchmark.test_synchronized_noop_philosophers_with_virtual_threads avgt 7 2.397 ± 0.164 ms/op
+UnitedPhilosophersBenchmark.test_synchronized_noop_philosophers_with_platform_threads avgt 7 109.763 ± 16.223 ms/op
+UnitedPhilosophersBenchmark.test_reentrant_lock_noop_philosophers_with_platform_threads avgt 7 131.368 ± 16.621 ms/op
+UnitedPhilosophersBenchmark.test_synchronized_active_waiting_philosophers_with_virtual_threads avgt 7 171.617 ± 4.052
+ms/op
+UnitedPhilosophersBenchmark.test_reentrant_lock_active_waiting_philosophers_with_virtual_threads avgt 7 179.902 ± 29.410
+ms/op
+UnitedPhilosophersBenchmark.test_virtual_noop_verticle_philosophers avgt 7 206.376 ± 12.699 ms/op
+UnitedPhilosophersBenchmark.test_verticle_noop_philosophers avgt 7 288.937 ± 26.813 ms/op
+UnitedPhilosophersBenchmark.test_synchronized_active_waiting_philosophers_with_platform_threads avgt 7 325.382 ± 34.030
+ms/op
+UnitedPhilosophersBenchmark.test_reentrant_lock_active_waiting_philosophers_with_platform_threads avgt 7 439.129 ±
+111.866 ms/op
+UnitedPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_platform_threads avgt 7 548.097 ±
+122.230 ms/op
+UnitedPhilosophersBenchmark.test_reentrant_lock_sleeping_philosophers_with_platform_threads avgt 7 611.358 ± 102.814
+ms/op
+UnitedPhilosophersBenchmark.test_reentrant_lock_sleeping_philosophers_with_virtual_threads avgt 7 649.195 ± 68.691 ms/op
+UnitedPhilosophersBenchmark.test_active_waiting_verticle_philosophers avgt 7 678.343 ± 22.580 ms/op
+UnitedPhilosophersBenchmark.test_virtual_active_waiting_verticle_philosophers avgt 7 718.618 ± 59.118 ms/op
+UnitedPhilosophersBenchmark.test_synchronized_sleeping_philosophers_with_platform_threads avgt 7 767.795 ± 89.405 ms/op
+UnitedPhilosophersBenchmark.test_synchronized_sleeping_philosophers_with_virtual_threads avgt 7 845.711 ± 78.225 ms/op
+UnitedPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_platform_threads avgt 7 929.553 ±
+73.032 ms/op
+UnitedPhilosophersBenchmark.test_blocking_reading_verticle_philosophers avgt 7 2820.554 ± 147.504 ms/op
+UnitedPhilosophersBenchmark.test_virtual_blocking_reading_verticle_philosophers avgt 7 3229.174 ± 106.756 ms/op
+UnitedPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_virtual_threads avgt 7 3578.460 ±
+558.093 ms/op
+UnitedPhilosophersBenchmark.test_sleeping_verticle_philosophers avgt 7 3596.082 ± 412.365 ms/op
+UnitedPhilosophersBenchmark.test_virtual_sleeping_verticle_philosophers avgt 7 3953.206 ± 232.746 ms/op
+UnitedPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_virtual_threads avgt 7 16583.318 ±
+4071.447 ms/op
+
+Комментарии
+
+- быстрее всего в классике либо ничего не делать, либо активно ждать. где-то рядом ничего не делать в вертексе
+- подтверждается на порядок просадка в производительности в блокирующем вызове виртуального потока под synchronized, что
+  особенно странно относительно такого же для платформенного имеем на порядок лучше показатель хотя там уже
+  платформенный поток
+
+### А теперь попробуем поскалировать наших философов по 2м измерениям: кол-ву философов и кол-ву кормлений
+
+[_999_jmh_benchmarks_scaled](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_999_jmh_benchmarks_scaled)
+
+В скалированный сводный бенчмарк не входят решения на вертексе с большими числами философов и кормлений;
+Это потому что такие бенчмарки залипают. Кажется, что шторм событий от подписок и отписок просто выносит всю полезную
+нагрузку. Ну а что с десятками тысяч вертиклов?
+
+ScaledPhilosophersBenchmark._020_test_0010K_0010K_synchronized_noop_philosophers_with_virtual_threads avgt 7 13.453 ±
+2.037 ms/op
+ScaledPhilosophersBenchmark._010_test_0010K_0010K_reentrant_lock_noop_philosophers_with_virtual_threads avgt 7 13.790 ±
+0.852 ms/op
+UnitedPhilosophersBenchmark._____test_0001K_0010K_test_virtual_noop_verticle_philosophers avgt 5 204.009 ± 20.128 ms/op
+UnitedPhilosophersBenchmark._____test_0001K_0010_verticle_noop_philosophers avgt 5 287.172 ± 31.099 ms/op
+ScaledPhilosophersBenchmark._040_test_0010K_0010K_noop_verticle_philosophers avgt 5 527.384 ± 330.028 ms/op
+ScaledPhilosophersBenchmark._030_test_0010K_0010K_virtual_noop_verticle_philosophers avgt 5 1028.263 ± 1976.565 ms/op
+
+Вертекс хуже на порядок классики?! Погрешности ужасны, вообще непонятно что намеряли?! Оснований доверять таким числам
+нет
+Оставляем только измерения для классики.
+
+UnitedPhilosophersBenchmark._____test_0001K_0010K_reentrant_lock_philosophers_with_virtual_thread avgt 5 1.952 ± 0.188
+ms/op
+UnitedPhilosophersBenchmark._____test_0001K_0010K_test_synchronized_philosophers_with_virtual_threads avgt 5 2.184 ±
+0.439 ms/op
+ScaledPhilosophersBenchmark._020_test_0010K_0010K_synchronized_noop_philosophers_with_virtual_threads avgt 7 13.453 ±
+2.037 ms/op
+ScaledPhilosophersBenchmark._010_test_0010K_0010K_reentrant_lock_noop_philosophers_with_virtual_threads avgt 7 13.790 ±
+0.852 ms/op
+ScaledPhilosophersBenchmark._100_test_0010K_0100K_synchronized_noop_philosophers_with_virtual_threads avgt 7 20.490 ±
+0.973 ms/op
+ScaledPhilosophersBenchmark._090_test_0010K_0100K_reentrant_lock_noop_philosophers_with_virtual_threads avgt 7 21.520 ±
+2.153 ms/op
+ScaledPhilosophersBenchmark._220_test_0010K_1000K_synchronized_noop_philosophers_with_virtual_threads avgt 7 70.700 ±
+1.221 ms/op
+ScaledPhilosophersBenchmark._210_test_0010K_1000K_reentrant_lock_noop_philosophers_with_virtual_threads avgt 7 72.035 ±
+1.424 ms/op
+ScaledPhilosophersBenchmark._060_test_0100K_0010K_synchronized_noop_philosophers_with_virtual_threads avgt 7 276.019 ±
+92.038 ms/op
+ScaledPhilosophersBenchmark._050_test_0100K_0010K_reentrant_lock_noop_philosophers_with_virtual_threads avgt 7 284.643 ±
+35.604 ms/op
+ScaledPhilosophersBenchmark._130_test_0100K_0100K_reentrant_lock_noop_philosophers_with_virtual_threads avgt 7 297.571 ±
+37.570 ms/op
+ScaledPhilosophersBenchmark._140_test_0100K_0100K_synchronized_noop_philosophers_with_virtual_threads avgt 7 255.395 ±
+102.263 ms/op
+ScaledPhilosophersBenchmark._142_test_0100K_1000K_reentrant_lock_noop_philosophers_with_virtual_threads avgt 7 351.140 ±
+102.412 ms/op
+ScaledPhilosophersBenchmark._144_test_0100K_1000K_synchronized_noop_philosophers_with_virtual_threads avgt 7 382.512 ±
+60.712 ms/op
+ScaledPhilosophersBenchmark._180_test_1000K_0010K_synchronized_noop_philosophers_with_virtual_threads avgt 7 3847.501 ±
+197.755 ms/op
+ScaledPhilosophersBenchmark._170_test_1000K_0010K_reentrant_lock_noop_philosophers_with_virtual_threads avgt 7
+4307.880 ± 402.627 ms/op
+ScaledPhilosophersBenchmark._182_test_1000K_0100K_reentrant_lock_noop_philosophers_with_virtual_threads avgt 7
+3993.247 ± 530.418 ms/op
+ScaledPhilosophersBenchmark._184_test_1000K_0100K_synchronized_noop_philosophers_with_virtual_threads avgt 7 4089.308 ±
+576.735 ms/op
+ScaledPhilosophersBenchmark._250_test_1000K_1000K_reentrant_lock_noop_philosophers_with_virtual_threads avgt 7
+3931.608 ± 460.112 ms/op
+ScaledPhilosophersBenchmark._260_test_1000K_1000K_synchronized_noop_philosophers_with_virtual_threads avgt 7 3792.618 ±
+352.711 ms/op
+
+В классике очень логичная лесенка по порядкам философов: увеличиваем кол-во философов на порядок - время увеличивается
+на порядок, т е предсказуемое, линейное масштабирование.
+
+В классике целевое кол-во кормлений незначительно влияет на время выполнения - не на порядки как с ростом философов:
+небольшая, линейная и даже инога в пределах погрешности.
 
-Очень неожиданный результат, есть подозрение что бенчмарка врет, давайте попробуем еще раз сделать что0нить чтобы было честнее - Blackhole!
-Ну или чтение с фаайловой системы не самый лучший выбор!
-
-Но для начала просто повторим 
-
-Benchmark                                                                            Mode  Cnt      Score      Error  Units
-ReadingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt   10    757.588 ±  186.689  ms/op
-ReadingPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt   10    992.817 ±  135.487  ms/op
-ReadingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt   10   2480.131 ±  348.322  ms/op
-ReadingPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt   10  13798.372 ± 1787.083  ms/op
-
-Повторили - виртуальные потоки вообще не очень - почему? Сдается мне бенчмарки могут врать и возможно обманывает оптимизация - следующим этапом надо переработать 
-под BlackHole и перепроверить - TODO next
-
-А теперь предположим что нам попался неудачный клиент или драйвер, который ожидает на активном потоке
-
-Benchmark                                                                            Mode  Cnt    Score    Error  Units
-LoopingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt   10  183.055 ±  7.296  ms/op
-LoopingPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt   10  197.812 ±  4.353  ms/op
-LoopingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt   10  420.395 ± 89.713  ms/op
-LoopingPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt   10  510.710 ± 70.167  ms/op
-
-Активное ожидание слишком быстрое - либо неправильно оценили время чтения либо оптимизации - точно пора внедрять черную дыру
-
-Внедряю черную дыру, решаю что тесты буду гонять с самого начала для 10К максимальных кормлений чтобы одинаково для всех
-
-Юнит Тесты на 100 повторов на 1К фил:
-
-12.45 s ReentrantLockPhilosophersTest
-11.90 s test_reentrant_lock_philosophers_with_platform_threads()
-555 ms test_reentrant_lock_philosophers_with_virtual_threads()
-11.51 s SynchronizedPhilosophersTest
-11.13 s test_synchronized_philosophers_with_platform_threads()
-385 ms test_synchronized_philosophers_with_virtual_threads()
-
-Виртуальные потоки на несколько порядков лучше за счет переключ контекста
-
-UnitedPhilosophersBenchmark
-
-Benchmark                                                                           Mode  Cnt    Score    Error  Units
-UnitedPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt    5    3.046 ±  0.455  ms/op
-UnitedPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt    5    3.161 ±  0.333  ms/op
-UnitedPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt    5  154.629 ± 20.801  ms/op
-UnitedPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt    5  189.116 ± 95.836  ms/op
-
-Виртуальные потоки на 2 порядка лучше за счет переключ контекста
-
-SleepingPhilosophersBenchmark
-Benchmark                                                                             Mode  Cnt    Score     Error  Units
-SleepingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt    5  575.961 ± 126.248  ms/op
-SleepingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt    5  729.972 ± 123.697  ms/op
-SleepingPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt    5  729.597 ± 109.290  ms/op
-SleepingPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt    5  793.082 ± 174.496  ms/op
-
-Со слипами все странно, надо повторить
-
-ReadingPhilosophersBenchmark
-
-Benchmark                                                                            Mode  Cnt     Score     Error  Units
-LoopingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt    5  175.759 ±  13.147  ms/op
-LoopingPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt    5  177.814 ±  24.459  ms/op
-LoopingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt    5  397.453 ±  68.143  ms/op
-LoopingPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt    5  458.060 ± 240.942  ms/op
-
-Чтение из файла в 2 раза лучше на блокирующих операциях - это прямо то что говорят коллеги!
-
-LoopingPhilosophersBenchmark
-
-Benchmark                                                                            Mode  Cnt    Score     Error  Units
-LoopingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt    5  187.176 ±  16.312  ms/op
-LoopingPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt    5  192.061 ±  10.334  ms/op
-LoopingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt    5  426.538 ± 178.700  ms/op
-LoopingPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt    5  521.847 ± 138.848  ms/op
-
-Тут похоже на ожидания: виртуальные треды ведут себя лучше за счет более легкого переключения контекста хотя не то чтобы сильно 
-отличалось от трушной блокировки, Может не угадали с оценкой длительности операции, не видно что cpu bound операция прибивает виртуальный поток
-Соотношения по временам между вирт и платф потоками одинаковые, т е что трушный блок что активной ожидание на процессоре не показывает сильного отличия
-
-Как сделать так чтобы было видно? Давайте сильно увеличим размер файла и поднимем время активного ожидания? До 64КБ
-
-Benchmark                                                                            Mode  Cnt      Score       Error  Units
-ReadingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt    5   1152.440 ±   331.182  ms/op
-ReadingPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt    5   1408.999 ±   530.439  ms/op
-ReadingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt    5  12158.605 ±  2612.381  ms/op
-ReadingPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt    5  42778.921 ± 13806.293  ms/op
-
-Что за нафиг, почему трушный блок так плох на виртуальных тредах??? Почему синхронайзд так плох на виртуальных потоках - пининг не починили а еще и сломали?
-Прям уверен что фигня, когда время улетает за 10 сек это нон сенс
-
-LoopingPhilosophersBenchmark - на 64КБ
-
-Benchmark                                                                            Mode  Cnt     Score     Error  Units
-LoopingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt    5   871.130 ± 201.806  ms/op
-LoopingPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt    5   912.384 ± 429.636  ms/op
-LoopingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt    5  1186.837 ± 607.236  ms/op
-LoopingPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt    5  1807.083 ± 649.841  ms/op
-
-Тут виртуальные потоки лучше, может побольше сделать размер? 256КБ
-
-
-Benchmark                                                                            Mode  Cnt     Score     Error  Units
-LoopingPhilosophersBenchmark.test_synchronized_philosophers_with_virtual_threads     avgt    5  3142.873 ± 211.048  ms/op
-LoopingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_virtual_threads   avgt    5  3176.046 ± 474.272  ms/op
-LoopingPhilosophersBenchmark.test_synchronized_philosophers_with_platform_threads    avgt    5  4788.984 ± 678.514  ms/op
-LoopingPhilosophersBenchmark.test_reentrant_lock_philosophers_with_platform_threads  avgt    5  5083.694 ± 972.692  ms/op
-
-Я вот не знаю как эти результаты интепретировать - разброс сильный, виртуальные потоки выглядят лучше, но..  
-
-Может нафиг этих филосовов, давайте отделим мух от котлет?
-Еще раз что мы хотим
- - проверить пининг на синкронайзд - пофикшен или нет, ожидаю что да
- - проверить трушную блокировку - ожидаю что виртуальные потоки тут как раз и будут "раза в 2 быстрее"
- - проверить "плохой" драйвер, с активным ожиданием на потоке - ожидаю что виртуальные потоки тут НЕ будут "раза в 2 быстрее"
-
-Нужен конкретный бенчмарк на это!
-
-А теперь как насчет слегка уйти в сторону и вернуться к акторной модели и чисто по приколу запилить философов на вертексе?
-
-(тут надо дать мин ликбез по вертексу+акторной модели)
-
-Код получился чище - без конкарренси совсем! Скорость будем мерять в тестах и бенчмарках, фаза инициализации пока слеплена с основным циклом, 
-потом подумаю как разделить создание вертиклов чтобы было отдельно и их переисползование, пока все в одном флаконе 
-Затащил тестовуб библиотеку для вертекса, получилось отделить инициализацию от кормления
-
-С кодом есть какие то приколы, пока не могу объяснить как может получиться такое:
-
-finish eating at 2025-05-15T16:08:50.767155Z, msg: VerticlePhilosopher #859 has reached 10003 attempts to eat!
-finish eating at 2025-05-15T16:08:50.767202Z, msg: VerticlePhilosopher #859 has reached 10004 attempts to eat!
-finish eating at 2025-05-15T16:08:50.767249Z, msg: VerticlePhilosopher #859 has reached 10005 attempts to eat!
-finish eating at 2025-05-15T16:08:50.767310Z, msg: VerticlePhilosopher #859 has reached 10006 attempts to eat!
-finish eating at 2025-05-15T16:08:50.767393Z, msg: VerticlePhilosopher #859 has reached 10007 attempts to eat!
-
-Ведь на 10К точно должны перестать слать себе лупы
-Время получается какое-то бешеное
-
-Но мы понимаем что у нас на моем компе 12 или 24 потоков в мультиреакторе, давайте пробовать
-ВИРТУАЛЬНЫЕ ВЕРТИКЛЫ
-
-A virtual thread verticle is just like a standard verticle but it’s executed using virtual threads, rather than using an event loop.
-
-Virtual thread verticles are designed to use an async/await model with Vert.x futures.
-
-Ага, просто DeploymentOptions deploymentOptions = new DeploymentOptions().setThreadingModel(ThreadingModel.VIRTUAL_THREAD);
-не канает!
-
-НАдо  переписать код в async/await манере - https://vertx.io/docs/4.5.14/vertx-core/java/#virtual_threads
-И поднять вертекс до последней версии 5.0.0
-И 5.0.0 прям токает чтобы перейти на Future - не путать с жавовой Future
-Вот теперь в тестах вертекса получается 20 сек на 100 повторов проотив 13 и 14 сек на платформенных потоков
-
-VerticlePhilosophersTest (1): 100 total, 100 passed 20.53 s
-
-И теперь переводим наши вертиклы в виртуальные потоки !
-
-хм - 16-24-26 сек, как так? а, так мы не перешли в асинк/авейт парадигму!!!!
-Переходим, визуально выглядит что решение на виртуальных потоках разгоняется и получаем 17 сек
-
-Решил упростить тесты для вертекса: не буду разделять инит и логику кормления, код усложняется, лучше поднять  кол-во повторений чтобы поточнее посчитать
-дельты. Кстати, по тестам хоршо видно тяжелые первые итерации, а потом тесты разгоняются.
-Возможно придется соединить и для жава конкарренси тесты и бенчмарки чтобы битва была более честная. И кстати, это упростит код!
-
-После выхода из тела теста вертекс стопается а это приводит в тому что работающие вертиклы ругаются исключениями. 
-Для логики теста это не страшно, но тратим время на лог ошибок в консоль. Может стопнуть вертиклы перед выходом?
-
-Так , теперь бенчмарки для вертекса: проблема в том что все выполняется асинхронно, и нам нужна индикация конца как для юниттестов.
-Как этого добиться? Кажется прекрасно справится барьер или латч! И таки да!
-
-Отступление - купил подписку на ультимейт и не смог ее применить даже с впн, это супер странно, НО допер скачать комьюнити
-и получить поддержку последних java. Так и произошло. 
-
-Теперь стоит перепрогнать мейны, тесты и бенчмерки и зафиксировать тайминги. Переписываем и упросщаем тесты и бенчмарки и мейны - слить
-инит и кормление, для простоты и поднять кол-во прогонов. 
-
-Отключаю логирование для вертекса чтоб побыстрее пролетали тесты и бенчмарки: когда стопается вертекс летят ошибки от еще работающих вертиклов, нам это не страшно
-
-Бенчмарки для вертекса (200, 300 мс) пролетают сильно быстрее тестов (1.5 сек)- а нет ли каких то приколов с оптимизацией?
-
-Тепреь когда новый код готов можно собрать финальную статистику для тестов и бенчмарков и решить
- - будем ли клепать суррогатное решение для ловли пининга, слипов, блоков и активного ожидания
- - будем ли клепать на вертексе решение для ловли пининга, слипов, блоков и активного ожидания
-
-Benchmark                                                                                            Mode  Cnt    Score     Error  Units
-
-Noop
-
-UnitedPhilosophersBenchmark.test_reentrant_lock_noop_philosophers_with_virtual_threads               avgt    5    1.952 ±   0.188  ms/op
-UnitedPhilosophersBenchmark.test_synchronized_noop_philosophers_with_virtual_threads                 avgt    5    2.184 ±   0.439  ms/op
-UnitedPhilosophersBenchmark.test_synchronized_noop_philosophers_with_platform_threads                avgt    5  107.555 ±  19.364  ms/op
-UnitedPhilosophersBenchmark.test_reentrant_lock_noop_philosophers_with_platform_threads              avgt    5  126.863 ±  24.680  ms/op
-
-Очевидно виртуальные потоки рвут платформенные по скорости работы с блокировками и/или переключениями контекста на 2 порядка!
-Различия в reentrant_lock и synchronized в пределах погрешности, несущественны
-
-Thread.sleep()
-
-UnitedPhilosophersBenchmark.test_reentrant_lock_sleeping_philosophers_with_platform_threads          avgt    5  504.907 ±  28.813  ms/op
-UnitedPhilosophersBenchmark.test_synchronized_sleeping_philosophers_with_platform_threads            avgt    5  804.849 ± 742.218  ms/op
-UnitedPhilosophersBenchmark.test_synchronized_sleeping_philosophers_with_virtual_threads             avgt    5  893.064 ± 222.928  ms/op
-UnitedPhilosophersBenchmark.test_reentrant_lock_sleeping_philosophers_with_virtual_threads           avgt    5  918.538 ± 147.244  ms/op
-
-Результаты сомнительные, погрешности одного порядка со средним, 
-перепроверка показывает что среднее для reentrant_lock на platform_threads немного лучше, результаты ложатся плотнее. 
-Есть идея погонять на большем числе повторов (это сделаем потом)
-
-InputStream.readAllBytes()
-
-BlockingReadingPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_platform_threads  avgt   10    585.786 ±   68.270  ms/op
-BlockingReadingPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_platform_threads    avgt   10    844.112 ±   41.460  ms/op
-BlockingReadingPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_virtual_threads   avgt   10   7490.787 ± 2143.440  ms/op
-BlockingReadingPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_virtual_threads     avgt   10  11868.748 ± 3361.973  ms/op
-
-BlockingReadingPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_platform_threads  avgt   10    575.464 ±   32.893  ms/op
-BlockingReadingPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_platform_threads    avgt   10    885.836 ±   62.762  ms/op
-BlockingReadingPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_virtual_threads   avgt   10   3972.985 ±  830.251  ms/op
-BlockingReadingPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_virtual_threads     avgt   10  18758.470 ± 3171.521  ms/op
-
-А вот это странное, платформенные потоки гораздо лучше читают файл??? Перепроверил. Так и есть, несмотря на погрешность
-И кажется реентрант лок получше синхронайзда
-
-ТУТ ТАКОЕ РЕЗЮМЕ - все сложено в одну корзинку, чтобы точно понять чо за нафиг - надо писать бенчмарк отдельно от философов на чтение и все остальное
-
-while(System.nanoTime() > )
-
-UnitedPhilosophersBenchmark.test_reentrant_lock_active_waiting_philosophers_with_virtual_threads     avgt    5  176.553 ±   4.187  ms/op
-UnitedPhilosophersBenchmark.test_synchronized_active_waiting_philosophers_with_virtual_threads       avgt    5  177.363 ±   9.932  ms/op
-UnitedPhilosophersBenchmark.test_synchronized_active_waiting_philosophers_with_platform_threads      avgt    5  321.945 ±  53.122  ms/op
-UnitedPhilosophersBenchmark.test_reentrant_lock_active_waiting_philosophers_with_platform_threads    avgt    5  386.645 ±  54.445  ms/op
-
-Виртуальные потоки в 2 раза лучше активно ожидают чем платформенные?=) Нет конечно, все тот же контекст свитч и работа с блокировками
-Лучше чем слипы более чем в 2 раза и хуже чем чтение файла на 1 порядок для платформенных и на 2 порядка для виртуальных - звучит логично
-
-Vertx
-
-UnitedPhilosophersBenchmark.test_virtual_noop_verticle_philosophers                                  avgt    5    204.009 ±   20.128  ms/op
-UnitedPhilosophersBenchmark.test_verticle_noop_philosophers                                          avgt    5    287.172 ±   31.099  ms/op
-UnitedPhilosophersBenchmark.test_virtual_active_waiting_verticle_philosophers                        avgt    5    838.508 ±  983.339  ms/op
-UnitedPhilosophersBenchmark.test_virtual_blocking_reading_verticle_philosophers                      avgt    5   3328.586 ±   90.783  ms/op
-UnitedPhilosophersBenchmark.test_virtual_sleeping_verticle_philosophers                              avgt    5   4239.687 ±  349.430  ms/op
-
-Виртуальные вертиклы лучше классических, бегущих в event loop на четверть
-На виртуальных вертиклах активное ожидание почти в 1,5 раза лучше блокирующего чтения, и в 4 раза лучше слипа
-Активное ожидание сравнимо со слипом на классике, блокирующее чтение и слип хуже минимум в 2 раза. 
-В целом проигрывают по производительности классике на 2 порядка, но не по удобству программной модели и простоте реализации.
-Активное ожидание какое-то стремное...
-
---------------
---------------
-
-Результаты интересные, надо докрутить для вертекса все варианты, но с учетом того что
- - ивент луп блокировать нельзя, блокирующее чтение и слипы запрещены - это надо делать либо в рабочих вертиклах либо в виртуальных, 
-т е существующие стратегии constructXXXEating() по хорошему не подойдут для event loop вертиклов 
- - в вертексе есть асинхронное/неблокирующее чтение файла - надо решить насколько честно было использовать его
- - также можно через таймер красиво решить активное ожидание
-
-Пока решаю что используем точно такие же constructXXXEating как и для классики.
-Также решаю что реализую всех философов ХОТЯ это и нарушит правила для ивент лупа! Не, нафиг - вертекс страшно ругается в консоли, убираю
-Можно задать вопрос в зал - как думаете , почему есть бенчмарки для вертиклов в ивент лупе для только noop? 
-
-Тут интересно конечно погонять и 10К 100К 1КК философов и кормлений и посмотреть а что будет твориться на скейле для виртуальных потоков. Так что меня останавливает?
-
-Помним что для платформеных потоков это не сработает. Исключаем их из бенчмарков. Оставляем только noop
-
-Про нагрузку в философах - в принципе в исходном коде для хайлода было кормпление - случайное время внутри. 
-В бенчмарках мы фактически это эмулируем.
-
-Для вертиклов что-то идет не так, возвращаю логирование чтобы почитать исключения
-Для вертиклов на ивент лупе что-то идет не так, за вменяемое время дождаться конца кормления не просто - исключаю из бенчмарка, оставляем битву между виртуальными потоками чисто
-Для 1ККX1КК
-Exception: java.lang.OutOfMemoryError thrown from the UncaughtExceptionHandler in thread "vertx-blocked-thread-checker"
-Exception: java.lang.OutOfMemoryError thrown from the UncaughtExceptionHandler in thread "ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledPhilosophersBenchmark.test_1000K_1000K_virtual_noop_verticle_philosophers-jmh-worker-1"
-СТоит ли искать где может быть проблема? ИЛи просто решаем что есть затык во внутренней шине или shareddata? или в  черной дыре???
-Если для других реализаций нет проблем с черной дырой, то мы ее обнаружим
-
-Возвращаю бенчмарк для не обычных вертиклов, т к они по идее могут поддержать такое кол-во, жаль не получить данные и не сравнить
-
-ПОднимаю кол-во прогревов с 1 до 3 т к разница во времени прогрева и боевых итераций различается на порядок и иногда первая итерация тоже сильно улетает
-
-Для test_0010K_1000K_noop_verticle_philosophers
-
-Exception: java.lang.OutOfMemoryError thrown from the UncaughtExceptionHandler in thread "vertx-blocked-thread-checker"
-
-Надо унести все 1KK в конец файла - jmh исполняет в лексикографическом порядке
-
-Оказывается форки остаются висеть
-JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 9 seconds more...
-Кажется есть идея почему так может произойти - все таки важно дождаться окончания вертекса на клозе т к бенчмарк бежит в форкнутом процессе и там и остается!
-Тест
-Benchmark                                                          Mode  Cnt    Score    Error  Units
-NoopVerticlePhilosophersBenchmark.test_verticle_noop_philosophers  avgt    5  262.002 ± 91.606  ms/op
-против с правильным клозом
-Benchmark                                                          Mode  Cnt    Score    Error  Units
-NoopVerticlePhilosophersBenchmark.test_verticle_noop_philosophers  avgt    5  265.028 ± 72.609  ms/op
-
-Вроде ни на что нее влияет но теперь правильно! 
-Теперб надо перепрогнать [UnitedPhilosophersBenchmark.java](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_099_jmh_benchmarks_united/UnitedPhilosophersBenchmark.java)
-И сверить с прошлыми замерами
-Так, [UnitedPhilosophersBenchmark.java](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_099_jmh_benchmarks_united/UnitedPhilosophersBenchmark.java)
-залипает на test_virtual_blocking_reading_verticle_philosophers - кормление заканчивается, а бенчмарк нет
-Отдельный бенчмарк доказывает чот BlockingReadingVirtualVerticlePhilosophersBenchmark залипает
-Почему?
-Включаю логирование в вертекс. Дописываю еще бенчмарк для активного ожиджания, может быть проблемма конкретно в сочетании виртуального вертикла и блокирующего чтения файла;
-Таки да, на активном чтении неит проблем с остановкой виртуальных вертиклов
-Уже до кучи проверим слип
-Для слипа - все хорошо, т е проблма конкретно с блокирующим чтением и виртуальным вертиклом. Но почему??
-Идея такая - не может высвободить ресурсы. Какие? Файлы! Но там автоклозабл, но мы можем стопать вертиклы когда они берут файл на чтение, и тем не менее автоклозабл!
-Ой, java.io.FileNotFoundException: /Users/vladimir/Development/bob-the-dyer/jvm-day-2025/16KB_file.txt (No such file or directory)
-Т е все это время мы ничего не читали потому что ошиблись именем файла????!!!!
-И все "бенчмарки на смарку"
-Ну что ж - переделаем!
-Переделал, стало интереснее, обновил результаты, хорошо бы запилить суррогатный бенчмарк без палочек, точнее с одной палочкой!
-
-На скейл бенчмарке _070_test_0100K_0010K_virtual_noop_verticle_philosophers падает с Exception: java.lang.OutOfMemoryError thrown from the UncaughtExceptionHandler in thread "vertx-blocked-thread-checker"
-и зависает
-Пока убираю все вертикловые где философов больше или равно 100K
-При этом и для кол-ва кормлений от 100К такая же фигня, кажется что дело во времени работы запуска
-Пока по пацански добавляем хипа, что течет..??
-Подкидываю 4Г хипа
-Все равно не заводится для больших чисел под вертекс - залипает, кажется что шторм событий подписок и отписок просто выносит всю полезную нагрузку.
-Так что же получается, классика прям молодец и инженеры кот контрибьютят в жаву не зря едят свой хлеб с маслом?
-
-ScaledPhilosophersBenchmark                                                                                                Mode  Cnt     Score      Error  Units
-
-ScaledPhilosophersBenchmark._020_test_0010K_0010K_synchronized_noop_philosophers_with_virtual_threads    avgt    7    13.453 ±    2.037  ms/op
-ScaledPhilosophersBenchmark._010_test_0010K_0010K_reentrant_lock_noop_philosophers_with_virtual_threads  avgt    7    13.790 ±    0.852  ms/op
-UnitedPhilosophersBenchmark._____test_0001K_0010K_test_virtual_noop_verticle_philosophers                avgt    5   204.009 ±   20.128  ms/op
-UnitedPhilosophersBenchmark._____test_0001K_0010_verticle_noop_philosophers                              avgt    5   287.172 ±   31.099  ms/op
-ScaledPhilosophersBenchmark._040_test_0010K_0010K_noop_verticle_philosophers                             avgt    5   527.384 ±  330.028  ms/op
-ScaledPhilosophersBenchmark._030_test_0010K_0010K_virtual_noop_verticle_philosophers                     avgt    5  1028.263 ± 1976.565  ms/op
-
-Т е вертекс хуже на порядок классики, погрешности ужасны, считай что непонятно что померяли. а остальное и не померяли вовсе
-
-UnitedPhilosophersBenchmark._____test_0001K_0010K_reentrant_lock_philosophers_with_virtual_thread        avgt    5     1.952 ±    0.188  ms/op
-UnitedPhilosophersBenchmark._____test_0001K_0010K_test_synchronized_philosophers_with_virtual_threads    avgt    5     2.184 ±    0.439  ms/op
-ScaledPhilosophersBenchmark._020_test_0010K_0010K_synchronized_noop_philosophers_with_virtual_threads    avgt    7    13.453 ±   2.037  ms/op
-ScaledPhilosophersBenchmark._010_test_0010K_0010K_reentrant_lock_noop_philosophers_with_virtual_threads  avgt    7    13.790 ±   0.852  ms/op
-ScaledPhilosophersBenchmark._100_test_0010K_0100K_synchronized_noop_philosophers_with_virtual_threads    avgt    7    20.490 ±   0.973  ms/op
-ScaledPhilosophersBenchmark._090_test_0010K_0100K_reentrant_lock_noop_philosophers_with_virtual_threads  avgt    7    21.520 ±   2.153  ms/op
-ScaledPhilosophersBenchmark._220_test_0010K_1000K_synchronized_noop_philosophers_with_virtual_threads    avgt    7    70.700 ±   1.221  ms/op
-ScaledPhilosophersBenchmark._210_test_0010K_1000K_reentrant_lock_noop_philosophers_with_virtual_threads  avgt    7    72.035 ±   1.424  ms/op
-ScaledPhilosophersBenchmark._060_test_0100K_0010K_synchronized_noop_philosophers_with_virtual_threads    avgt    7   276.019 ±  92.038  ms/op
-ScaledPhilosophersBenchmark._050_test_0100K_0010K_reentrant_lock_noop_philosophers_with_virtual_threads  avgt    7   284.643 ±  35.604  ms/op
-ScaledPhilosophersBenchmark._130_test_0100K_0100K_reentrant_lock_noop_philosophers_with_virtual_threads  avgt    7   297.571 ±  37.570  ms/op
-ScaledPhilosophersBenchmark._140_test_0100K_0100K_synchronized_noop_philosophers_with_virtual_threads    avgt    7   255.395 ± 102.263  ms/op
-ScaledPhilosophersBenchmark._142_test_0100K_1000K_reentrant_lock_noop_philosophers_with_virtual_threads  avgt    7   351.140 ± 102.412  ms/op
-ScaledPhilosophersBenchmark._144_test_0100K_1000K_synchronized_noop_philosophers_with_virtual_threads    avgt    7   382.512 ±  60.712  ms/op
-ScaledPhilosophersBenchmark._180_test_1000K_0010K_synchronized_noop_philosophers_with_virtual_threads    avgt    7  3847.501 ± 197.755  ms/op
-ScaledPhilosophersBenchmark._170_test_1000K_0010K_reentrant_lock_noop_philosophers_with_virtual_threads  avgt    7  4307.880 ± 402.627  ms/op
-ScaledPhilosophersBenchmark._182_test_1000K_0100K_reentrant_lock_noop_philosophers_with_virtual_threads  avgt    7  3993.247 ± 530.418  ms/op
-ScaledPhilosophersBenchmark._184_test_1000K_0100K_synchronized_noop_philosophers_with_virtual_threads    avgt    7  4089.308 ± 576.735  ms/op
-ScaledPhilosophersBenchmark._250_test_1000K_1000K_reentrant_lock_noop_philosophers_with_virtual_threads  avgt    7  3931.608 ± 460.112  ms/op
-ScaledPhilosophersBenchmark._260_test_1000K_1000K_synchronized_noop_philosophers_with_virtual_threads    avgt    7  3792.618 ± 352.711  ms/op
-
-Т е в классике очень логичная лесенка по порядкам философов: увеличиваем кол-во фил на прядок - время увел на порядок, предсказуемое масштабирование
 synchronized vs reentrant_lock сравнимы с точностью до погрешности
 
-В классике целевое кол-во кормлений незначительно влияет на время выполнения - не на порядки как с ростом философов
-synchronized vs reentrant_lock сравнимы с точностью до погрешности
+Так что же получается, классика прям молодец и инженеры которые контрибьютят в жаву не зря едят свой хлеб с Маслоу??!
+Кроме потенциально непофикшеного бага с пинингом
 
-Разница в кол-ве кормлений есть. Небольшая, линейная. Не на порядки, и даже иногла в пределах погрешности
+## TODO Итоги выводы
 
-Время с 5 попытками и 3 разогревами
-[INFO] Total time:  24:01 min
-
-Перепрогоню на большем числе попыток (3 + 7), заодно добью недостающие числа и перепроверю все, может около часа потребуется, да и фиг с ним
-[INFO] Total time:  33:39 min
-
-Выводы
- - измерения получаются и на классике и на вертексе, на классике проще, на вертексе уже есть утилки но для бенчмарка вертекса приходится призывать классику "к барьеру"
- - классика масштабируется прогнозируемо, линейно
- - классика сложнее - требует более высокого уровня квалификации
- - вертекс/акторная модель проще как апи и как концепт, пакета конкарренси нет совсем
- - стракчюред конкарренси уже работает в превью, стало проще закрывать весь пул задач
- - синхронайзд против реентратн лок - ТУДУ
- - пининг? - ТУДУ
- - блокирующий код vs активное ожидание vs слип??? - ТУДУ
- - что не так с вертексом на масштбировании?? - ТУДУ
- - стал бы я прагматично голосовать за вертекс в данном контексте в 2019 - да (новый проект, команда, риски, комьюнити, спека), задача утилизации цпу решалась так или реактивщиной/асинхронщиной
- - стал бы я прагматично голосовать за вертекс в данном контексте в 2025 - нет - зачем, есть виртуальное потоки
+- измерения получается инструментально выполнить и на классике, и на вертексе. На классике проще, на вертексе уже есть
+  утилки но для бенчмарка вертекса приходится призывать классику "к барьеру"
+- классика масштабируется прогнозируемо, линейно
+- классика сложнее - требует более высокого уровня квалификации
+- вертекс/акторная модель проще как апи и как концепт, пакета конкарренси нет совсем
+- Structure Concurrency уже работает в превью, стало проще закрывать весь пул задач
+- синхронайзд против реентратн лок - в основном различий не видно, все в пределах погрешности
+- пининг - смотря под каким углом смотреть, возможно и да, пининг остался (в опен ждк 24,0,1) а возможно методология
+  нехорошая (надо выделенный тест)
+- блокирующий код vs активное ожидание vs слип - лучше активно ждать чем спать, оценка по времени блокирующего чтения
+  может быть неточной, не оцениваем.
+- что не так с вертексом на масштбировании?? Не готов к такому жесткому использованию локально, внутренняя механика
+  мешает, а не помогает
+- стал бы я прагматично голосовать за вертекс в данном контексте в 2019 - да (новый проект, команда, риски, комьюнити,
+  спека), задача утилизации цпу решалась 100%, равно как и реактивщиной/асинхронщиной
+- стал бы я прагматично голосовать за вертекс в данном контексте в 2025 - нет - зачем, есть же виртуальное потоки!
