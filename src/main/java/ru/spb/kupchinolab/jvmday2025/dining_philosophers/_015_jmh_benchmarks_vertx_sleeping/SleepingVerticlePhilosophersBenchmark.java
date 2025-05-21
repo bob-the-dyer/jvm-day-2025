@@ -51,8 +51,7 @@ public class SleepingVerticlePhilosophersBenchmark {
         }
         vertx.eventBus().consumer("max_eat_attempts_has_reached", msg -> {
             System.out.println("finish eating at " + Instant.now() + ", msg: " + msg.body());
-            vertx.close().onComplete(_ -> finishEatingLatch.countDown()
-            );
+            vertx.close().onComplete(_ -> finishEatingLatch.countDown());
         });
         allVerticlesDeployedLatch.await();
         System.out.println("all verticles deployed at " + Instant.now());

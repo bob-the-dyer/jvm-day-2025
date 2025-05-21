@@ -44,15 +44,15 @@ public class ScaledPhilosophersBenchmark {
         test_classical_philosophers_internal(SynchronizedPhilosopher::from, constructNoopEating(blackhole), 10, 1);
     }
 
-    @Benchmark
-    public void _030_test_0010K_0010K_virtual_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
-        test_verticle_philosophers_internal(VirtualVerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 10, 1);
-    }
-
-    @Benchmark
-    public void _040_test_0010K_0010K_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
-        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 10, 1);
-    }
+//    @Benchmark
+//    public void _030_test_0010K_0010K_virtual_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
+//        test_verticle_philosophers_internal(VirtualVerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 10, 1);
+//    }
+//
+//    @Benchmark
+//    public void _040_test_0010K_0010K_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
+//        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 10, 1);
+//    }
 
     @Benchmark
     public void _050_test_0100K_0010K_reentrant_lock_noop_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
@@ -64,15 +64,15 @@ public class ScaledPhilosophersBenchmark {
         test_classical_philosophers_internal(SynchronizedPhilosopher::from, constructNoopEating(blackhole), 100, 1);
     }
 
-    @Benchmark
-    public void _070_test_0100K_0010K_virtual_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
-        test_verticle_philosophers_internal(VirtualVerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 100, 1);
-    }
-
-    @Benchmark
-    public void _080_test_0100K_0010K_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
-        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 100, 1);
-    }
+//    @Benchmark
+//    public void _070_test_0100K_0010K_virtual_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
+//        test_verticle_philosophers_internal(VirtualVerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 100, 1);
+//    }
+//
+//    @Benchmark
+//    public void _080_test_0100K_0010K_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
+//        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 100, 1);
+//    }
 
     @Benchmark
     public void _090_test_0010K_0100K_reentrant_lock_noop_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
@@ -84,16 +84,15 @@ public class ScaledPhilosophersBenchmark {
         test_classical_philosophers_internal(SynchronizedPhilosopher::from, constructNoopEating(blackhole), 10, 10);
     }
 
-    @Benchmark
-    public void _110_test_0010K_0100K_virtual_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
-        test_verticle_philosophers_internal(VirtualVerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 10, 10);
-    }
-
-    @Benchmark
-    public void _120_test_0010K_0100K_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
-        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 10, 10);
-    }
-
+//    @Benchmark
+//    public void _110_test_0010K_0100K_virtual_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
+//        test_verticle_philosophers_internal(VirtualVerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 10, 10);
+//    }
+//
+//    @Benchmark
+//    public void _120_test_0010K_0100K_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
+//        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 10, 10);
+//    }
 
     @Benchmark
     public void _130_test_0100K_0100K_reentrant_lock_noop_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
@@ -106,14 +105,24 @@ public class ScaledPhilosophersBenchmark {
     }
 
     @Benchmark
-    public void _150_test_0100K_0100K_virtual_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
-        test_verticle_philosophers_internal(VirtualVerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 100, 10);
+    public void _142_test_0100K_1000K_reentrant_lock_noop_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(ReentrantPhilosopher::from, constructNoopEating(blackhole), 100, 100);
     }
 
     @Benchmark
-    public void _160_test_0100K_0100K_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
-        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 100, 10);
+    public void _144_test_0100K_1000K_synchronized_noop_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(SynchronizedPhilosopher::from, constructNoopEating(blackhole), 100, 100);
     }
+
+//    @Benchmark
+//    public void _150_test_0100K_0100K_virtual_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
+//        test_verticle_philosophers_internal(VirtualVerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 100, 10);
+//    }
+//
+//    @Benchmark
+//    public void _160_test_0100K_0100K_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
+//        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 100, 10);
+//    }
 
     @Benchmark
     public void _170_test_1000K_0010K_reentrant_lock_noop_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
@@ -126,14 +135,24 @@ public class ScaledPhilosophersBenchmark {
     }
 
     @Benchmark
-    public void _190_test_1000K_0010K_virtual_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
-        test_verticle_philosophers_internal(VirtualVerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 1000, 1);
+    public void _182_test_1000K_0100K_reentrant_lock_noop_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(ReentrantPhilosopher::from, constructNoopEating(blackhole), 1000, 10);
     }
 
     @Benchmark
-    public void _200_test_1000K_0010K_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
-        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 1000, 1);
+    public void _184_test_1000K_0100K_synchronized_noop_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(SynchronizedPhilosopher::from, constructNoopEating(blackhole), 1000, 10);
     }
+
+//    @Benchmark
+//    public void _190_test_1000K_0010K_virtual_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
+//        test_verticle_philosophers_internal(VirtualVerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 1000, 1);
+//    }
+//
+//    @Benchmark
+//    public void _200_test_1000K_0010K_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
+//        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 1000, 1);
+//    }
 
     @Benchmark
     public void _210_test_0010K_1000K_reentrant_lock_noop_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
@@ -145,15 +164,15 @@ public class ScaledPhilosophersBenchmark {
         test_classical_philosophers_internal(SynchronizedPhilosopher::from, constructNoopEating(blackhole), 10, 100);
     }
 
-    @Benchmark
-    public void _230_test_0010K_1000K_virtual_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
-        test_verticle_philosophers_internal(VirtualVerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 10, 100);
-    }
-
-    @Benchmark
-    public void _240_test_0010K_1000K_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
-        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 10, 100);
-    }
+//    @Benchmark
+//    public void _230_test_0010K_1000K_virtual_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
+//        test_verticle_philosophers_internal(VirtualVerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 10, 100);
+//    }
+//
+//    @Benchmark
+//    public void _240_test_0010K_1000K_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
+//        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 10, 100);
+//    }
 
     @Benchmark
     public void _250_test_1000K_1000K_reentrant_lock_noop_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
@@ -165,15 +184,15 @@ public class ScaledPhilosophersBenchmark {
         test_classical_philosophers_internal(SynchronizedPhilosopher::from, constructNoopEating(blackhole), 1000, 100);
     }
 
-    @Benchmark
-    public void _270_test_1000K_1000K_virtual_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
-        test_verticle_philosophers_internal(VirtualVerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 1000, 100);
-    }
-
-    @Benchmark
-    public void _280_test_1000K_1000K_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
-        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 1000, 100);
-    }
+//    @Benchmark
+//    public void _270_test_1000K_1000K_virtual_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
+//        test_verticle_philosophers_internal(VirtualVerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 1000, 100);
+//    }
+//
+//    @Benchmark
+//    public void _280_test_1000K_1000K_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
+//        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD), 1000, 100);
+//    }
 
     private void test_classical_philosophers_internal(BiFunction<List<Object>, Integer, ? extends Callable<Integer>> philosopherSupplier, Consumer<Integer> eating, int philosophersMultiplier, int eatingMultiplier) throws InterruptedException, BrokenBarrierException {
         List<Chopstick> chopsticks = new ArrayList<>();
@@ -206,8 +225,7 @@ public class ScaledPhilosophersBenchmark {
         }
         vertx.eventBus().consumer("max_eat_attempts_has_reached", msg -> {
             System.out.println("finish eating at " + Instant.now() + ", msg: " + msg.body());
-            vertx.close().onComplete(_ -> finishEatingLatch.countDown()
-            );
+            vertx.close().onComplete(_ -> finishEatingLatch.countDown());
         });
         allVerticlesDeployedLatch.await();
         System.out.println("all verticles deployed at " + Instant.now());
@@ -221,8 +239,8 @@ public class ScaledPhilosophersBenchmark {
                 .include(ScaledPhilosophersBenchmark.class.getSimpleName())
                 .forks(1)
                 .warmupIterations(3)
-                .measurementIterations(5)
-                .jvmArgs("--enable-preview")
+                .measurementIterations(7)
+                .jvmArgs("--enable-preview", "-Xmx4096m")
                 .build();
         new Runner(opt).run();
     }

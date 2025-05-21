@@ -569,3 +569,71 @@ NoopVerticlePhilosophersBenchmark.test_verticle_noop_philosophers  avgt    5  26
 И все "бенчмарки на смарку"
 Ну что ж - переделаем!
 Переделал, стало интереснее, обновил результаты, хорошо бы запилить суррогатный бенчмарк без палочек, точнее с одной палочкой!
+
+На скейл бенчмарке _070_test_0100K_0010K_virtual_noop_verticle_philosophers падает с Exception: java.lang.OutOfMemoryError thrown from the UncaughtExceptionHandler in thread "vertx-blocked-thread-checker"
+и зависает
+Пока убираю все вертикловые где философов больше или равно 100K
+При этом и для кол-ва кормлений от 100К такая же фигня, кажется что дело во времени работы запуска
+Пока по пацански добавляем хипа, что течет..??
+Подкидываю 4Г хипа
+Все равно не заводится для больших чисел под вертекс - залипает, кажется что шторм событий подписок и отписок просто выносит всю полезную нагрузку.
+Так что же получается, классика прям молодец и инженеры кот контрибьютят в жаву не зря едят свой хлеб с маслом?
+
+ScaledPhilosophersBenchmark                                                                                                Mode  Cnt     Score      Error  Units
+
+ScaledPhilosophersBenchmark._020_test_0010K_0010K_synchronized_noop_philosophers_with_virtual_threads    avgt    7    13.453 ±    2.037  ms/op
+ScaledPhilosophersBenchmark._010_test_0010K_0010K_reentrant_lock_noop_philosophers_with_virtual_threads  avgt    7    13.790 ±    0.852  ms/op
+UnitedPhilosophersBenchmark._____test_0001K_0010K_test_virtual_noop_verticle_philosophers                avgt    5   204.009 ±   20.128  ms/op
+UnitedPhilosophersBenchmark._____test_0001K_0010_verticle_noop_philosophers                              avgt    5   287.172 ±   31.099  ms/op
+ScaledPhilosophersBenchmark._040_test_0010K_0010K_noop_verticle_philosophers                             avgt    5   527.384 ±  330.028  ms/op
+ScaledPhilosophersBenchmark._030_test_0010K_0010K_virtual_noop_verticle_philosophers                     avgt    5  1028.263 ± 1976.565  ms/op
+
+Т е вертекс хуже на порядок классики, погрешности ужасны, считай что непонятно что померяли. а остальное и не померяли вовсе
+
+UnitedPhilosophersBenchmark._____test_0001K_0010K_reentrant_lock_philosophers_with_virtual_thread        avgt    5     1.952 ±    0.188  ms/op
+UnitedPhilosophersBenchmark._____test_0001K_0010K_test_synchronized_philosophers_with_virtual_threads    avgt    5     2.184 ±    0.439  ms/op
+ScaledPhilosophersBenchmark._020_test_0010K_0010K_synchronized_noop_philosophers_with_virtual_threads    avgt    7    13.453 ±   2.037  ms/op
+ScaledPhilosophersBenchmark._010_test_0010K_0010K_reentrant_lock_noop_philosophers_with_virtual_threads  avgt    7    13.790 ±   0.852  ms/op
+ScaledPhilosophersBenchmark._100_test_0010K_0100K_synchronized_noop_philosophers_with_virtual_threads    avgt    7    20.490 ±   0.973  ms/op
+ScaledPhilosophersBenchmark._090_test_0010K_0100K_reentrant_lock_noop_philosophers_with_virtual_threads  avgt    7    21.520 ±   2.153  ms/op
+ScaledPhilosophersBenchmark._220_test_0010K_1000K_synchronized_noop_philosophers_with_virtual_threads    avgt    7    70.700 ±   1.221  ms/op
+ScaledPhilosophersBenchmark._210_test_0010K_1000K_reentrant_lock_noop_philosophers_with_virtual_threads  avgt    7    72.035 ±   1.424  ms/op
+ScaledPhilosophersBenchmark._060_test_0100K_0010K_synchronized_noop_philosophers_with_virtual_threads    avgt    7   276.019 ±  92.038  ms/op
+ScaledPhilosophersBenchmark._050_test_0100K_0010K_reentrant_lock_noop_philosophers_with_virtual_threads  avgt    7   284.643 ±  35.604  ms/op
+ScaledPhilosophersBenchmark._130_test_0100K_0100K_reentrant_lock_noop_philosophers_with_virtual_threads  avgt    7   297.571 ±  37.570  ms/op
+ScaledPhilosophersBenchmark._140_test_0100K_0100K_synchronized_noop_philosophers_with_virtual_threads    avgt    7   255.395 ± 102.263  ms/op
+ScaledPhilosophersBenchmark._142_test_0100K_1000K_reentrant_lock_noop_philosophers_with_virtual_threads  avgt    7   351.140 ± 102.412  ms/op
+ScaledPhilosophersBenchmark._144_test_0100K_1000K_synchronized_noop_philosophers_with_virtual_threads    avgt    7   382.512 ±  60.712  ms/op
+ScaledPhilosophersBenchmark._180_test_1000K_0010K_synchronized_noop_philosophers_with_virtual_threads    avgt    7  3847.501 ± 197.755  ms/op
+ScaledPhilosophersBenchmark._170_test_1000K_0010K_reentrant_lock_noop_philosophers_with_virtual_threads  avgt    7  4307.880 ± 402.627  ms/op
+ScaledPhilosophersBenchmark._182_test_1000K_0100K_reentrant_lock_noop_philosophers_with_virtual_threads  avgt    7  3993.247 ± 530.418  ms/op
+ScaledPhilosophersBenchmark._184_test_1000K_0100K_synchronized_noop_philosophers_with_virtual_threads    avgt    7  4089.308 ± 576.735  ms/op
+ScaledPhilosophersBenchmark._250_test_1000K_1000K_reentrant_lock_noop_philosophers_with_virtual_threads  avgt    7  3931.608 ± 460.112  ms/op
+ScaledPhilosophersBenchmark._260_test_1000K_1000K_synchronized_noop_philosophers_with_virtual_threads    avgt    7  3792.618 ± 352.711  ms/op
+
+Т е в классике очень логичная лесенка по порядкам философов: увеличиваем кол-во фил на прядок - время увел на порядок, предсказуемое масштабирование
+synchronized vs reentrant_lock сравнимы с точностью до погрешности
+
+В классике целевое кол-во кормлений незначительно влияет на время выполнения - не на порядки как с ростом философов
+synchronized vs reentrant_lock сравнимы с точностью до погрешности
+
+Разница в кол-ве кормлений есть. Небольшая, линейная. Не на порядки, и даже иногла в пределах погрешности
+
+Время с 5 попытками и 3 разогревами
+[INFO] Total time:  24:01 min
+
+Перепрогоню на большем числе попыток (3 + 7), заодно добью недостающие числа и перепроверю все, может около часа потребуется, да и фиг с ним
+[INFO] Total time:  33:39 min
+
+Выводы
+ - измерения получаются и на классике и на вертексе, на классике проще, на вертексе уже есть утилки но для бенчмарка вертекса приходится призывать классику "к барьеру"
+ - классика масштабируется прогнозируемо, линейно
+ - классика сложнее - требует более высокого уровня квалификации
+ - вертекс/акторная модель проще как апи и как концепт, пакета конкарренси нет совсем
+ - стракчюред конкарренси уже работает в превью, стало проще закрывать весь пул задач
+ - синхронайзд против реентратн лок - ТУДУ
+ - пининг? - ТУДУ
+ - блокирующий код vs активное ожидание vs слип??? - ТУДУ
+ - что не так с вертексом на масштбировании?? - ТУДУ
+ - стал бы я прагматично голосовать за вертекс в данном контексте в 2019 - да (новый проект, команда, риски, комьюнити, спека), задача утилизации цпу решалась так или реактивщиной/асинхронщиной
+ - стал бы я прагматично голосовать за вертекс в данном контексте в 2025 - нет - зачем, есть виртуальное потоки
