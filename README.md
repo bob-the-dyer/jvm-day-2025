@@ -1,12 +1,47 @@
-# TODO тут будет название доклада
+# --TODO-- тут будет название доклада
+
+Рабочие варианты:
+
+- Виртуальные войны звездных философов
+- Виртуальные войны: vert.x против классической многопоточности
+- Виртуальные войны: vert.x против классической многопоточности, эпизод №2
+- Виртуальные войны: vert.x классическая многопоточность против vert.x
+- Виртуальные войны: project loom vs vert.x
+- Виртуальные войны философов: project loom vs vert.x
+- Философские войны: project loom vs vert.x
+- Философские войны: loom vs vert.x
+- Битва философов: loom vs vert.x
+- Битва философов: loom против vert.x
+- Виртуальные войны: loom vs vert.x
 
 ## Описание
 
-TODO тут будет описание доклада
+Данный доклад является продолжением моего доклада "vert.x против классической многопоточности в JVM", который был
+представлен на SPb HighLoad++ в 2019г.
+Цель этого доклада - пролить свет не некоторые заблуждения, утверждения и мифы, связанные с виртуальными
+потоками, применив инженерный подход, основанный на измерениях.
+
+В ходе доклада будут приведены измерения производительности различных решений одной из классических задач
+многопоточности - "Обедающие философы". Варианты решений будут включать в себя реализации не виртуальных и на
+платформенных потоках, а также в нескольких вариациях:
+
+- на ReentrantLock
+- на synchronized
+- на vert'x
+
+Измеряя и анализируя результаты слушатель, в частности, узнает:
+
+- починили ли пиннинг (pinning) виртуальных потоков в synchronized секциях
+- быстрее ли switch context на виртуальных потоках чем на платформенных и на сколько
+- сравнимы ли решения на vert.x по производительности с "классикой"
+  (тут и далее под классикой понимаем java concurrency и инструментарий из java.util.concurrent, включая project loom)
+- что выгоднее: активно ждать на потоке или спать
+- как применять инженерный подход
 
 ## Кому может быть интересно, целевая аудитория
 
-TODO
+- JVM спецы, непосредственно работающие с многопоточным кодом
+- JVM спецы, расширяющие свой кругозор, интересующиеся многопоточным программированием
 
 ## Мотивация к появлению данного доклада
 
@@ -28,13 +63,9 @@ TODO
 
 #### Пункт №4
 
-Другие коллеги говорят, установили spring.threads.virtual.enabled=true и ничего не изменилось.
-
-#### Пункт №5
-
 Релизнулись виртуальные потоки.
 
-## Ссылка на доклад на хайлоде
+## Ссылка на мой доклад на HighLoad SPb 2019
 
 https://youtu.be/BpjpPrH_0p0
 
@@ -262,14 +293,12 @@ vert.x в тестах и бенчмарках по-честному стопа�
 
 Используем "черную дыру" для исключения эффектов оптимизаций.
 
-Benchmark Mode Cnt Score Error Units
-ReentrantLockPhilosophersBenchmark.test_reentrant_lock_noop_philosophers_with_virtual_threads avgt 7 2.088 ± 0.122 ms/op
-SynchronizedPhilosophersBenchmark.test_synchronized_noop_philosophers_with_virtual_threads avgt 7 2.235 ± 0.100 ms/op
-SynchronizedPhilosophersBenchmark.test_synchronized_noop_philosophers_with_platform_threads avgt 7 114.038 ± 16.327
-ms/op
-ReentrantLockPhilosophersBenchmark.test_reentrant_lock_noop_philosophers_with_platform_threads avgt 7 137.708 ± 13.519
-ms/op
-Benchmark Mode Cnt Score Error Units
+| Benchmark                                                                                      | Mode | Cnt |   Score |  Error | Units |
+|:-----------------------------------------------------------------------------------------------|:----:|:---:|--------:|-------:|------:|
+| ReentrantLockPhilosophersBenchmark.test_reentrant_lock_noop_philosophers_with_virtual_threads  | avgt |  7  |   2.088 |  0.122 | ms/op | 
+| SynchronizedPhilosophersBenchmark.test_synchronized_noop_philosophers_with_virtual_threads     | avgt |  7  |   2.235 |  0.100 | ms/op |
+| SynchronizedPhilosophersBenchmark.test_synchronized_noop_philosophers_with_platform_threads    | avgt |  7  | 114.038 | 16.327 | ms/op | 
+| ReentrantLockPhilosophersBenchmark.test_reentrant_lock_noop_philosophers_with_platform_threads | avgt |  7  | 137.708 | 13.519 | ms/op | 
 
 Видно, что виртуальные потоки справляются лучше платформенных на 2 порядка, а synchronized и ReentrantLock сравнимы в
 пределах погрешности.
@@ -309,44 +338,39 @@ https://habrastorage.org/r/w1560/getpro/habr/upload_files/20b/769/22f/20b76922f1
 
 [_006_jmh_benchmarks_jdk_noop](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_006_jmh_benchmarks_jdk_noop)
 
-Benchmark Mode Cnt Score Error Units
-NoopPhilosophersBenchmark.test_reentrant_lock_noop_philosophers_with_virtual_threads avgt 7 1.898 ± 0.048 ms/op
-NoopPhilosophersBenchmark.test_synchronized_noop_philosophers_with_virtual_threads avgt 7 1.927 ± 0.058 ms/op
-NoopPhilosophersBenchmark.test_synchronized_noop_philosophers_with_platform_threads avgt 7 96.351 ± 0.709 ms/op
-NoopPhilosophersBenchmark.test_reentrant_lock_noop_philosophers_with_platform_threads avgt 7 129.329 ± 15.365 ms/op
+| Benchmark                                                                             | Mode | Cnt |   Score |  Error | Units |
+|:--------------------------------------------------------------------------------------|:----:|:---:|--------:|-------:|------:|
+| NoopPhilosophersBenchmark.test_reentrant_lock_noop_philosophers_with_virtual_threads  | avgt |  7  |   1.898 |  0.048 | ms/op | 
+| NoopPhilosophersBenchmark.test_synchronized_noop_philosophers_with_virtual_threads    | avgt |  7  |   1.927 |  0.058 | ms/op |
+| NoopPhilosophersBenchmark.test_synchronized_noop_philosophers_with_platform_threads   | avgt |  7  |  96.351 |  0.709 | ms/op | 
+| NoopPhilosophersBenchmark.test_reentrant_lock_noop_philosophers_with_platform_threads | avgt |  7  | 129.329 | 15.365 | ms/op | 
 
 Виртуальные потоки на 2 порядка лучше, а synchronized и ReentrantLock сравнимы в пределах погрешности, тут все бьется с
 предыдущими измерениями.
 
-Будем аккуратно сравнивать между собой следующие 3 бенчмарки, т к можем промахнуться с оценкой операции реального чтения
-с SSD.
+Будем аккуратно сравнивать между собой следующие 3 бенчмарки, т. к. можно промахнуться с оценкой операции реального
+чтения с SSD.
 
 [_007_jmh_benchmarks_jdk_sleeping](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_007_jmh_benchmarks_jdk_sleeping)
 
-Benchmark Mode Cnt Score Error Units
-SleepingPhilosophersBenchmark.test_reentrant_lock_sleeping_philosophers_with_platform_threads avgt 7 619.487 ± 57.005
-ms/op
-SleepingPhilosophersBenchmark.test_synchronized_sleeping_philosophers_with_platform_threads avgt 7 695.648 ± 47.757
-ms/op
-SleepingPhilosophersBenchmark.test_synchronized_sleeping_philosophers_with_virtual_threads avgt 7 743.421 ± 111.426
-ms/op
-SleepingPhilosophersBenchmark.test_reentrant_lock_sleeping_philosophers_with_virtual_threads avgt 7 757.324 ± 85.793
-ms/op
+| Benchmark                                                                                     | Mode | Cnt |   Score |   Error | Units |
+|:----------------------------------------------------------------------------------------------|:----:|:---:|--------:|--------:|------:|
+| SleepingPhilosophersBenchmark.test_reentrant_lock_sleeping_philosophers_with_platform_threads | avgt |  7  | 619.487 |  57.005 | ms/op | 
+| SleepingPhilosophersBenchmark.test_synchronized_sleeping_philosophers_with_platform_threads   | avgt |  7  | 695.648 |  47.757 | ms/op |
+| SleepingPhilosophersBenchmark.test_synchronized_sleeping_philosophers_with_virtual_threads    | avgt |  7  | 743.421 | 111.426 | ms/op | 
+| SleepingPhilosophersBenchmark.test_reentrant_lock_sleeping_philosophers_with_virtual_threads  | avgt |  7  | 757.324 |  85.793 | ms/op | 
 
 Тут нет однозначности, я бы сказал, что все сравнимо в пределах погрешностей. Если судить только по средним, то
 как-будто платформенные потоки лучше засыпают и просыпаются, но с чего бы это на самом деле?...
 
 [_008_jmh_benchmarks_jdk_blocking_reading](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_008_jmh_benchmarks_jdk_blocking_reading)
 
-Benchmark Mode Cnt Score Error Units
-BlockingReadingPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_platform_threads avgt 7
-585.240 ± 94.912 ms/op
-BlockingReadingPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_platform_threads avgt 7
-906.057 ± 107.330 ms/op
-BlockingReadingPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_virtual_threads avgt 7
-3610.834 ± 744.468 ms/op
-BlockingReadingPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_virtual_threads avgt 7
-17666.041 ± 5157.029 ms/op
+| Benchmark                                                                                                    | Mode | Cnt |     Score |    Error | Units |
+|:-------------------------------------------------------------------------------------------------------------|:----:|:---:|----------:|---------:|------:|
+| BlockingReadingPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_platform_threads | avgt |  7  |   585.240 |   94.912 | ms/op | 
+| BlockingReadingPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_platform_threads   | avgt |  7  |   906.057 |  107.330 | ms/op |
+| BlockingReadingPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_virtual_threads  | avgt |  7  |  3610.834 |  744.468 | ms/op | 
+| BlockingReadingPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_virtual_threads    | avgt |  7  | 17666.041 | 5157.029 | ms/op |
 
 Ого. Как я вижу эти результаты?
 
@@ -354,22 +378,21 @@ BlockingReadingPhilosophersBenchmark.test_synchronized_blocking_reading_philosop
 - последнюю строчку я бы интерпретировал либо как пининг виртуального потока на блокирующем апи при вызове внутри
   synchronized, либо как провокацию или багу! Я смотрю на такое же чтение в synchronized на платформенном потоке и не
   понимаю почему виртуальному настолько плохо.
-- самое вероятное объяснение последней строки - методология плоха тем, что смешивает измерение производительности при
+- Да, методология плоха тем, что смешивает измерение производительности при
   борьбе за палочки/мониторы и блокирующее чтение ИЛИ вообще чтение файла было не самой лучшей идеей
+- НО самое вероятное и простое объяснение последней строки - пиннинг есть, и пиннится один из немногих (возможно один)
+  платформенный поток и чтение становится абсолютным бутылочным горлышком
 - лучшие результаты по блокирующему чтению под мониторами по времени похожи на слип, но хуже в 2,5 раза активного
   ожидания - активно ждать дешевле слипа!
 
 [_009_jmh_benchmarks_jdk_active_waiting](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_009_jmh_benchmarks_jdk_active_waiting)
 
-Benchmark Mode Cnt Score Error Units
-ActiveWaitingPhilosophersBenchmark.test_synchronized_active_waiting_philosophers_with_virtual_threads avgt 7 170.812 ±
-7.355 ms/op
-ActiveWaitingPhilosophersBenchmark.test_reentrant_lock_active_waiting_philosophers_with_virtual_threads avgt 7 178.575 ±
-16.057 ms/op
-ActiveWaitingPhilosophersBenchmark.test_synchronized_active_waiting_philosophers_with_platform_threads avgt 7 303.367 ±
-12.389 ms/op
-ActiveWaitingPhilosophersBenchmark.test_reentrant_lock_active_waiting_philosophers_with_platform_threads avgt 7
-416.446 ± 92.891 ms/op
+| Benchmark                                                                                                | Mode | Cnt |   Score |  Error | Units |
+|:---------------------------------------------------------------------------------------------------------|:----:|:---:|--------:|-------:|------:|
+| ActiveWaitingPhilosophersBenchmark.test_synchronized_active_waiting_philosophers_with_virtual_threads    | avgt |  7  | 170.812 |  7.355 | ms/op | 
+| ActiveWaitingPhilosophersBenchmark.test_reentrant_lock_active_waiting_philosophers_with_virtual_threads  | avgt |  7  | 178.575 | 16.057 | ms/op |
+| ActiveWaitingPhilosophersBenchmark.test_synchronized_active_waiting_philosophers_with_platform_threads   | avgt |  7  | 303.367 | 12.389 | ms/op | 
+| ActiveWaitingPhilosophersBenchmark.test_reentrant_lock_active_waiting_philosophers_with_platform_threads | avgt |  7  | 416.446 | 92.891 | ms/op |
 
 Активное ожидание показывает лучшие результаты на виртуальных потоках в 1,5 раза, остальное в пределах погрешностей.
 
@@ -425,40 +448,32 @@ ActiveWaitingPhilosophersBenchmark.test_reentrant_lock_active_waiting_philosophe
 
 Для удобства проведения всех измерений за один прогон объединяю все бенчмарки в один
 
-Benchmark Mode Cnt Score Error Units
-UnitedPhilosophersBenchmark.test_reentrant_lock_noop_philosophers_with_virtual_threads avgt 7 2.093 ± 0.220 ms/op
-UnitedPhilosophersBenchmark.test_synchronized_noop_philosophers_with_virtual_threads avgt 7 2.397 ± 0.164 ms/op
-UnitedPhilosophersBenchmark.test_synchronized_noop_philosophers_with_platform_threads avgt 7 109.763 ± 16.223 ms/op
-UnitedPhilosophersBenchmark.test_reentrant_lock_noop_philosophers_with_platform_threads avgt 7 131.368 ± 16.621 ms/op
-UnitedPhilosophersBenchmark.test_synchronized_active_waiting_philosophers_with_virtual_threads avgt 7 171.617 ± 4.052
-ms/op
-UnitedPhilosophersBenchmark.test_reentrant_lock_active_waiting_philosophers_with_virtual_threads avgt 7 179.902 ± 29.410
-ms/op
-UnitedPhilosophersBenchmark.test_virtual_noop_verticle_philosophers avgt 7 206.376 ± 12.699 ms/op
-UnitedPhilosophersBenchmark.test_verticle_noop_philosophers avgt 7 288.937 ± 26.813 ms/op
-UnitedPhilosophersBenchmark.test_synchronized_active_waiting_philosophers_with_platform_threads avgt 7 325.382 ± 34.030
-ms/op
-UnitedPhilosophersBenchmark.test_reentrant_lock_active_waiting_philosophers_with_platform_threads avgt 7 439.129 ±
-111.866 ms/op
-UnitedPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_platform_threads avgt 7 548.097 ±
-122.230 ms/op
-UnitedPhilosophersBenchmark.test_reentrant_lock_sleeping_philosophers_with_platform_threads avgt 7 611.358 ± 102.814
-ms/op
-UnitedPhilosophersBenchmark.test_reentrant_lock_sleeping_philosophers_with_virtual_threads avgt 7 649.195 ± 68.691 ms/op
-UnitedPhilosophersBenchmark.test_active_waiting_verticle_philosophers avgt 7 678.343 ± 22.580 ms/op
-UnitedPhilosophersBenchmark.test_virtual_active_waiting_verticle_philosophers avgt 7 718.618 ± 59.118 ms/op
-UnitedPhilosophersBenchmark.test_synchronized_sleeping_philosophers_with_platform_threads avgt 7 767.795 ± 89.405 ms/op
-UnitedPhilosophersBenchmark.test_synchronized_sleeping_philosophers_with_virtual_threads avgt 7 845.711 ± 78.225 ms/op
-UnitedPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_platform_threads avgt 7 929.553 ±
-73.032 ms/op
-UnitedPhilosophersBenchmark.test_blocking_reading_verticle_philosophers avgt 7 2820.554 ± 147.504 ms/op
-UnitedPhilosophersBenchmark.test_virtual_blocking_reading_verticle_philosophers avgt 7 3229.174 ± 106.756 ms/op
-UnitedPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_virtual_threads avgt 7 3578.460 ±
-558.093 ms/op
-UnitedPhilosophersBenchmark.test_sleeping_verticle_philosophers avgt 7 3596.082 ± 412.365 ms/op
-UnitedPhilosophersBenchmark.test_virtual_sleeping_verticle_philosophers avgt 7 3953.206 ± 232.746 ms/op
-UnitedPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_virtual_threads avgt 7 16583.318 ±
-4071.447 ms/op
+| Benchmark                                                                                           | Mode | Cnt |     Score |    Error | Units |
+|:----------------------------------------------------------------------------------------------------|:----:|:---:|----------:|---------:|------:|
+| UnitedPhilosophersBenchmark.test_reentrant_lock_noop_philosophers_with_virtual_threads              | avgt |  7  |     2.093 |    0.220 | ms/op | 
+| UnitedPhilosophersBenchmark.test_synchronized_noop_philosophers_with_virtual_threads                | avgt |  7  |     2.397 |    0.164 | ms/op | 
+| UnitedPhilosophersBenchmark.test_synchronized_noop_philosophers_with_platform_threads               | avgt |  7  |   109.763 |   16.223 | ms/op | 
+| UnitedPhilosophersBenchmark.test_reentrant_lock_noop_philosophers_with_platform_threads             | avgt |  7  |   131.368 |   16.621 | ms/op | 
+| UnitedPhilosophersBenchmark.test_synchronized_active_waiting_philosophers_with_virtual_threads      | avgt |  7  |   171.617 |    4.052 | ms/op | 
+| UnitedPhilosophersBenchmark.test_reentrant_lock_active_waiting_philosophers_with_virtual_threads    | avgt |  7  |   179.902 |   29.410 | ms/op | 
+| UnitedPhilosophersBenchmark.test_virtual_noop_verticle_philosophers                                 | avgt |  7  |   206.376 |   12.699 | ms/op | 
+| UnitedPhilosophersBenchmark.test_verticle_noop_philosophers                                         | avgt |  7  |   288.937 |   26.813 | ms/op | 
+| UnitedPhilosophersBenchmark.test_synchronized_active_waiting_philosophers_with_platform_threads     | avgt |  7  |   325.382 |   34.030 | ms/op | 
+| UnitedPhilosophersBenchmark.test_reentrant_lock_active_waiting_philosophers_with_platform_threads   | avgt |  7  |   439.129 |  111.866 | ms/op | 
+| UnitedPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_platform_threads | avgt |  7  |   548.097 |  122.230 | ms/op | 
+| UnitedPhilosophersBenchmark.test_reentrant_lock_sleeping_philosophers_with_platform_threads         | avgt |  7  |   611.358 |  102.814 | ms/op | 
+| UnitedPhilosophersBenchmark.test_reentrant_lock_sleeping_philosophers_with_virtual_threads          | avgt |  7  |   649.195 |   68.691 | ms/op | 
+| UnitedPhilosophersBenchmark.test_active_waiting_verticle_philosophers                               | avgt |  7  |   678.343 |   22.580 | ms/op | 
+| UnitedPhilosophersBenchmark.test_virtual_active_waiting_verticle_philosophers                       | avgt |  7  |   718.618 |   59.118 | ms/op | 
+| UnitedPhilosophersBenchmark.test_synchronized_sleeping_philosophers_with_platform_threads           | avgt |  7  |   767.795 |   89.405 | ms/op | 
+| UnitedPhilosophersBenchmark.test_synchronized_sleeping_philosophers_with_virtual_threads            | avgt |  7  |   845.711 |   78.225 | ms/op | 
+| UnitedPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_platform_threads   | avgt |  7  |   929.553 |   73.032 | ms/op | 
+| UnitedPhilosophersBenchmark.test_blocking_reading_verticle_philosophers                             | avgt |  7  |  2820.554 |  147.504 | ms/op | 
+| UnitedPhilosophersBenchmark.test_virtual_blocking_reading_verticle_philosophers                     | avgt |  7  |  3229.174 |  106.756 | ms/op | 
+| UnitedPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_virtual_threads  | avgt |  7  |  3578.460 |  558.093 | ms/op | 
+| UnitedPhilosophersBenchmark.test_sleeping_verticle_philosophers                                     | avgt |  7  |  3596.082 |  412.365 | ms/op | 
+| UnitedPhilosophersBenchmark.test_virtual_sleeping_verticle_philosophers                             | avgt |  7  |  3953.206 |  232.746 | ms/op | 
+| UnitedPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_virtual_threads    | avgt |  7  | 16583.318 | 4071.447 | ms/op | 
 
 Комментарии
 
@@ -466,7 +481,9 @@ UnitedPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with
   vert.x.
 - подтверждается на порядок просадка в производительности в блокирующем вызове виртуального потока под synchronized, что
   особенно странно, т. к. относительно такого же для платформенного варианта имеем на порядок лучше показатель хотя там
-  УЖЕ и есть натурально запиненый платформенный поток!
+  УЖЕ и есть натурально запиненый платформенный поток! Но самое простое и вероятное объяснение все же такое: пиннинг
+  остался, и пиннится один из немногих (возможно единственный!) платформенный поток и чтение становится абсолютным
+  бутылочным горлышком; в случаем с решением на платформенных потоках их тупо больше!
 
 #### А теперь попробую помасштабировать наши бенчмарки в 2-х измерениях: по кол-ву философов и по кол-ву "кормлений"
 
@@ -476,58 +493,43 @@ UnitedPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with
 Это потому что такие бенчмарки залипают! Не вдаваясь в подробности, кажется, что шторм событий от подписок и отписок
 просто выносит всю полезную нагрузку. Ну а что с десятками тысяч вертиклов которые хотя бы дорабатывают до конца?
 
-ScaledPhilosophersBenchmark._020_test_0010K_0010K_synchronized_noop_philosophers_with_virtual_threads avgt 7 13.453 ±
-2.037 ms/op
-ScaledPhilosophersBenchmark._010_test_0010K_0010K_reentrant_lock_noop_philosophers_with_virtual_threads avgt 7 13.790 ±
-0.852 ms/op
-UnitedPhilosophersBenchmark._____test_0001K_0010K_test_virtual_noop_verticle_philosophers avgt 5 204.009 ± 20.128 ms/op
-UnitedPhilosophersBenchmark._____test_0001K_0010_verticle_noop_philosophers avgt 5 287.172 ± 31.099 ms/op
-ScaledPhilosophersBenchmark._040_test_0010K_0010K_noop_verticle_philosophers avgt 5 527.384 ± 330.028 ms/op
-ScaledPhilosophersBenchmark._030_test_0010K_0010K_virtual_noop_verticle_philosophers avgt 5 1028.263 ± 1976.565 ms/op
+Также в масштабируемый сводный бенчмарк не вошли решения на платформенных потоках - там не помасштабируешь по кол-ву
+филосов, и не очень интересное масшабирование по кол-ву кормлений (увидим ниже)
 
-vert.x хуже на порядок классики! Погрешности ужасны, вообще непонятно, что намеряли?! Оснований доверять таким числам
-нет! Оставляем только измерения для классики.
+| Benchmark                                                                                               | Mode | Cnt |    Score |    Error | Units |
+|:--------------------------------------------------------------------------------------------------------|:----:|:---:|---------:|---------:|------:|
+| ScaledPhilosophersBenchmark._020_test_0010K_0010K_synchronized_noop_philosophers_with_virtual_threads   | avgt |  7  |   13.453 |    2.037 | ms/op | 
+| ScaledPhilosophersBenchmark._010_test_0010K_0010K_reentrant_lock_noop_philosophers_with_virtual_threads | avgt |  7  |   13.790 |    0.852 | ms/op | 
+| UnitedPhilosophersBenchmark.__________0001K_0010K_virtual_noop_verticle_philosophers                    | avgt |  5  |  204.009 |   20.128 | ms/op | 
+| UnitedPhilosophersBenchmark.__________0001K_0010K_verticle_noop_philosophers                            | avgt |  5  |  287.172 |   31.099 | ms/op | 
+| ScaledPhilosophersBenchmark._040_test_0010K_0010K_noop_verticle_philosophers                            | avgt |  7  |  527.384 |  330.028 | ms/op | 
+| ScaledPhilosophersBenchmark._030_test_0010K_0010K_virtual_noop_verticle_philosophers                    | avgt |  7  | 1028.263 | 1976.565 | ms/op |
 
-UnitedPhilosophersBenchmark._____test_0001K_0010K_reentrant_lock_philosophers_with_virtual_thread avgt 5 1.952 ± 0.188
-ms/op
-UnitedPhilosophersBenchmark._____test_0001K_0010K_test_synchronized_philosophers_with_virtual_threads avgt 5 2.184 ±
-0.439 ms/op
-ScaledPhilosophersBenchmark._020_test_0010K_0010K_synchronized_noop_philosophers_with_virtual_threads avgt 7 13.453 ±
-2.037 ms/op
-ScaledPhilosophersBenchmark._010_test_0010K_0010K_reentrant_lock_noop_philosophers_with_virtual_threads avgt 7 13.790 ±
-0.852 ms/op
-ScaledPhilosophersBenchmark._100_test_0010K_0100K_synchronized_noop_philosophers_with_virtual_threads avgt 7 20.490 ±
-0.973 ms/op
-ScaledPhilosophersBenchmark._090_test_0010K_0100K_reentrant_lock_noop_philosophers_with_virtual_threads avgt 7 21.520 ±
-2.153 ms/op
-ScaledPhilosophersBenchmark._220_test_0010K_1000K_synchronized_noop_philosophers_with_virtual_threads avgt 7 70.700 ±
-1.221 ms/op
-ScaledPhilosophersBenchmark._210_test_0010K_1000K_reentrant_lock_noop_philosophers_with_virtual_threads avgt 7 72.035 ±
-1.424 ms/op
-ScaledPhilosophersBenchmark._060_test_0100K_0010K_synchronized_noop_philosophers_with_virtual_threads avgt 7 276.019 ±
-92.038 ms/op
-ScaledPhilosophersBenchmark._050_test_0100K_0010K_reentrant_lock_noop_philosophers_with_virtual_threads avgt 7 284.643 ±
-35.604 ms/op
-ScaledPhilosophersBenchmark._130_test_0100K_0100K_reentrant_lock_noop_philosophers_with_virtual_threads avgt 7 297.571 ±
-37.570 ms/op
-ScaledPhilosophersBenchmark._140_test_0100K_0100K_synchronized_noop_philosophers_with_virtual_threads avgt 7 255.395 ±
-102.263 ms/op
-ScaledPhilosophersBenchmark._142_test_0100K_1000K_reentrant_lock_noop_philosophers_with_virtual_threads avgt 7 351.140 ±
-102.412 ms/op
-ScaledPhilosophersBenchmark._144_test_0100K_1000K_synchronized_noop_philosophers_with_virtual_threads avgt 7 382.512 ±
-60.712 ms/op
-ScaledPhilosophersBenchmark._180_test_1000K_0010K_synchronized_noop_philosophers_with_virtual_threads avgt 7 3847.501 ±
-197.755 ms/op
-ScaledPhilosophersBenchmark._170_test_1000K_0010K_reentrant_lock_noop_philosophers_with_virtual_threads avgt 7
-4307.880 ± 402.627 ms/op
-ScaledPhilosophersBenchmark._182_test_1000K_0100K_reentrant_lock_noop_philosophers_with_virtual_threads avgt 7
-3993.247 ± 530.418 ms/op
-ScaledPhilosophersBenchmark._184_test_1000K_0100K_synchronized_noop_philosophers_with_virtual_threads avgt 7 4089.308 ±
-576.735 ms/op
-ScaledPhilosophersBenchmark._250_test_1000K_1000K_reentrant_lock_noop_philosophers_with_virtual_threads avgt 7
-3931.608 ± 460.112 ms/op
-ScaledPhilosophersBenchmark._260_test_1000K_1000K_synchronized_noop_philosophers_with_virtual_threads avgt 7 3792.618 ±
-352.711 ms/op
+vert.x хуже на порядок классики! Погрешности такие, что вообще непонятно, что намеряли и как прогнозировать нагрузку?!
+Оснований доверять таким числам нет, поэтому далее оставляем только измерения для "классики".
+
+| Benchmark                                                                                               | Mode | Cnt |    Score |   Error | Units |
+|:--------------------------------------------------------------------------------------------------------|:----:|:---:|---------:|--------:|------:|
+| UnitedPhilosophersBenchmark._____test_0001K_0010K_reentrant_lock_philosophers_with_virtual_thread       | avgt |  5  |    1.952 |   0.188 | ms/op | 
+| UnitedPhilosophersBenchmark._____test_0001K_0010K_test_synchronized_philosophers_with_virtual_threads   | avgt |  5  |    2.184 |   0.439 | ms/op | 
+| ScaledPhilosophersBenchmark._020_test_0010K_0010K_synchronized_noop_philosophers_with_virtual_threads   | avgt |  7  |   13.453 |   2.037 | ms/op | 
+| ScaledPhilosophersBenchmark._010_test_0010K_0010K_reentrant_lock_noop_philosophers_with_virtual_threads | avgt |  7  |   13.790 |   0.852 | ms/op |
+| ScaledPhilosophersBenchmark._100_test_0010K_0100K_synchronized_noop_philosophers_with_virtual_threads   | avgt |  7  |   20.490 |   0.973 | ms/op |
+| ScaledPhilosophersBenchmark._090_test_0010K_0100K_reentrant_lock_noop_philosophers_with_virtual_threads | avgt |  7  |   21.520 |   2.153 | ms/op |
+| ScaledPhilosophersBenchmark._220_test_0010K_1000K_synchronized_noop_philosophers_with_virtual_threads   | avgt |  7  |   70.700 |   1.221 | ms/op |
+| ScaledPhilosophersBenchmark._210_test_0010K_1000K_reentrant_lock_noop_philosophers_with_virtual_threads | avgt |  7  |   72.035 |   1.424 | ms/op |
+| ScaledPhilosophersBenchmark._060_test_0100K_0010K_synchronized_noop_philosophers_with_virtual_threads   | avgt |  7  |  276.019 |  92.038 | ms/op |
+| ScaledPhilosophersBenchmark._050_test_0100K_0010K_reentrant_lock_noop_philosophers_with_virtual_threads | avgt |  7  |  284.643 |  35.604 | ms/op |
+| ScaledPhilosophersBenchmark._130_test_0100K_0100K_reentrant_lock_noop_philosophers_with_virtual_threads | avgt |  7  |  297.571 |  37.570 | ms/op |
+| ScaledPhilosophersBenchmark._140_test_0100K_0100K_synchronized_noop_philosophers_with_virtual_threads   | avgt |  7  |  255.395 | 102.263 | ms/op |
+| ScaledPhilosophersBenchmark._142_test_0100K_1000K_reentrant_lock_noop_philosophers_with_virtual_threads | avgt |  7  |  351.140 | 102.412 | ms/op |
+| ScaledPhilosophersBenchmark._144_test_0100K_1000K_synchronized_noop_philosophers_with_virtual_threads   | avgt |  7  |  382.512 |  60.712 | ms/op |
+| ScaledPhilosophersBenchmark._180_test_1000K_0010K_synchronized_noop_philosophers_with_virtual_threads   | avgt |  7  | 3847.501 | 197.755 | ms/op |
+| ScaledPhilosophersBenchmark._170_test_1000K_0010K_reentrant_lock_noop_philosophers_with_virtual_threads | avgt |  7  | 4307.880 | 402.627 | ms/op |
+| ScaledPhilosophersBenchmark._182_test_1000K_0100K_reentrant_lock_noop_philosophers_with_virtual_threads | avgt |  7  | 3993.247 | 530.418 | ms/op |
+| ScaledPhilosophersBenchmark._184_test_1000K_0100K_synchronized_noop_philosophers_with_virtual_threads   | avgt |  7  | 4089.308 | 576.735 | ms/op |
+| ScaledPhilosophersBenchmark._250_test_1000K_1000K_reentrant_lock_noop_philosophers_with_virtual_threads | avgt |  7  | 3931.608 | 460.112 | ms/op |
+| ScaledPhilosophersBenchmark._260_test_1000K_1000K_synchronized_noop_philosophers_with_virtual_threads   | avgt |  7  | 3792.618 | 352.711 | ms/op |
 
 Что я тут вижу:
 
@@ -538,38 +540,40 @@ ScaledPhilosophersBenchmark._260_test_1000K_1000K_synchronized_noop_philosophers
 - synchronized vs reentrant_lock сравнимы с точностью до погрешности
 
 Так что же получается, "классика" прям молодец и инженеры, которые контрибьютят в жаву не зря едят свой хлеб с Маслоу??!
-Да, возможно, кроме потенциально недофикшеного бага с пинингом.
+Да, возможно, кроме потенциально недофикшеного бага с пинингом , который может оказаться драмматическим!
 
 ## Итоги и выводы
 
-- измерения получается инструментально выполнить и на "классике", и на vert.x. На классике проще, на vert.x уже есть
-  утилки, но для бенчмарка vert.x приходится призывать "классику" "к барьеру".
-- классика масштабируется прогнозируемо, линейно
-- классика сложнее - требует более высокого уровня квалификации программиста
-- vert.x и акторная модель вообще проще как API и как концепт, пакета конкарренси нет от слова совсем
-- structured concurrency уже работает в превью 24 и оно удобное, например, стало проще закрывать весь пул задач
+- измерения получается инструментально выполнить и на "классике", и на vert.x. На классике проще. На vert.x уже есть
+  утильные классы для юнитов, но для бенчмарка vert.x приходится призывать "классику" "к барьеру".
+- классика масштабируется прогнозируемо, линейно, как мы любим
+- классика сложнее - требует более высокого уровня квалификации jav программиста
+- vert.x и акторная модель вообще проще как API и как концепт, пакета конкарренси нет от слова совсем, берем 10К джунов
+  и клепаем энтерпрайз
+- structured concurrency уже работает в превью 24й и оно удобное, например, стало проще закрывать весь пул задач
 - synchronized против ReentrantLock - в основном различий не видно, все в пределах погрешности
-- пининг - смотря под каким углом смотреть: возможно да, пининг остался, но возможно методология нехорошая (надо
-  выделенный тест)
-- блокирующий код vs активное ожидание vs слип - лучше активно ждать чем спать, оценка по времени блокирующего чтения
-  может быть неточной, не оцениваем и не сравниваем.
+- пининг - смотря под каким углом смотреть: возможно да, возможно методология нехорошая (надо бы выделенный тест) но по
+  замерам не пофиксили
+- блокирующий код vs активное ожидание vs слип - лучше активно ждать чем спать (как по-философски), оценка по времени
+  блокирующего чтения может быть неточной, не оцениваем и не сравниваем.
 - что не так с vert.x на масштбировании? vert.x не готов к такому жесткому использованию локально, внутренняя
-  механика event-bus мешает, а не помогает (это гипотеза, по-хорошему надо проверять и может правильно "готовить"
-  vert.x)
-- стал бы я прагматично голосовать за vert.x в данном контексте в 2019 - да (даешь новый проект на новой технологии, не
-  спринг ура-ура, команда воодушевлена, риски все мои, комьюнити маленькое, спека плохая), потому что задача утилизации
-  CPU решалась 100% (равно как и прочей реактивщиной/асинхронщиной)
+  механика подписок и отписок и шторм на event-bus мешает, а не помогает (это только добротная гипотеза, по-хорошему
+  надо проверять и может кому-то удастся правильно "приготовить" vert.x)
+- стал бы я прагматично голосовать за vert.x в данном контексте в 2019 - да! (даешь новый проект на новой технологии, не
+  спринг - ура-ура, команда воодушевлена, риски все мои, комьюнити маленькое, помощи ждать неоткуда, спека плохая - поле
+  чудес для профессионального роста), потому что задача утилизации CPU решалась 100% (равно как и прочей
+  реактивщиной/асинхронщиной)
 - стал бы я прагматично голосовать за vert.x в данном контексте в 2025 - нет, конечно, зачем? Есть же виртуальные
   потоки!
 
-## Чекну по пунктам удалось ли покрыть заявленные феномены и мифы:
+## Чекаю по пунктам удалось ли покрыть заявленные феномены и мифы:
 
 - виртуальные потоки создаются легко в большом количестве: 10К, 100К, 1КК - ДА, создаются и еще как
 - switch context виртуальных потоков быстрее платформенных - ДА, быстрее однозначно
 - blocking (on IO) на виртуальных потоках быстрее - НЕТ, мои замеры показывают строго обратное, возможно косяк
   методологии
 - пининг на synchronized в виртуальном потоке реально починили - НЕТ, по моим замерам не починили
-- решения на vert.x сравнимы по производительности с "классикой" - НЕТ, так утверждать нельзя
+- решения на vert.x сравнимы по производительности с "классикой" - НЕТ, так утверждать нельзя никак
 - решения на vert.x проще и нагляднее с точки зрения АПИ чем классика - ДА, это точно так
 - synchronized по производительности работает хуже ReentrantLock - НЕТ, они сравнимы друг с другом в пределах
   погрешности
