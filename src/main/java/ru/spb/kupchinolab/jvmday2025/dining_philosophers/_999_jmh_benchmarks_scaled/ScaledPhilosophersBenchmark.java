@@ -10,10 +10,10 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import ru.spb.kupchinolab.jvmday2025.dining_philosophers.Chopstick;
-import ru.spb.kupchinolab.jvmday2025.dining_philosophers._002_reentrant_pivot.ReentrantPhilosopher;
-import ru.spb.kupchinolab.jvmday2025.dining_philosophers._003_synchronized_pivot.SynchronizedPhilosopher;
-import ru.spb.kupchinolab.jvmday2025.dining_philosophers._010_vertx_pivot.VerticlePhilosopher;
-import ru.spb.kupchinolab.jvmday2025.dining_philosophers._010_vertx_pivot.VirtualVerticlePhilosopher;
+import ru.spb.kupchinolab.jvmday2025.dining_philosophers._020_reentrant_pivot.ReentrantPhilosopher;
+import ru.spb.kupchinolab.jvmday2025.dining_philosophers._030_synchronized_pivot.SynchronizedPhilosopher;
+import ru.spb.kupchinolab.jvmday2025.dining_philosophers._100_vertx_pivot.VerticlePhilosopher;
+import ru.spb.kupchinolab.jvmday2025.dining_philosophers._100_vertx_pivot.VirtualVerticlePhilosopher;
 
 import java.time.Instant;
 import java.util.ArrayList;
