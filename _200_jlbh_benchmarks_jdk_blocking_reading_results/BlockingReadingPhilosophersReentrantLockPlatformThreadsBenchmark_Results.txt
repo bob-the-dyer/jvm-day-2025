@@ -1,0 +1,77 @@
+/Users/vladimir/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java -Dmaven.multiModuleProjectDirectory=/Users/vladimir/Development/bob-the-dyer/jvm-day-2025 -Djansi.passthrough=true --enable-preview -Dmaven.home=/Applications/IntelliJ IDEA CE.app/Contents/plugins/maven/lib/maven3 -Dclassworlds.conf=/Applications/IntelliJ IDEA CE.app/Contents/plugins/maven/lib/maven3/bin/m2.conf -Dmaven.ext.class.path=/Applications/IntelliJ IDEA CE.app/Contents/plugins/maven/lib/maven-event-listener.jar -javaagent:/Applications/IntelliJ IDEA CE.app/Contents/lib/idea_rt.jar=55947 -Dfile.encoding=UTF-8 -Dsun.stdout.encoding=UTF-8 -Dsun.stderr.encoding=UTF-8 -classpath /Applications/IntelliJ IDEA CE.app/Contents/plugins/maven/lib/maven3/boot/plexus-classworlds.license:/Applications/IntelliJ IDEA CE.app/Contents/plugins/maven/lib/maven3/boot/plexus-classworlds-2.8.0.jar org.codehaus.classworlds.Launcher -Didea.version=2025.1.2 -DskipTests=true -Dexec.workingdir=/Users/vladimir/Development/bob-the-dyer/jvm-day-2025 -Dexec.args=--enable-preview --add-opens java.base/java.lang.reflect=ALL-UNNAMED -classpath %classpath ru.spb.kupchinolab.jvmday2025.dining_philosophers._200_jlbh_benchmarks_jdk_blocking_reading.BlockingReadingPhilosophersReentrantLockPlatformThreadsBenchmark -Dexec.executable=/Users/vladimir/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java exec:exec
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Applications/IntelliJ%20IDEA%20CE.app/Contents/plugins/maven/lib/maven3/lib/jansi-2.4.1.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by com.google.common.util.concurrent.AbstractFuture$UnsafeAtomicHelper (file:/Applications/IntelliJ%20IDEA%20CE.app/Contents/plugins/maven/lib/maven3/lib/guava-33.2.1-jre.jar)
+WARNING: Please consider reporting this to the maintainers of class com.google.common.util.concurrent.AbstractFuture$UnsafeAtomicHelper
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------< ru.spb.kupchinolabs:jvm-day-2025 >------------------
+[INFO] Building jvm-day-2025 1.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- exec:3.5.1:exec (default-cli) @ jvm-day-2025 ---
+SLF4J: No SLF4J providers were found.
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See https://www.slf4j.org/codes.html#noProviders for further details.
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by com.kenai.jffi.internal.StubLoader in an unnamed module (file:/Users/vladimir/.m2/repository/com/github/jnr/jffi/1.3.12/jffi-1.3.12.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::putLong has been called by com.kenai.jffi.UnsafeMemoryIO$UnsafeMemoryIO64 (file:/Users/vladimir/.m2/repository/com/github/jnr/jffi/1.3.12/jffi-1.3.12.jar)
+WARNING: Please consider reporting this to the maintainers of class com.kenai.jffi.UnsafeMemoryIO$UnsafeMemoryIO64
+WARNING: sun.misc.Unsafe::putLong will be removed in a future release
+Warm up complete (7 iterations took 5.342 s)
+-------------------------------- BENCHMARK RESULTS (RUN 1) us --------------------------------------
+Run time: 10.291 s, distribution: NORMAL
+Correcting for co-ordinated:false
+Target throughput:1/s = 1 message every 1000000us
+End to End: (7)                                 50/90 99/99.9 99.99 - worst was 584,060 / 900,730  900,730 / 900,730  900,730 - 900,730
+eating with ReentrantLock+PlatformThreads (7)   50/90 99/99.9 99.99 - worst was 348,650 / 506,990  506,990 / 506,990  506,990 - 506,990
+OS Jitter (46,940)                              50/90 99/99.9 99.99 - worst was 9.17 / 26.3  96.6 / 2249  35,980 - 163,840
+----------------------------------------------------------------------------------------------------
+-------------------------------- BENCHMARK RESULTS (RUN 2) us --------------------------------------
+Run time: 10.853 s, distribution: NORMAL
+Correcting for co-ordinated:false
+Target throughput:1/s = 1 message every 1000000us
+End to End: (7)                                 50/90 99/99.9 99.99 - worst was 514,330 / 724,570  724,570 / 724,570  724,570 - 724,570
+eating with ReentrantLock+PlatformThreads (7)   50/90 99/99.9 99.99 - worst was 317,190 / 374,870  374,870 / 374,870  374,870 - 374,870
+OS Jitter (26,067)                              50/90 99/99.9 99.99 - worst was 14.00 / 26.8  67.7 / 1178  16,700 - 29,720
+----------------------------------------------------------------------------------------------------
+-------------------------------- BENCHMARK RESULTS (RUN 3) us --------------------------------------
+Run time: 11.871 s, distribution: NORMAL
+Correcting for co-ordinated:false
+Target throughput:1/s = 1 message every 1000000us
+End to End: (7)                                 50/90 99/99.9 99.99 - worst was 567,280 / 1,001,390  1,001,390 / 1,001,390  1,001,390 - 1,001,390
+eating with ReentrantLock+PlatformThreads (7)   50/90 99/99.9 99.99 - worst was 355,990 / 890,240  890,240 / 890,240  890,240 - 890,240
+OS Jitter (33,038)                              50/90 99/99.9 99.99 - worst was 12.72 / 28.3  99.7 / 2183  62,720 - 86,110
+----------------------------------------------------------------------------------------------------
+-------------------------------- SUMMARY (end to end) us -------------------------------------------
+Percentile   run1         run2         run3      % Variation
+50.0:       584056.83    514326.53    567279.62         6.42
+90.0:       900726.78    724566.02   1001390.08        20.30
+99.0:       900726.78    724566.02   1001390.08        20.30
+worst:      900726.78    724566.02   1001390.08        20.30
+----------------------------------------------------------------------------------------------------
+-------------------------------- SUMMARY (eating with ReentrantLock+PlatformThreads) us ------------
+Percentile   run1         run2         run3      % Variation
+50.0:       348651.52    317194.24    355991.55         7.54
+90.0:       506986.50    374865.92    890241.02        47.82
+99.0:       506986.50    374865.92    890241.02        47.82
+worst:      506986.50    374865.92    890241.02        47.82
+----------------------------------------------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  39.798 s
+[INFO] Finished at: 2025-06-19T09:52:36+03:00
+[INFO] ------------------------------------------------------------------------
+
+Process finished with exit code 0
