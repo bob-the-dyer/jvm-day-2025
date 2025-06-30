@@ -22,10 +22,12 @@ public class SingleThreadedNetworkBenchmark implements JLBHTask {
 
     public static void main(String[] args) {
         JLBHOptions jlbhOptions = new JLBHOptions()
-                .warmUpIterations(50000)
+                .warmUpIterations(150000)
                 .iterations(50000)
-                .throughput(5000)
-                .runs(5)
+                .throughput(10000)
+                .runs(3)
+                .recordOSJitter(true)
+                .accountForCoordinatedOmission(false)
                 .jlbhTask(new SingleThreadedNetworkBenchmark());
         new JLBH(jlbhOptions).start();
     }

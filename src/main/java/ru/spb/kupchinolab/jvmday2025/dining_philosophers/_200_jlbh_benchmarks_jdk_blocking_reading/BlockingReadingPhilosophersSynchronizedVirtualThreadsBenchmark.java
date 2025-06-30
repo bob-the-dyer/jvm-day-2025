@@ -66,9 +66,9 @@ public class BlockingReadingPhilosophersSynchronizedVirtualThreadsBenchmark impl
 
     public static void main(String[] args) {
         JLBHOptions lth = new JLBHOptions()
-                .warmUpIterations(7)
+                .warmUpIterations(21)
                 .iterations(7)
-                .throughput(1)//TODO ??? не увидел активного влияния, только индикативная функция в логах?
+                .throughput(1)
                 .runs(3)
                 .recordOSJitter(true)
                 .accountForCoordinatedOmission(false)
