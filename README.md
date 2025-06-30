@@ -643,6 +643,8 @@ __Таким образом, кажется что инструментальн�
 
 #### Переписываю бенчмарк для блокирующего чтения с диска через jlbh на блокирующее чтение по сети
 
+##### SingleThreadedNetworkBenchmark
+
 Сначала пишем прямолинейный однопоточный бенчмарк чтобы померять чтение по сети 16Мб ответа, используем конечно вертекс!
 результаты в микросекундах. Разлет замеров на порядок если забыть выключить accountForCoordinatedOmission
 
@@ -656,7 +658,42 @@ __Таким образом, кажется что инструментальн�
 | 99.7:      | 217.34  | 215.81  | 213.25  |    0.79     |
 | worst:     | 1308.67 | 1132.54 | 1120.26 |    0.73     |
 
-ТУДУ
+Это база!
+
+Берем известный "баг" и его разоблачение - https://github.com/danvega/pinning/pull/2
+https://github.com/spring-aio/java24-pinning/blob/master/src/main/java/dev/danvega/Application.java
+
+Подход будет такой же: на оч простом примере попробуем сравнить результат бенчмарков для многопоточного приложения для
+разных типов блокировок и потоков
+
+##### StructuredConcurrencyPlatformNoLockNetworkBenchmark
+
+[StructuredConcurrencyPlatformNoLockNetworkBenchmark.java](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_210_jlbh_benchmarks_jdk_http_roundtrip/StructuredConcurrencyPlatformNoLockNetworkBenchmark.java)
+
+[StructuredConcurrencyPlatformNoLockNetworkBenchmarkResults.txt](_210_jlbh_benchmarks_jdk_http_roundtrip_results/StructuredConcurrencyPlatformNoLockNetworkBenchmarkResults.txt)
+
+| Percentile |  run1   |  run2   |   run3   | % Variation |
+|:-----------|:-------:|:-------:|:--------:|:-----------:|
+| 50.0:      | 113.02  | 116.61  |  118.14  |    0.87     |
+| 90.0:      | 147.71  | 173.31  |  162.05  |    4.43     |
+| 99.0:      | 274.94  | 295.42  |  324.10  |    6.08     |
+| worst:     | 4317.18 | 2265.09 | 12632.06 |    75.32    |
+
+Тут существенной разницы с однопоточным кодом нет
+
+##### StructuredConcurrencyVirtualNoLockNetworkBenchmark
+
+[StructuredConcurrencyVirtualNoLockNetworkBenchmark.java](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_210_jlbh_benchmarks_jdk_http_roundtrip/StructuredConcurrencyVirtualNoLockNetworkBenchmark.java)
+
+А вот тут неожиданно не взлетает, все дерево падает на либо на
+
+- Operation timed out, либо на
+- Can't assign requested address
+
+Почему? Платформенных потоков мало, по числу ядер (дефолт) вызов блокирующий, сам исполняться виртуальным потокам как
+платформенным не получается, 200 задач в структурном конкарренси держим, а вот 400 уже нет - но почему?
+
+ТУДУ некст
 
 #### Доказываю наличие или отсутствие пиннинга
 
@@ -704,9 +741,11 @@ __Таким образом, кажется что инструментальн�
 
 https://wiki.openjdk.org/display/loom/Main
 
-https://openjdk.org/jeps/444
+[JEP 444: Virtual Threads](https://openjdk.org/jeps/444)
 
-https://openjdk.org/jeps/505
+[JEP 505: Structured Concurrency (Fifth Preview)](https://openjdk.org/jeps/505)
+
+[JEP 491: Synchronize Virtual Threads without Pinning](https://openjdk.org/jeps/491)
 
 https://en.wikipedia.org/wiki/Dining_philosophers_problem
 

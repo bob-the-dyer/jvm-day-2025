@@ -1,0 +1,85 @@
+/Users/vladimir/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java -Dmaven.multiModuleProjectDirectory=/Users/vladimir/Development/bob-the-dyer/jvm-day-2025 -Djansi.passthrough=true --enable-preview -Dmaven.home=/Applications/IntelliJ IDEA.app/Contents/plugins/maven/lib/maven3 -Dclassworlds.conf=/Applications/IntelliJ IDEA.app/Contents/plugins/maven/lib/maven3/bin/m2.conf -Dmaven.ext.class.path=/Applications/IntelliJ IDEA.app/Contents/plugins/maven/lib/maven-event-listener.jar -javaagent:/Applications/IntelliJ IDEA.app/Contents/lib/idea_rt.jar=63891 -Dfile.encoding=UTF-8 -Dsun.stdout.encoding=UTF-8 -Dsun.stderr.encoding=UTF-8 -classpath /Applications/IntelliJ IDEA.app/Contents/plugins/maven/lib/maven3/boot/plexus-classworlds.license:/Applications/IntelliJ IDEA.app/Contents/plugins/maven/lib/maven3/boot/plexus-classworlds-2.8.0.jar org.codehaus.classworlds.Launcher -Didea.version=2025.1.2 -DskipTests=true -Dexec.workingdir=/Users/vladimir/Development/bob-the-dyer/jvm-day-2025 -Dexec.args=--enable-preview --add-opens java.base/java.lang.reflect=ALL-UNNAMED -classpath %classpath ru.spb.kupchinolab.jvmday2025.dining_philosophers._210_jlbh_benchmarks_jdk_http_roundtrip.StructuredConcurrencyPlatformNoLockNetworkBenchmark -Dexec.executable=/Users/vladimir/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java exec:exec
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Applications/IntelliJ%20IDEA.app/Contents/plugins/maven/lib/maven3/lib/jansi-2.4.1.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by com.google.common.util.concurrent.AbstractFuture$UnsafeAtomicHelper (file:/Applications/IntelliJ%20IDEA.app/Contents/plugins/maven/lib/maven3/lib/guava-33.2.1-jre.jar)
+WARNING: Please consider reporting this to the maintainers of class com.google.common.util.concurrent.AbstractFuture$UnsafeAtomicHelper
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+[INFO] Scanning for projects...
+[WARNING]
+[WARNING] Some problems were encountered while building the effective model for ru.spb.kupchinolabs:jvm-day-2025:jar:1.0
+[WARNING] 'build.plugins.plugin.(groupId:artifactId)' must be unique but found duplicate declaration of plugin org.apache.maven.plugins:maven-compiler-plugin @ line 139, column 21
+[WARNING]
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING]
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING]
+[INFO]
+[INFO] ------------------< ru.spb.kupchinolabs:jvm-day-2025 >------------------
+[INFO] Building jvm-day-2025 1.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- exec:3.5.1:exec (default-cli) @ jvm-day-2025 ---
+SLF4J: No SLF4J providers were found.
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See https://www.slf4j.org/codes.html#noProviders for further details.
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by com.kenai.jffi.internal.StubLoader in an unnamed module (file:/Users/vladimir/.m2/repository/com/github/jnr/jffi/1.3.12/jffi-1.3.12.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::putLong has been called by com.kenai.jffi.UnsafeMemoryIO$UnsafeMemoryIO64 (file:/Users/vladimir/.m2/repository/com/github/jnr/jffi/1.3.12/jffi-1.3.12.jar)
+WARNING: Please consider reporting this to the maintainers of class com.kenai.jffi.UnsafeMemoryIO$UnsafeMemoryIO64
+WARNING: sun.misc.Unsafe::putLong will be removed in a future release
+Warm up complete (20 iterations took 10.129 s)
+-------------------------------- BENCHMARK RESULTS (RUN 1) us --------------------------------------
+Run time: 3.953 s, distribution: NORMAL
+Correcting for co-ordinated:false
+Target throughput:10/s = 1 message every 100000us
+End to End: (10)                                50/90 99/99.9 99.99 - worst was 298,320 / 323,490  323,490 / 323,490  323,490 - 323,490
+request-response (40,000)                       50/90 99/99.9 99.99 - worst was 113.0 / 147.7  275 / 1657  3,890 - 4,320
+OS Jitter (158,008)                             50/90 99/99.9 99.99 - worst was 1.438 / 9.26  26.5 / 742  3,040 - 46,730
+----------------------------------------------------------------------------------------------------
+-------------------------------- BENCHMARK RESULTS (RUN 2) us --------------------------------------
+Run time: 4.247 s, distribution: NORMAL
+Correcting for co-ordinated:false
+Target throughput:10/s = 1 message every 100000us
+End to End: (10)                                50/90 99/99.9 99.99 - worst was 301,470 / 451,410  451,410 / 451,410  451,410 - 451,410
+request-response (40,000)                       50/90 99/99.9 99.99 - worst was 116.6 / 173.3  295 / 1599  2025 - 2265
+OS Jitter (51,349)                              50/90 99/99.9 99.99 - worst was 1.438 / 9.49  26.2 / 792  1092 - 1456
+----------------------------------------------------------------------------------------------------
+-------------------------------- BENCHMARK RESULTS (RUN 3) us --------------------------------------
+Run time: 4.365 s, distribution: NORMAL
+Correcting for co-ordinated:false
+Target throughput:10/s = 1 message every 100000us
+End to End: (10)                                50/90 99/99.9 99.99 - worst was 305,660 / 525,860  525,860 / 525,860  525,860 - 525,860
+request-response (40,000)                       50/90 99/99.9 99.99 - worst was 118.1 / 162.0  324 / 1935  10,500 - 12,630
+OS Jitter (51,697)                              50/90 99/99.9 99.99 - worst was 1.454 / 10.51  36.8 / 859  1870 - 5,640
+----------------------------------------------------------------------------------------------------
+-------------------------------- SUMMARY (end to end) us -------------------------------------------
+Percentile   run1         run2         run3      % Variation
+50.0:       298319.87    301465.60    305659.90         0.92
+90.0:       323485.70    451411.97    525860.86         9.91
+99.0:       323485.70    451411.97    525860.86         9.91
+worst:      323485.70    451411.97    525860.86         9.91
+----------------------------------------------------------------------------------------------------
+-------------------------------- SUMMARY (request-response) us -------------------------------------
+Percentile   run1         run2         run3      % Variation
+50.0:          113.02       116.61       118.14         0.87
+90.0:          147.71       173.31       162.05         4.43
+99.0:          274.94       295.42       324.10         6.08
+worst:        4317.18      2265.09     12632.06        75.32
+----------------------------------------------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  25.411 s
+[INFO] Finished at: 2025-06-30T16:56:33+03:00
+[INFO] ------------------------------------------------------------------------
+
+Process finished with exit code 0
