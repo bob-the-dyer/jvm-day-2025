@@ -18,7 +18,7 @@ import java.util.stream.IntStream;
 
 public class StructuredConcurrencyVirtualNoLockNetworkBenchmark implements JLBHTask {
     private final static int port = 8007;
-    private final static int concurrentExecutions = 200;
+    private final static int concurrentExecutions = 400;
     private NanoSampler requestResponseSampler;
     private JLBH jlbh;
     private Vertx vertx;
