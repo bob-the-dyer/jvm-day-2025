@@ -18,7 +18,7 @@ import java.util.stream.IntStream;
 
 public class StructuredConcurrencyPlatformNoLockNetworkBenchmark implements JLBHTask {
     private final static int port = 8007;
-    private final static int concurrentExecutions = 4_000;
+    private final static int concurrentExecutions = 1_000;
     private NanoSampler requestResponseSampler;
     private JLBH jlbh;
     private Vertx vertx;
@@ -59,7 +59,7 @@ public class StructuredConcurrencyPlatformNoLockNetworkBenchmark implements JLBH
             response.end(responseAsString); //<<--- here we can play with the size of the response
         });
 
-        server.listen(StructuredConcurrencyPlatformNoLockNetworkBenchmark.port).await();
+        server.listen(port).await();
     }
 
 

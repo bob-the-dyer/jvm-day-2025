@@ -17,8 +17,8 @@ import java.util.concurrent.StructuredTaskScope;
 import java.util.stream.IntStream;
 
 public class StructuredConcurrencyVirtualNoLockNetworkBenchmark implements JLBHTask {
-    private final static int port = 8007;
-    private final static int concurrentExecutions = 400;
+    private final static int port = 8008;
+    private final static int concurrentExecutions = 1_000;
     private NanoSampler requestResponseSampler;
     private JLBH jlbh;
     private Vertx vertx;
@@ -59,7 +59,7 @@ public class StructuredConcurrencyVirtualNoLockNetworkBenchmark implements JLBHT
             response.end(responseAsString); //<<--- here we can play with the size of the response
         });
 
-        server.listen(StructuredConcurrencyVirtualNoLockNetworkBenchmark.port).await();
+        server.listen(port).await();
     }
 
 

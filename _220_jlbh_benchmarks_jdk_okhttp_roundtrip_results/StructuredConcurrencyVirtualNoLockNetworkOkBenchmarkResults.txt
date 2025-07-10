@@ -1,0 +1,135 @@
+/Users/vladimir/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java -Dmaven.multiModuleProjectDirectory=/Users/vladimir/Development/bob-the-dyer/jvm-day-2025 -Djansi.passthrough=true --enable-preview -Dmaven.home=/Applications/IntelliJ IDEA.app/Contents/plugins/maven/lib/maven3 -Dclassworlds.conf=/Applications/IntelliJ IDEA.app/Contents/plugins/maven/lib/maven3/bin/m2.conf -Dmaven.ext.class.path=/Applications/IntelliJ IDEA.app/Contents/plugins/maven/lib/maven-event-listener.jar -javaagent:/Applications/IntelliJ IDEA.app/Contents/lib/idea_rt.jar=56181 -Dfile.encoding=UTF-8 -Dsun.stdout.encoding=UTF-8 -Dsun.stderr.encoding=UTF-8 -classpath /Applications/IntelliJ IDEA.app/Contents/plugins/maven/lib/maven3/boot/plexus-classworlds.license:/Applications/IntelliJ IDEA.app/Contents/plugins/maven/lib/maven3/boot/plexus-classworlds-2.8.0.jar org.codehaus.classworlds.Launcher -Didea.version=2025.1.3 -DskipTests=true -Dexec.workingdir=/Users/vladimir/Development/bob-the-dyer/jvm-day-2025 -Dexec.args=--enable-preview --add-opens java.base/java.lang.reflect=ALL-UNNAMED -classpath %classpath ru.spb.kupchinolab.jvmday2025.dining_philosophers._220_jlbh_benchmarks_jdk_okhttp_roundtrip.StructuredConcurrencyVirtualNoLockNetworkOkBenchmark -Dexec.executable=/Users/vladimir/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java exec:exec
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Applications/IntelliJ%20IDEA.app/Contents/plugins/maven/lib/maven3/lib/jansi-2.4.1.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by com.google.common.util.concurrent.AbstractFuture$UnsafeAtomicHelper (file:/Applications/IntelliJ%20IDEA.app/Contents/plugins/maven/lib/maven3/lib/guava-33.2.1-jre.jar)
+WARNING: Please consider reporting this to the maintainers of class com.google.common.util.concurrent.AbstractFuture$UnsafeAtomicHelper
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+[INFO] Scanning for projects...
+[WARNING]
+[WARNING] Some problems were encountered while building the effective model for ru.spb.kupchinolabs:jvm-day-2025:jar:1.0
+[WARNING] 'build.plugins.plugin.(groupId:artifactId)' must be unique but found duplicate declaration of plugin org.apache.maven.plugins:maven-compiler-plugin @ line 144, column 21
+[WARNING]
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING]
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING]
+[INFO]
+[INFO] ------------------< ru.spb.kupchinolabs:jvm-day-2025 >------------------
+[INFO] Building jvm-day-2025 1.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- exec:3.5.1:exec (default-cli) @ jvm-day-2025 ---
+SLF4J: No SLF4J providers were found.
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See https://www.slf4j.org/codes.html#noProviders for further details.
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by com.kenai.jffi.internal.StubLoader in an unnamed module (file:/Users/vladimir/.m2/repository/com/github/jnr/jffi/1.3.12/jffi-1.3.12.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::putLong has been called by com.kenai.jffi.UnsafeMemoryIO$UnsafeMemoryIO64 (file:/Users/vladimir/.m2/repository/com/github/jnr/jffi/1.3.12/jffi-1.3.12.jar)
+WARNING: Please consider reporting this to the maintainers of class com.kenai.jffi.UnsafeMemoryIO$UnsafeMemoryIO64
+WARNING: sun.misc.Unsafe::putLong will be removed in a future release
+Warm up complete (20 iterations took 5.206 s)
+-------------------------------- BENCHMARK RESULTS (RUN 1) us --------------------------------------
+Run time: 4.692 s, distribution: NORMAL
+Correcting for co-ordinated:false
+Target throughput:10/s = 1 message every 100000us
+End to End: (10)                                50/90 99/99.9 99.99 - worst was 419,950 / 520,620  520,620 / 520,620  520,620 - 520,620
+request-response (9,990)                        50/90 99/99.9 99.99 - worst was 308,810 / 455,610  499,650 / 516,420  517,470 - 517,470
+OS Jitter (40,216)                              50/90 99/99.9 99.99 - worst was 9.10 / 38.5  552 / 4,180  16,940 - 56,160
+----------------------------------------------------------------------------------------------------
+-------------------------------- SUMMARY (end to end) us -------------------------------------------
+Percentile   run1         run2         run3      % Variation
+50.0:       419954.69    -Infinity
+90.0:       520617.98    -Infinity
+99.0:       520617.98    -Infinity
+worst:      520617.98    -Infinity
+----------------------------------------------------------------------------------------------------
+-------------------------------- SUMMARY (request-response) us -------------------------------------
+Percentile   run1         run2         run3      % Variation
+50.0:       308805.63    -Infinity
+90.0:       455606.27    -Infinity
+99.0:       499646.46    -Infinity
+worst:      517472.26    -Infinity
+----------------------------------------------------------------------------------------------------
+Exception in thread "main" java.lang.RuntimeException: java.util.concurrent.ExecutionException: java.net.BindException: Can't assign requested address
+	at ru.spb.kupchinolab.jvmday2025.dining_philosophers._220_jlbh_benchmarks_jdk_okhttp_roundtrip.StructuredConcurrencyVirtualNoLockNetworkOkBenchmark.run(StructuredConcurrencyVirtualNoLockNetworkOkBenchmark.java:91)
+	at net.openhft.chronicle.jlbh.JLBH.start(JLBH.java:230)
+	at ru.spb.kupchinolab.jvmday2025.dining_philosophers._220_jlbh_benchmarks_jdk_okhttp_roundtrip.StructuredConcurrencyVirtualNoLockNetworkOkBenchmark.main(StructuredConcurrencyVirtualNoLockNetworkOkBenchmark.java:41)
+Caused by: java.util.concurrent.ExecutionException: java.net.BindException: Can't assign requested address
+	at java.base/java.util.concurrent.StructuredTaskScope$ShutdownOnFailure.throwIfFailed(StructuredTaskScope.java:1299)
+	at java.base/java.util.concurrent.StructuredTaskScope$ShutdownOnFailure.throwIfFailed(StructuredTaskScope.java:1276)
+	at ru.spb.kupchinolab.jvmday2025.dining_philosophers._220_jlbh_benchmarks_jdk_okhttp_roundtrip.StructuredConcurrencyVirtualNoLockNetworkOkBenchmark.run(StructuredConcurrencyVirtualNoLockNetworkOkBenchmark.java:89)
+	... 2 more
+Caused by: java.net.BindException: Can't assign requested address
+	at java.base/sun.nio.ch.Net.connect0(Native Method)
+	at java.base/sun.nio.ch.Net.connect(Net.java:535)
+	at java.base/sun.nio.ch.Net.connect(Net.java:524)
+	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:574)
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:282)
+	at java.base/java.net.Socket.connect(Socket.java:665)
+	at okhttp3.internal.platform.Platform.connectSocket(Platform.kt:145)
+	at okhttp3.internal.connection.ConnectPlan.connectSocket(ConnectPlan.kt:271)
+	at okhttp3.internal.connection.ConnectPlan.connectTcp(ConnectPlan.kt:139)
+	at okhttp3.internal.connection.FastFallbackExchangeFinder$launchTcpConnect$1.runOnce(FastFallbackExchangeFinder.kt:141)
+	at okhttp3.internal.concurrent.TaskRunner.runTask(TaskRunner.kt:124)
+	at okhttp3.internal.concurrent.TaskRunner.access$runTask(TaskRunner.kt:44)
+	at okhttp3.internal.concurrent.TaskRunner$runnable$1.run(TaskRunner.kt:73)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1095)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:619)
+	at java.base/java.lang.Thread.run(Thread.java:1447)
+[ERROR] Command execution failed.
+org.apache.commons.exec.ExecuteException: Process exited with an error: 1 (Exit value: 1)
+    at org.apache.commons.exec.DefaultExecutor.executeInternal (DefaultExecutor.java:394)
+    at org.apache.commons.exec.DefaultExecutor.execute (DefaultExecutor.java:292)
+    at org.codehaus.mojo.exec.ExecMojo.executeCommandLine (ExecMojo.java:903)
+    at org.codehaus.mojo.exec.ExecMojo.executeCommandLine (ExecMojo.java:863)
+    at org.codehaus.mojo.exec.ExecMojo.execute (ExecMojo.java:454)
+    at org.apache.maven.plugin.DefaultBuildPluginManager.executeMojo (DefaultBuildPluginManager.java:126)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.doExecute2 (MojoExecutor.java:328)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.doExecute (MojoExecutor.java:316)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.execute (MojoExecutor.java:212)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.execute (MojoExecutor.java:174)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.access$000 (MojoExecutor.java:75)
+    at org.apache.maven.lifecycle.internal.MojoExecutor$1.run (MojoExecutor.java:162)
+    at org.apache.maven.plugin.DefaultMojosExecutionStrategy.execute (DefaultMojosExecutionStrategy.java:39)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.execute (MojoExecutor.java:159)
+    at org.apache.maven.lifecycle.internal.LifecycleModuleBuilder.buildProject (LifecycleModuleBuilder.java:105)
+    at org.apache.maven.lifecycle.internal.LifecycleModuleBuilder.buildProject (LifecycleModuleBuilder.java:73)
+    at org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder.build (SingleThreadedBuilder.java:53)
+    at org.apache.maven.lifecycle.internal.LifecycleStarter.execute (LifecycleStarter.java:118)
+    at org.apache.maven.DefaultMaven.doExecute (DefaultMaven.java:261)
+    at org.apache.maven.DefaultMaven.doExecute (DefaultMaven.java:173)
+    at org.apache.maven.DefaultMaven.execute (DefaultMaven.java:101)
+    at org.apache.maven.cli.MavenCli.execute (MavenCli.java:906)
+    at org.apache.maven.cli.MavenCli.doMain (MavenCli.java:283)
+    at org.apache.maven.cli.MavenCli.main (MavenCli.java:206)
+    at jdk.internal.reflect.DirectMethodHandleAccessor.invoke (DirectMethodHandleAccessor.java:104)
+    at java.lang.reflect.Method.invoke (Method.java:565)
+    at org.codehaus.plexus.classworlds.launcher.Launcher.launchEnhanced (Launcher.java:255)
+    at org.codehaus.plexus.classworlds.launcher.Launcher.launch (Launcher.java:201)
+    at org.codehaus.plexus.classworlds.launcher.Launcher.mainWithExitCode (Launcher.java:361)
+    at org.codehaus.plexus.classworlds.launcher.Launcher.main (Launcher.java:314)
+    at org.codehaus.classworlds.Launcher.main (Launcher.java:41)
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  17.107 s
+[INFO] Finished at: 2025-07-10T16:43:32+03:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.codehaus.mojo:exec-maven-plugin:3.5.1:exec (default-cli) on project jvm-day-2025: Command execution failed.: Process exited with an error: 1 (Exit value: 1) -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException
+
+Process finished with exit code 1

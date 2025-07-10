@@ -685,13 +685,56 @@ https://github.com/spring-aio/java24-pinning/blob/master/src/main/java/dev/danve
 
 [StructuredConcurrencyVirtualNoLockNetworkBenchmark.java](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_210_jlbh_benchmarks_jdk_http_roundtrip/StructuredConcurrencyVirtualNoLockNetworkBenchmark.java)
 
-А вот тут неожиданно не взлетает, все дерево падает на либо на
+А вот тут неожиданно не взлетает, все дерево падает на прогреве или чуть позже:
+`java.net.BindException: Can't assign requested address`
 
-- Operation timed out, либо на
-- Can't assign requested address
+Но ведь ожидается что станет только лучше! Почему? Платформенных потоков мало, по числу ядер (дефолт) вызов блокирующий,
+сам исполняться виртуальным потокам как платформенным не получается, 200 задач в структурном конкарренси держим, а вот
+400 уже нет - но почему?
 
-Почему? Платформенных потоков мало, по числу ядер (дефолт) вызов блокирующий, сам исполняться виртуальным потокам как
-платформенным не получается, 200 задач в структурном конкарренси держим, а вот 400 уже нет - но почему?
+Давайте попрофилируем с Intellij Profiler. Учитываем вклад профилировщика, но не придаем ему большое значение, ведь нам
+надо сравнить и не смотреть на абсолютные значения.
+Можно отдельно конечно через `-XX:+FlightRecorder -XX:StartFlightRecording=duration=60s,filename=myrecording.jfr`
+Сравниваем результаты:
+
+[StructuredConcurrencyPlatformNoLockNetworkBenchmark_2025_07_10_163523.jfr](_210_jlbh_benchmarks_jdk_http_roundtrip_results/StructuredConcurrencyPlatformNoLockNetworkBenchmark_2025_07_10_163523.jfr)
+[StructuredConcurrencyVirtualNoLockNetworkBenchmark_2025_07_10_163650.jfr](_210_jlbh_benchmarks_jdk_http_roundtrip_results/StructuredConcurrencyVirtualNoLockNetworkBenchmark_2025_07_10_163650.jfr)
+
+???
+Видно, что во втором случае наш FJP в основном спит, а когда не спит - занимается IO, а он для этого плох!
+вертекс не нагружен, реализация клинта под капотом URL оставляет желать лучшего под виртуальными потоками т к блокирует
+и без того небольшое (по числу вирутальных ядер) кол-во платформенных потоков. Наверное проблема с оч плохим
+URL.openStream()?
+???
+
+Давайте перепишем на OkHttpClient который клянется и божится что унего все хорошо с виртуальными потоками и
+потоко-безопасностью:
+[StructuredConcurrencyPlatformNoLockNetworkOkBenchmark.java](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_220_jlbh_benchmarks_jdk_okhttp_roundtrip/StructuredConcurrencyPlatformNoLockNetworkOkBenchmark.java)
+[StructuredConcurrencyVirtualNoLockNetworkOkBenchmark.java](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_220_jlbh_benchmarks_jdk_okhttp_roundtrip/StructuredConcurrencyVirtualNoLockNetworkOkBenchmark.java)
+
+[StructuredConcurrencyPlatformNoLockNetworkOkBenchmarkResults.txt](_220_jlbh_benchmarks_jdk_okhttp_roundtrip_results/StructuredConcurrencyPlatformNoLockNetworkOkBenchmarkResults.txt)
+
+Платформенный вариант - хорош, сейчас включим виртуальные потоки и будет оч хорошо?
+
+Хрен! `java.net.BindException: Can't assign requested address`
+Да что не так с этими клиентами под виртуальными потоками?
+
+Профилируем:
+[StructuredConcurrencyPlatformNoLockNetworkOkBenchmark_2025_07_10_164502.jfr](_220_jlbh_benchmarks_jdk_okhttp_roundtrip_results/StructuredConcurrencyPlatformNoLockNetworkOkBenchmark_2025_07_10_164502.jfr)
+Куча наших потоков и такая же куча плодится у OkClient. ООМ по потокам можно получить легко, но наши базовые 1К держим
+
+[StructuredConcurrencyVirtualNoLockNetworkOkBenchmark_2025_07_10_171441.jfr](_220_jlbh_benchmarks_jdk_okhttp_roundtrip_results/StructuredConcurrencyVirtualNoLockNetworkOkBenchmark_2025_07_10_171441.jfr)
+Потоки под ок клиентом в основном спят, FJP замучен парковками, маунтами, анмаунтами, как будто особо ничем не занят
+
+В целом получается, что много факторов в одной корзинке - структурная многопоточка, особенности реализации клиентов и
+как они справляются с типом потока + сеть, доступность портов, и состояние ОС в целом (другие задачи)
+
+Туду надо все таки разобраться почему на вирт потоках `java.net.BindException: Can't assign requested`
+Туду
+Туду
+
+Теперь предлагаю вернуться к профилированию изначального кода по чтению из файла чтобы понять что там может
+замедляться (предположительно кривота в чтении из урла)
 
 ТУДУ некст
 
@@ -704,7 +747,7 @@ https://github.com/spring-aio/java24-pinning/blob/master/src/main/java/dev/danve
 - измерения получается инструментально выполнить и на "классике", и на vert.x. На классике проще. На vert.x уже есть
   утильные классы для юнитов, но для бенчмарка vert.x приходится призывать "классику" "к барьеру".
 - классика масштабируется прогнозируемо, линейно, как мы любим
-- классика сложнее - требует более высокого уровня квалификации jav программиста
+- классика сложнее - требует более высокого уровня квалификации javа программиста
 - vert.x и акторная модель вообще проще как API и как концепт, пакета конкарренси нет от слова совсем, берем 10К джунов
   или AI и клепаем энтерпрайз
 - structured concurrency уже работает в превью 24й и оно удобное, например, стало проще закрывать весь пул задач
