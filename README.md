@@ -679,7 +679,7 @@ https://github.com/spring-aio/java24-pinning/blob/master/src/main/java/dev/danve
 | 99.0:      | 274.94  | 295.42  |  324.10  |    6.08     |
 | worst:     | 4317.18 | 2265.09 | 12632.06 |    75.32    |
 
-Тут существенной разницы с однопоточным кодом нет
+Тут существенной разницы с однопоточным кодом нет, объективно в 2 раза хуже
 
 ##### StructuredConcurrencyVirtualNoLockNetworkBenchmark
 
@@ -701,13 +701,15 @@ https://github.com/spring-aio/java24-pinning/blob/master/src/main/java/dev/danve
 [StructuredConcurrencyVirtualNoLockNetworkBenchmark_2025_07_10_163650.jfr](_210_jlbh_benchmarks_jdk_http_roundtrip_results/StructuredConcurrencyVirtualNoLockNetworkBenchmark_2025_07_10_163650.jfr)
 
 ???
-Видно, что во втором случае наш FJP в основном спит, а когда не спит - занимается IO, а он для этого плох!
+Видно на флейм графе что в первом случае 75 процентов всего времени потоки читают
+Видно, что во втором случае наш FJP в основном спит, а когда не спит - занимается IO, а он для этого плох! 46 процентов
+времени потоки паркуются. 
 вертекс не нагружен, реализация клинта под капотом URL оставляет желать лучшего под виртуальными потоками т к блокирует
 и без того небольшое (по числу вирутальных ядер) кол-во платформенных потоков. Наверное проблема с оч плохим
 URL.openStream()?
 ???
 
-Давайте перепишем на OkHttpClient который клянется и божится что унего все хорошо с виртуальными потоками и
+Давайте перепишем на OkHttpClient который клянется и божится что у него все хорошо с виртуальными потоками и
 потоко-безопасностью:
 [StructuredConcurrencyPlatformNoLockNetworkOkBenchmark.java](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_220_jlbh_benchmarks_jdk_okhttp_roundtrip/StructuredConcurrencyPlatformNoLockNetworkOkBenchmark.java)
 [StructuredConcurrencyVirtualNoLockNetworkOkBenchmark.java](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_220_jlbh_benchmarks_jdk_okhttp_roundtrip/StructuredConcurrencyVirtualNoLockNetworkOkBenchmark.java)
@@ -730,17 +732,22 @@ URL.openStream()?
 как они справляются с типом потока + сеть, доступность портов, и состояние ОС в целом (другие задачи)
 
 Туду надо все таки разобраться почему на вирт потоках `java.net.BindException: Can't assign requested`
-Туду
-Туду
+А потом бах - и какое-то кол-во раз проходит с ужасными результатами, или под дебаггером тоже может сработать
 
-Теперь предлагаю вернуться к профилированию изначального кода по чтению из файла чтобы понять что там может
-замедляться (предположительно кривота в чтении из урла)
+Помогло только втыкание пула в клиента с оч большим числом живых коннектов. Наиболее рациональное объяснение - 
+для соединения выделяются эфемерные порты, на виртуальных потоках происходят пересечения - одному и тому же платформенному потоку 
+выдается один и тот же порт, но это разные виртуальные потоки либо пул портов исчерпывается быстрее;
 
-ТУДУ некст
+[StructuredConcurrencyVirtualNoLockNetworkOkBenchmarkResults.txt](_220_jlbh_benchmarks_jdk_okhttp_roundtrip_results/StructuredConcurrencyVirtualNoLockNetworkOkBenchmarkResults.txt)
+Время оч плохое на несколько порядков хуже платформенных - не рекомендую 
+
+Вернуться к профилированию изначального кода по чтению из файла чтобы понять что там может
+замедляться (предположительно кривота в чтении из урла)? Оставляю открытым - просто понятно что вот в данном сочетании клиент jdk не вывозит с синхронайзом под вирт потоком чтение файла
+и чтение по сети, ок клиент вывезет с пулом - мин размер который сработал 500 чисто у меня
 
 #### Доказываю наличие или отсутствие пиннинга
 
-ТУДУ
+Оставляю открытым
 
 ## Итоги и выводы
 

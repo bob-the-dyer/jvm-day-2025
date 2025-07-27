@@ -43,6 +43,8 @@ public class StructuredConcurrencyPlatformNoLockNetworkOkBenchmark implements JL
 
     @Override
     public void init(JLBH init) {
+        System.out.println("in init");
+
         this.jlbh = init;
         requestResponseSampler = this.jlbh.addProbe("request-response");
 

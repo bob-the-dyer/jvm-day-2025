@@ -38,6 +38,7 @@ public class StructuredConcurrencyVirtualNoLockNetworkBenchmark implements JLBHT
 
     @Override
     public void init(JLBH init) {
+        System.out.println("in init");
         this.jlbh = init;
         requestResponseSampler = this.jlbh.addProbe("request-response");
 
@@ -65,6 +66,7 @@ public class StructuredConcurrencyVirtualNoLockNetworkBenchmark implements JLBHT
 
     @Override
     public void run(long startTimeNs) {
+        System.out.println("in run");
         try (StructuredTaskScope.ShutdownOnFailure scope = new StructuredTaskScope.ShutdownOnFailure(null, Thread.ofVirtual().factory())) {
             IntStream.rangeClosed(1, concurrentExecutions).forEach(_ -> scope.fork(() -> {
                 long reqResStartNs = System.nanoTime();
@@ -79,6 +81,7 @@ public class StructuredConcurrencyVirtualNoLockNetworkBenchmark implements JLBHT
             scope.join();
             scope.throwIfFailed();
         } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         } finally {
             this.jlbh.sample(System.nanoTime() - startTimeNs);
@@ -87,6 +90,7 @@ public class StructuredConcurrencyVirtualNoLockNetworkBenchmark implements JLBHT
 
     @Override
     public void complete() {
+        System.out.println("in complete");
         server.close().await();
         vertx.close().await();
     }

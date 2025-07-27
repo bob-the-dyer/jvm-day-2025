@@ -7,6 +7,7 @@ import net.openhft.chronicle.core.util.NanoSampler;
 import net.openhft.chronicle.jlbh.JLBH;
 import net.openhft.chronicle.jlbh.JLBHOptions;
 import net.openhft.chronicle.jlbh.JLBHTask;
+import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -21,6 +22,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.StructuredTaskScope;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 public class StructuredConcurrencyVirtualNoLockNetworkOkBenchmark implements JLBHTask {
@@ -56,10 +58,13 @@ public class StructuredConcurrencyVirtualNoLockNetworkOkBenchmark implements JLB
 
     @Override
     public void init(JLBH init) {
+        System.out.println("in init");
         this.jlbh = init;
         requestResponseSampler = this.jlbh.addProbe("request-response");
 
-        client = new OkHttpClient();
+        client = new OkHttpClient.Builder()
+                .connectionPool(new ConnectionPool(500, 5, TimeUnit.MINUTES))
+                .build();
 
         vertx = Vertx.vertx();
         server = vertx.createHttpServer();
@@ -110,9 +115,11 @@ public class StructuredConcurrencyVirtualNoLockNetworkOkBenchmark implements JLB
 
     @Override
     public void complete() {
+        System.out.println("in complete start");
         server.close().await();
         vertx.close().await();
         client.dispatcher().executorService().shutdown();
         client.connectionPool().evictAll();
+        System.out.println("in complete finish");
     }
 }
