@@ -11,7 +11,7 @@
 
     <properties>
         <argLine>--enable-preview</argLine>
-        <vertx.version>5.0.0</vertx.version>
+        <vertx.version>5.0.1</vertx.version>
     </properties>
 
     <dependencies>

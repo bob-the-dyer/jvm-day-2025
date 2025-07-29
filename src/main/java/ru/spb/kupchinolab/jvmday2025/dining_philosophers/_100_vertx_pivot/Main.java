@@ -15,8 +15,7 @@ public class Main {
         CountDownLatch finishEatingLatch = new CountDownLatch(1);
         vertx.eventBus().consumer("max_eat_attempts_has_reached", msg -> {
             System.out.println("finish eating at " + Instant.now() + ", msg: " + msg.body());
-            vertx.close();
-            finishEatingLatch.countDown();
+            vertx.close().onComplete(_ -> finishEatingLatch.countDown());
         });
         for (int i = 0; i < PHILOSOPHERS_COUNT_BASE; i++) {
             vertx.deployVerticle(new VerticlePhilosopher(i, _ -> {/*NO_OP*/}))
