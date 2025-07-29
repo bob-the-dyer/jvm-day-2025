@@ -801,9 +801,9 @@ https://en.wikipedia.org/wiki/Dining_philosophers_problem
 
 https://spring.io/blog/2022/10/11/embracing-virtual-threads
 
-https://vertx.io/docs/5.0.0/vertx-core/java/#virtual_threads
+https://vertx.io/docs/5.0.1/vertx-core/java/#virtual_threads
 
-https://vertx.io/docs/5.0.0/vertx-junit5/java/
+https://vertx.io/docs/5.0.1/vertx-junit5/java/
 
 ## Вопросы и набросы от экспертов
 

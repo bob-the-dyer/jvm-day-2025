@@ -22,6 +22,7 @@ public class Main {
             vertx.deployVerticle(new VerticlePhilosopher(i, _ -> {/*NO_OP*/}))
                     .onComplete(_ -> allVerticlesDeployedLatch.countDown());
         }
+        allVerticlesDeployedLatch.await();
         vertx.eventBus().publish("start_barrier", "Go-go-go!");
         System.out.println("start  eating at " + Instant.now());
         finishEatingLatch.await();
