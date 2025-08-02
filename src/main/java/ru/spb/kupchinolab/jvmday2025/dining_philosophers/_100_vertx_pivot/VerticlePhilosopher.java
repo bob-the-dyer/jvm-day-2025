@@ -34,11 +34,11 @@ public class VerticlePhilosopher extends VerticleBase {
         this.eatingMultiplier = eatingMultiplier;
         this.stats = 0;
         if (order == 0) {
-            firstChopstick = order;
-            secondChopstick = (PHILOSOPHERS_COUNT_BASE - 1);
-        } else {
-            firstChopstick = (order - 1);
+            firstChopstick = (PHILOSOPHERS_COUNT_BASE - 1);
             secondChopstick = order;
+        } else {
+            firstChopstick = order;
+            secondChopstick = (order - 1);
         }
     }
 
@@ -68,15 +68,17 @@ public class VerticlePhilosopher extends VerticleBase {
                         chopstick_2.release();
                     } else {
 //                        ТУТ может быть неудача, если взять лок не получилось, например в кластерном окружении из-за сети или на остановке vert.x
-//                        System.out.println(format("chopstick_2 lock for #%s failed: %s", order, ar2.cause().getLocalizedMessage()));
-//                        loopMyselfOnce();
+                        ar2.cause().printStackTrace();
+                        System.err.println(format("chopstick_2 lock for #%s failed: %s", order, ar2.cause().getLocalizedMessage()));
+                        loopMyselfOnce();
                     }
                     chopstick_1.release();
                 });
             } else {
 //                ТУТ может быть неудача, если взять лок не получилось, например в кластерном окружении из-за сети или на остановке vert.x
-//                System.out.println(format("chopstick_1 lock for #%s failed: %s", order, ar1.cause().getLocalizedMessage()));
-//                loopMyselfOnce();
+                ar1.cause().printStackTrace();
+                System.err.println(format("chopstick_1 lock for #%s failed: %s", order, ar1.cause().getLocalizedMessage()));
+                loopMyselfOnce();
             }
         });
     }

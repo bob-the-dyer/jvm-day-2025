@@ -33,11 +33,11 @@ public class VirtualVerticlePhilosopher extends VerticleBase {
         this.eatingMultiplier = eatingMultiplier;
         this.stats = 0;
         if (order == 0) {
-            firstChopstick = order;
-            secondChopstick = (PHILOSOPHERS_COUNT_BASE - 1);
-        } else {
-            firstChopstick = (order - 1);
+            firstChopstick = (PHILOSOPHERS_COUNT_BASE - 1);
             secondChopstick = order;
+        } else {
+            firstChopstick = order;
+            secondChopstick = (order - 1);
         }
     }
 
@@ -63,8 +63,9 @@ public class VirtualVerticlePhilosopher extends VerticleBase {
             updateStats();
         } catch (Exception e) {
 //            ТУТ может лететь исключение, если взять лок не получилось, например в кластерном окружении из-за сети или на остановке vert.x
-//            System.out.println(format("chopstick lock for #%s failed: %s", order, e.getLocalizedMessage()));
-//            loopMyselfOnce();
+            e.printStackTrace();
+            System.err.println(format("chopstick lock for #%s failed: %s", order, e.getLocalizedMessage()));
+            loopMyselfOnce();
         } finally {
             if (secondLock != null) secondLock.release();
             if (firstLock != null) firstLock.release();

@@ -11,9 +11,6 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import ru.spb.kupchinolab.jvmday2025.dining_philosophers._100_vertx_pivot.VirtualVerticlePhilosopher;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -49,12 +46,14 @@ public class ActiveWaitingVirtualVerticlePhilosophersBenchmark {
     private void test_verticle_philosophers_internal(Function<List<Object>, ? extends VerticleBase> philosopherSupplier, Consumer<Integer> eating, DeploymentOptions deploymentOptions) throws InterruptedException {
         Vertx vertx = Vertx.vertx();
         CountDownLatch allVerticlesDeployedLatch = new CountDownLatch(PHILOSOPHERS_COUNT_BASE);
+        CountDownLatch allVerticlesUnDeployedLatch = new CountDownLatch(PHILOSOPHERS_COUNT_BASE);
         CountDownLatch finishEatingLatch = new CountDownLatch(1);
         for (int i = 0; i < PHILOSOPHERS_COUNT_BASE; i++) {
             vertx.deployVerticle(philosopherSupplier.apply(List.of(i, eating)), deploymentOptions).onComplete(_ -> allVerticlesDeployedLatch.countDown());
         }
         vertx.eventBus().consumer("max_eat_attempts_has_reached", msg -> {
             System.out.println("finish eating at " + Instant.now() + ", msg: " + msg.body());
+            vertx.deploymentIDs().forEach(deploymentId -> vertx.undeploy(deploymentId).onComplete(_ -> allVerticlesUnDeployedLatch.countDown()));
             vertx.close().onComplete(_ -> finishEatingLatch.countDown());
         });
         allVerticlesDeployedLatch.await();
@@ -62,6 +61,7 @@ public class ActiveWaitingVirtualVerticlePhilosophersBenchmark {
         System.out.println("start eating at " + Instant.now());
         vertx.eventBus().publish("start_barrier", "Go-go-go!");
         finishEatingLatch.await();
+        allVerticlesUnDeployedLatch.await();
     }
 
     public static void main(String[] args) throws RunnerException {
@@ -70,6 +70,7 @@ public class ActiveWaitingVirtualVerticlePhilosophersBenchmark {
                 .forks(1)
                 .warmupIterations(3)
                 .measurementIterations(7)
+                .jvmArgs("--enable-preview", "-Xmx4096m")
                 .build();
         new Runner(opt).run();
     }

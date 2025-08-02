@@ -3,6 +3,12 @@ package ru.spb.kupchinolab.jvmday2025.dining_philosophers._199_jmh_benchmarks_un
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.VerticleBase;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerResponse;
+import okhttp3.ConnectionPool;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
@@ -17,6 +23,8 @@ import ru.spb.kupchinolab.jvmday2025.dining_philosophers._100_vertx_pivot.Virtua
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
@@ -34,6 +42,11 @@ import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.PHILOSOPHE
 @State(Scope.Thread)
 public class UnitedPhilosophersBenchmark {
 
+    static private Vertx vertx;
+    static private HttpServer server;
+    static private OkHttpClient client;
+    private final static int port = 8007;
+
     private static Consumer<Integer> constructNoopEating(Blackhole blackhole) {
         return blackhole::consume;
     }
@@ -49,13 +62,19 @@ public class UnitedPhilosophersBenchmark {
         };
     }
 
-    private static Consumer<Integer> constructBlockingReadingEating(Blackhole blackhole) {
-        return stats -> {
-            try (InputStream in = Path.of("16KB_file.txt").toFile().toURI().toURL().openStream()) { //read sequentially from SSD with speed of 1MB in 1M nanosec
-                byte[] bytes = in.readAllBytes();
-                blackhole.consume(bytes.length);
-                blackhole.consume(stats);
-            } catch (IOException e) {
+    private static Consumer<Integer> constructOkHttpEating(Blackhole blackhole) {
+        return (stats) -> {
+            try {
+                URL url = URI.create("http://127.0.0.1:" + port + "/payload").toURL();
+                Request request = new Request.Builder()
+                        .url(url)
+                        .build();
+                try (Response response = client.newCall(request).execute()) {
+                    String responseAsString = response.body().string();
+                    blackhole.consume(responseAsString);
+                    blackhole.consume(stats);
+                }
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         };
@@ -114,23 +133,23 @@ public class UnitedPhilosophersBenchmark {
     }
 
     @Benchmark
-    public void test_reentrant_lock_blocking_reading_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_classical_philosophers_internal(Thread.ofVirtual().factory(), ReentrantPhilosopher::from, constructBlockingReadingEating(blackhole));
+    public void test_reentrant_lock_ok_http_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(Thread.ofVirtual().factory(), ReentrantPhilosopher::from, constructOkHttpEating(blackhole));
     }
 
     @Benchmark
-    public void test_reentrant_lock_blocking_reading_philosophers_with_platform_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_classical_philosophers_internal(Thread.ofPlatform().factory(), ReentrantPhilosopher::from, constructBlockingReadingEating(blackhole));
+    public void test_reentrant_lock_ok_http_philosophers_with_platform_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(Thread.ofPlatform().factory(), ReentrantPhilosopher::from, constructOkHttpEating(blackhole));
     }
 
     @Benchmark
-    public void test_synchronized_blocking_reading_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_classical_philosophers_internal(Thread.ofVirtual().factory(), SynchronizedPhilosopher::from, constructBlockingReadingEating(blackhole));
+    public void test_synchronized_ok_http_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(Thread.ofVirtual().factory(), SynchronizedPhilosopher::from, constructOkHttpEating(blackhole));
     }
 
     @Benchmark
-    public void test_synchronized_blocking_reading_philosophers_with_platform_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_classical_philosophers_internal(Thread.ofPlatform().factory(), SynchronizedPhilosopher::from, constructBlockingReadingEating(blackhole));
+    public void test_synchronized_ok_http_philosophers_with_platform_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(Thread.ofPlatform().factory(), SynchronizedPhilosopher::from, constructOkHttpEating(blackhole));
     }
 
     @Benchmark
@@ -164,8 +183,8 @@ public class UnitedPhilosophersBenchmark {
     }
 
     @Benchmark
-    public void test_blocking_reading_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
-        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructBlockingReadingEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD));
+    public void test_ok_http_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
+        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructOkHttpEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD));
     }
 
     @Benchmark
@@ -184,8 +203,8 @@ public class UnitedPhilosophersBenchmark {
     }
 
     @Benchmark
-    public void test_virtual_blocking_reading_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
-        test_verticle_philosophers_internal(VirtualVerticlePhilosopher::from, constructBlockingReadingEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD));
+    public void test_virtual_ok_http_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
+        test_verticle_philosophers_internal(VirtualVerticlePhilosopher::from, constructOkHttpEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD));
     }
 
     @Benchmark
@@ -216,12 +235,14 @@ public class UnitedPhilosophersBenchmark {
     private void test_verticle_philosophers_internal(Function<List<Object>, ? extends VerticleBase> philosopherSupplier, Consumer<Integer> eating, DeploymentOptions deploymentOptions) throws InterruptedException {
         Vertx vertx = Vertx.vertx();
         CountDownLatch allVerticlesDeployedLatch = new CountDownLatch(PHILOSOPHERS_COUNT_BASE);
+        CountDownLatch allVerticlesUnDeployedLatch = new CountDownLatch(PHILOSOPHERS_COUNT_BASE);
         CountDownLatch finishEatingLatch = new CountDownLatch(1);
         for (int i = 0; i < PHILOSOPHERS_COUNT_BASE; i++) {
             vertx.deployVerticle(philosopherSupplier.apply(List.of(i, eating)), deploymentOptions).onComplete(_ -> allVerticlesDeployedLatch.countDown());
         }
         vertx.eventBus().consumer("max_eat_attempts_has_reached", msg -> {
             System.out.println("finish eating at " + Instant.now() + ", msg: " + msg.body());
+            vertx.deploymentIDs().forEach(deploymentId -> vertx.undeploy(deploymentId).onComplete(_ -> allVerticlesUnDeployedLatch.countDown()));
             vertx.close().onComplete(_ -> finishEatingLatch.countDown());
         });
         allVerticlesDeployedLatch.await();
@@ -229,9 +250,14 @@ public class UnitedPhilosophersBenchmark {
         System.out.println("start eating at " + Instant.now());
         vertx.eventBus().publish("start_barrier", "Go-go-go!");
         finishEatingLatch.await();
+        allVerticlesUnDeployedLatch.await();
     }
 
     public static void main(String[] args) throws RunnerException {
+
+        startHttpServer();
+        initHttpClint();
+
         Options opt = new OptionsBuilder()
                 .include(UnitedPhilosophersBenchmark.class.getSimpleName())
                 .forks(1)
@@ -240,6 +266,50 @@ public class UnitedPhilosophersBenchmark {
                 .jvmArgs("--enable-preview", "-Xmx4096m")
                 .build();
         new Runner(opt).run();
+
+        stopHttpServer();
+        stopHttpClient();
+
+    }
+
+    private static void startHttpServer() {
+        vertx = Vertx.vertx();
+
+        server = vertx.createHttpServer();
+
+        String responseAsString;
+
+        try (InputStream in = Path.of("1600B_file.txt").toFile().toURI().toURL().openStream()) {
+            byte[] bytes = in.readAllBytes();
+            responseAsString = new String(bytes);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        server.requestHandler(request -> { //any request
+            HttpServerResponse response = request.response();
+            response.putHeader("content-type", "text/plain");
+            response.end(responseAsString); //<<--- here we can play with the size of the response
+        });
+
+        server.listen(port).await();
+    }
+
+    private static void stopHttpServer() {
+        server.close().await();
+        vertx.close().await();
+    }
+
+    private static void initHttpClint() {
+        client = new OkHttpClient.Builder()
+                .connectionPool(new ConnectionPool(500, 5, TimeUnit.MINUTES))
+                .build();
+
+    }
+
+    private static void stopHttpClient() {
+        client.dispatcher().executorService().shutdown();
+        client.connectionPool().evictAll();
     }
 
 }

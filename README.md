@@ -395,6 +395,22 @@ https://habrastorage.org/r/w1560/getpro/habr/upload_files/20b/769/22f/20b76922f1
 - лучшие результаты по блокирующему чтению под мониторами по времени похожи на слип, но хуже в 2,5 раза активного
   ожидания - активно ждать дешевле слипа!
 
+Давай проверим чтение по сети с 2 разными клиентами
+
+[HttpPhilosophersBenchmark.java](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_230_jmh_benchmarks_jdk_http/HttpPhilosophersBenchmark.java)
+[OkHttpPhilosophersBenchmark.java](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_240_jmh_benchmarks_jdk_okhttp/OkHttpPhilosophersBenchmark.java)
+
+| Benchmark                                                                                                                           | Mode | Cnt |       Score ± Error | Units |
+|:------------------------------------------------------------------------------------------------------------------------------------|:----:|:---:|--------------------:|------:|
+| r.s.k.j.d._230_jmh_benchmarks_jdk_http.HttpPhilosophersBenchmark.test_reentrant_lock_http_philosophers_with_platform_threads        | avgt |  7  | 1195.433 ±  211.757 | ms/op |
+| r.s.k.j.d._230_jmh_benchmarks_jdk_http.HttpPhilosophersBenchmark.test_reentrant_lock_http_philosophers_with_virtual_threads         | avgt |  7  | 1668.852 ± 1178.063 | ms/op |
+| r.s.k.j.d._230_jmh_benchmarks_jdk_http.HttpPhilosophersBenchmark.test_synchronized_http_philosophers_with_platform_threads          | avgt |  7  | 1126.106 ±  177.126 | ms/op |
+| r.s.k.j.d._230_jmh_benchmarks_jdk_http.HttpPhilosophersBenchmark.test_synchronized_http_philosophers_with_virtual_threads           | avgt |  7  | 6924.583 ± 1950.337 | ms/op |
+| r.s.k.j.d._240_jmh_benchmarks_jdk_okhttp.OkHttpPhilosophersBenchmark.test_reentrant_lock_ok_http_philosophers_with_platform_threads | avgt |  7  |  133.544 ±   61.621 | ms/op |
+| r.s.k.j.d._240_jmh_benchmarks_jdk_okhttp.OkHttpPhilosophersBenchmark.test_reentrant_lock_ok_http_philosophers_with_virtual_threads  | avgt |  7  |   21.009 ±    2.779 | ms/op |
+| r.s.k.j.d._240_jmh_benchmarks_jdk_okhttp.OkHttpPhilosophersBenchmark.test_synchronized_ok_http_philosophers_with_platform_threads   | avgt |  7  |  115.089 ±    8.478 | ms/op |
+| r.s.k.j.d._240_jmh_benchmarks_jdk_okhttp.OkHttpPhilosophersBenchmark.test_synchronized_ok_http_philosophers_with_virtual_threads    | avgt |  7  |   21.153 ±    3.176 | ms/op |
+
 [_090_jmh_benchmarks_jdk_active_waiting](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_090_jmh_benchmarks_jdk_active_waiting)
 
 | Benchmark                                                                                                | Mode | Cnt |   Score |  Error | Units |
@@ -456,7 +472,7 @@ https://habrastorage.org/r/w1560/getpro/habr/upload_files/20b/769/22f/20b76922f1
 
 [_199_jmh_benchmarks_united](src/main/java/ru/spb/kupchinolab/jvmday2025/dining_philosophers/_199_jmh_benchmarks_united)
 
-Для удобства проведения всех измерений за один прогон объединяю все бенчмарки в один
+Для удобства проведения всех измерений за один прогон объединяю все бенчмарки в один, чтение сети с ок клиентом
 
 | Benchmark                                                                                           | Mode | Cnt |     Score |    Error | Units |
 |:----------------------------------------------------------------------------------------------------|:----:|:---:|----------:|---------:|------:|
@@ -767,9 +783,9 @@ https://github.com/spring-aio/java24-pinning/blob/master/src/main/java/dev/danve
 
 ???
 Видно на флейм графе что в первом случае 75 процентов всего времени потоки читают
-Видно, что во втором случае наш FJP в основном спит, а когда не спит - занимается IO, а он для этого плох! 46 процентов
+Видно, что во втором случае наш FJP в основном спит, а когда не спит - занимается IO. 46 процентов
 времени потоки паркуются.
-вертекс не нагружен, реализация клинта под капотом URL оставляет желать лучшего под виртуальными потоками т к блокирует
+вертекс не нагружен, реализация клиента под капотом URL оставляет желать лучшего под виртуальными потоками т к блокирует
 и без того небольшое (по числу вирутальных ядер) кол-во платформенных потоков. Наверное проблема с оч плохим
 URL.openStream()?
 ???
