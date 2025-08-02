@@ -56,11 +56,11 @@ public class VerticlePhilosopher extends VerticleBase {
 
     private void eat() {
         SharedData sharedData = vertx.sharedData();
-        Future<Lock> firstLock = sharedData.getLock("chopstick_" + firstChopstick);
+        Future<Lock> firstLock = sharedData.getLocalLock("chopstick_" + firstChopstick);
         firstLock.onComplete((AsyncResult<Lock> ar1) -> {
             if (ar1.succeeded()) {
                 Lock chopstick_1 = ar1.result();
-                Future<Lock> secondLock = sharedData.getLock("chopstick_" + secondChopstick);
+                Future<Lock> secondLock = sharedData.getLocalLock("chopstick_" + secondChopstick);
                 secondLock.onComplete((AsyncResult<Lock> ar2) -> {
                     if (ar2.succeeded()) {
                         Lock chopstick_2 = secondLock.result();
