@@ -1,10 +1,8 @@
 package ru.spb.kupchinolab.jvmday2025.dining_philosophers._100_vertx_pivot;
 
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.VerticleBase;
 import io.vertx.core.eventbus.MessageConsumer;
-import io.vertx.core.shareddata.Lock;
 import io.vertx.core.shareddata.SharedData;
 
 import java.util.List;
@@ -46,6 +44,7 @@ public class VerticlePhilosopher extends VerticleBase {
     public Future<?> start() {
         loopMyselfConsumer = vertx.eventBus().consumer("loop_myself_" + order, (_) -> eat());
         vertx.eventBus().consumer("start_barrier", _ -> loopMyselfOnce());
+        vertx.eventBus().consumer("max_eat_attempts_has_reached", _ -> loopMyselfConsumer.unregister());
         return succeededFuture();
     }
 
@@ -56,31 +55,43 @@ public class VerticlePhilosopher extends VerticleBase {
 
     private void eat() {
         SharedData sharedData = vertx.sharedData();
-        Future<Lock> firstLock = sharedData.getLocalLock("chopstick_" + firstChopstick);
-        firstLock.onComplete((AsyncResult<Lock> ar1) -> {
-            if (ar1.succeeded()) {
-                Lock chopstick_1 = ar1.result();
-                Future<Lock> secondLock = sharedData.getLocalLock("chopstick_" + secondChopstick);
-                secondLock.onComplete((AsyncResult<Lock> ar2) -> {
-                    if (ar2.succeeded()) {
-                        Lock chopstick_2 = secondLock.result();
+
+        sharedData.withLocalLock("chopstick_" + firstChopstick, () -> {
+//            System.out.println("chopstick_" + firstChopstick + " locked");
+            return sharedData.withLocalLock("chopstick_" + secondChopstick, () -> {
+//                        System.out.println("chopstick_" + firstChopstick + " locked_" + "_chopstick_" + secondChopstick + " locked");
                         updateStats();
-                        chopstick_2.release();
-                    } else {
-//                        ТУТ может быть неудача, если взять лок не получилось, например в кластерном окружении из-за сети или на остановке vert.x
-                        ar2.cause().printStackTrace();
-                        System.err.println(format("chopstick_2 lock for #%s failed: %s", order, ar2.cause().getLocalizedMessage()));
-                        loopMyselfOnce();
+                        return Future.succeededFuture();
                     }
-                    chopstick_1.release();
-                });
-            } else {
-//                ТУТ может быть неудача, если взять лок не получилось, например в кластерном окружении из-за сети или на остановке vert.x
-                ar1.cause().printStackTrace();
-                System.err.println(format("chopstick_1 lock for #%s failed: %s", order, ar1.cause().getLocalizedMessage()));
-                loopMyselfOnce();
-            }
+            );
         });
+//
+//
+//        Future<Lock> firstLock = sharedData.getLocalLock("chopstick_" + firstChopstick);
+//        firstLock.onComplete((AsyncResult<Lock> ar1) -> {
+//            if (ar1.succeeded()) {
+//                Lock chopstick_1 = ar1.result();
+//                Future<Lock> secondLock = sharedData.getLocalLock("chopstick_" + secondChopstick);
+//                secondLock.onComplete((AsyncResult<Lock> ar2) -> {
+//                    if (ar2.succeeded()) {
+//                        Lock chopstick_2 = secondLock.result();
+//                        updateStats();
+//                        chopstick_2.release();
+//                    } else {
+////                        ТУТ может быть неудача, если взять лок не получилось, например в кластерном окружении из-за сети или на остановке vert.x
+//                        ar2.cause().printStackTrace();
+//                        System.err.println(format("chopstick_2 lock for #%s failed: %s", order, ar2.cause().getLocalizedMessage()));
+//                        loopMyselfOnce();
+//                    }
+//                    chopstick_1.release();
+//                });
+//            } else {
+////                ТУТ может быть неудача, если взять лок не получилось, например в кластерном окружении из-за сети или на остановке vert.x
+//                ar1.cause().printStackTrace();
+//                System.err.println(format("chopstick_1 lock for #%s failed: %s", order, ar1.cause().getLocalizedMessage()));
+//                loopMyselfOnce();
+//            }
+//        });
     }
 
     private void updateStats() {

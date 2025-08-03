@@ -45,6 +45,7 @@ public class VirtualVerticlePhilosopher extends VerticleBase {
     public Future<?> start() {
         loopMyselfConsumer = vertx.eventBus().consumer("loop_myself_" + order, (_) -> eat());
         vertx.eventBus().consumer("start_barrier", _ -> loopMyselfOnce());
+        vertx.eventBus().consumer("max_eat_attempts_has_reached", _ -> loopMyselfConsumer.unregister());
         return succeededFuture();
     }
 
@@ -59,7 +60,9 @@ public class VirtualVerticlePhilosopher extends VerticleBase {
         Lock secondLock = null;
         try {
             firstLock = sharedData.getLocalLock("chopstick_" + firstChopstick).await();
+//            System.out.println("chopstick_" + firstChopstick + " locked");
             secondLock = sharedData.getLocalLock("chopstick_" + secondChopstick).await();
+//            System.out.println("chopstick_" + firstChopstick + " locked_" + "_chopstick_" + secondChopstick + " locked");
             updateStats();
         } catch (Exception e) {
 //            ТУТ может лететь исключение, если взять лок не получилось, например в кластерном окружении из-за сети или на остановке vert.x

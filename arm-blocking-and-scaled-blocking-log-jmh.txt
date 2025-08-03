@@ -1,0 +1,807 @@
+/Users/mac/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java -Dmaven.multiModuleProjectDirectory=/Users/mac/Development/bob-the-dyer/jvm-day-2025 -Djansi.passthrough=true --enable-preview -Dmaven.home=/Applications/IntelliJ IDEA.app/Contents/plugins/maven/lib/maven3 -Dclassworlds.conf=/Applications/IntelliJ IDEA.app/Contents/plugins/maven/lib/maven3/bin/m2.conf -Dmaven.ext.class.path=/Applications/IntelliJ IDEA.app/Contents/plugins/maven/lib/maven-event-listener.jar -javaagent:/Applications/IntelliJ IDEA.app/Contents/lib/idea_rt.jar=62947 -Dfile.encoding=UTF-8 -Dsun.stdout.encoding=UTF-8 -Dsun.stderr.encoding=UTF-8 -classpath /Applications/IntelliJ IDEA.app/Contents/plugins/maven/lib/maven3/boot/plexus-classworlds.license:/Applications/IntelliJ IDEA.app/Contents/plugins/maven/lib/maven3/boot/plexus-classworlds-2.8.0.jar org.codehaus.classworlds.Launcher -Didea.version=2025.1.3 -DskipTests=true -Dexec.workingdir=/Users/mac/Development/bob-the-dyer/jvm-day-2025 -Dexec.args=--enable-preview -classpath %classpath ru.spb.kupchinolab.jvmday2025.dining_philosophers._080_jmh_benchmarks_jdk_blocking_reading.BlockingReadingPhilosophersBenchmark -Dexec.executable=/Users/mac/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java exec:exec
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Applications/IntelliJ%20IDEA.app/Contents/plugins/maven/lib/maven3/lib/jansi-2.4.1.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by com.google.common.util.concurrent.AbstractFuture$UnsafeAtomicHelper (file:/Applications/IntelliJ%20IDEA.app/Contents/plugins/maven/lib/maven3/lib/guava-33.2.1-jre.jar)
+WARNING: Please consider reporting this to the maintainers of class com.google.common.util.concurrent.AbstractFuture$UnsafeAtomicHelper
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+[INFO] Scanning for projects...
+[WARNING]
+[WARNING] Some problems were encountered while building the effective model for ru.spb.kupchinolabs:jvm-day-2025:jar:1.0
+[WARNING] 'build.plugins.plugin.(groupId:artifactId)' must be unique but found duplicate declaration of plugin org.apache.maven.plugins:maven-compiler-plugin @ line 144, column 21
+[WARNING]
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING]
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING]
+[INFO]
+[INFO] ------------------< ru.spb.kupchinolabs:jvm-day-2025 >------------------
+[INFO] Building jvm-day-2025 1.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- exec:3.5.1:exec (default-cli) @ jvm-day-2025 ---
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.openjdk.jmh.util.Utils (file:/Users/mac/.m2/repository/org/openjdk/jmh/jmh-core/1.37/jmh-core-1.37.jar)
+WARNING: Please consider reporting this to the maintainers of class org.openjdk.jmh.util.Utils
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+# JMH version: 1.37
+# VM version: JDK 24.0.1, OpenJDK 64-Bit Server VM, 24.0.1+9-30
+# VM invoker: /Users/mac/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java
+# VM options: --enable-preview
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 10 s each
+# Measurement: 7 iterations, 10 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: ru.spb.kupchinolab.jvmday2025.dining_philosophers._080_jmh_benchmarks_jdk_blocking_reading.BlockingReadingPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_platform_threads
+
+# Run progress: 0,00% complete, ETA 00:36:40
+# Fork: 1 of 1
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.openjdk.jmh.util.Utils (file:/Users/mac/.m2/repository/org/openjdk/jmh/jmh-core/1.37/jmh-core-1.37.jar)
+WARNING: Please consider reporting this to the maintainers of class org.openjdk.jmh.util.Utils
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+# Warmup Iteration   1: 1253,296 ms/op
+# Warmup Iteration   2: 911,208 ms/op
+# Warmup Iteration   3: 1165,078 ms/op
+Iteration   1: 1744,678 ms/op
+Iteration   2: 1112,451 ms/op
+Iteration   3: 934,948 ms/op
+Iteration   4: 1370,963 ms/op
+Iteration   5: 1271,837 ms/op
+Iteration   6: 1482,578 ms/op
+Iteration   7: 1349,727 ms/op
+
+
+Result "ru.spb.kupchinolab.jvmday2025.dining_philosophers._080_jmh_benchmarks_jdk_blocking_reading.BlockingReadingPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_platform_threads":
+  1323,883 ±(99.9%) 584,290 ms/op [Average]
+  (min, avg, max) = (934,948, 1323,883, 1744,678), stdev = 259,429
+  CI (99.9%): [739,593, 1908,174] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 24.0.1, OpenJDK 64-Bit Server VM, 24.0.1+9-30
+# VM invoker: /Users/mac/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java
+# VM options: --enable-preview
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 10 s each
+# Measurement: 7 iterations, 10 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: ru.spb.kupchinolab.jvmday2025.dining_philosophers._080_jmh_benchmarks_jdk_blocking_reading.BlockingReadingPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_virtual_threads
+
+# Run progress: 4,55% complete, ETA 00:37:27
+# Fork: 1 of 1
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.openjdk.jmh.util.Utils (file:/Users/mac/.m2/repository/org/openjdk/jmh/jmh-core/1.37/jmh-core-1.37.jar)
+WARNING: Please consider reporting this to the maintainers of class org.openjdk.jmh.util.Utils
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+# Warmup Iteration   1: 8313,875 ms/op
+# Warmup Iteration   2: 5081,556 ms/op
+# Warmup Iteration   3: 8252,745 ms/op
+Iteration   1: 7008,216 ms/op
+Iteration   2: 10848,510 ms/op
+Iteration   3: 10590,260 ms/op
+Iteration   4: 8033,318 ms/op
+Iteration   5: 10801,208 ms/op
+Iteration   6: 11792,318 ms/op
+Iteration   7: 13338,413 ms/op
+
+
+Result "ru.spb.kupchinolab.jvmday2025.dining_philosophers._080_jmh_benchmarks_jdk_blocking_reading.BlockingReadingPhilosophersBenchmark.test_reentrant_lock_blocking_reading_philosophers_with_virtual_threads":
+  10344,606 ±(99.9%) 4870,134 ms/op [Average]
+  (min, avg, max) = (7008,216, 10344,606, 13338,413), stdev = 2162,370
+  CI (99.9%): [5474,472, 15214,740] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 24.0.1, OpenJDK 64-Bit Server VM, 24.0.1+9-30
+# VM invoker: /Users/mac/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java
+# VM options: --enable-preview
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 10 s each
+# Measurement: 7 iterations, 10 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: ru.spb.kupchinolab.jvmday2025.dining_philosophers._080_jmh_benchmarks_jdk_blocking_reading.BlockingReadingPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_platform_threads
+
+# Run progress: 9,09% complete, ETA 00:39:39
+# Fork: 1 of 1
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.openjdk.jmh.util.Utils (file:/Users/mac/.m2/repository/org/openjdk/jmh/jmh-core/1.37/jmh-core-1.37.jar)
+WARNING: Please consider reporting this to the maintainers of class org.openjdk.jmh.util.Utils
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+# Warmup Iteration   1: 1418,781 ms/op
+# Warmup Iteration   2: 1549,753 ms/op
+# Warmup Iteration   3: 1438,504 ms/op
+Iteration   1: 1232,037 ms/op
+Iteration   2: 1466,896 ms/op
+Iteration   3: 1561,173 ms/op
+Iteration   4: 1558,123 ms/op
+Iteration   5: 1578,036 ms/op
+Iteration   6: 1355,069 ms/op
+Iteration   7: 1369,234 ms/op
+
+
+Result "ru.spb.kupchinolab.jvmday2025.dining_philosophers._080_jmh_benchmarks_jdk_blocking_reading.BlockingReadingPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_platform_threads":
+  1445,795 ±(99.9%) 296,016 ms/op [Average]
+  (min, avg, max) = (1232,037, 1445,795, 1578,036), stdev = 131,433
+  CI (99.9%): [1149,779, 1741,811] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 24.0.1, OpenJDK 64-Bit Server VM, 24.0.1+9-30
+# VM invoker: /Users/mac/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java
+# VM options: --enable-preview
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 10 s each
+# Measurement: 7 iterations, 10 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: ru.spb.kupchinolab.jvmday2025.dining_philosophers._080_jmh_benchmarks_jdk_blocking_reading.BlockingReadingPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_virtual_threads
+
+# Run progress: 13,64% complete, ETA 00:36:43
+# Fork: 1 of 1
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.openjdk.jmh.util.Utils (file:/Users/mac/.m2/repository/org/openjdk/jmh/jmh-core/1.37/jmh-core-1.37.jar)
+WARNING: Please consider reporting this to the maintainers of class org.openjdk.jmh.util.Utils
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+# Warmup Iteration   1: 16925,028 ms/op
+# Warmup Iteration   2: 8299,198 ms/op
+# Warmup Iteration   3: 7742,636 ms/op
+Iteration   1: 2583,321 ms/op
+Iteration   2: 6992,530 ms/op
+Iteration   3: 11746,120 ms/op
+Iteration   4: 6762,463 ms/op
+Iteration   5: 5091,264 ms/op
+Iteration   6: 5252,753 ms/op
+Iteration   7: 6586,856 ms/op
+
+
+Result "ru.spb.kupchinolab.jvmday2025.dining_philosophers._080_jmh_benchmarks_jdk_blocking_reading.BlockingReadingPhilosophersBenchmark.test_synchronized_blocking_reading_philosophers_with_virtual_threads":
+  6430,758 ±(99.9%) 6282,563 ms/op [Average]
+  (min, avg, max) = (2583,321, 6430,758, 11746,120), stdev = 2789,497
+  CI (99.9%): [148,195, 12713,322] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 24.0.1, OpenJDK 64-Bit Server VM, 24.0.1+9-30
+# VM invoker: /Users/mac/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java
+# VM options: --enable-preview
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 10 s each
+# Measurement: 7 iterations, 10 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._010_test_002K_0010K_reentrant_lock_philosophers_with_virtual_threads
+
+# Run progress: 18,18% complete, ETA 00:36:02
+# Fork: 1 of 1
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.openjdk.jmh.util.Utils (file:/Users/mac/.m2/repository/org/openjdk/jmh/jmh-core/1.37/jmh-core-1.37.jar)
+WARNING: Please consider reporting this to the maintainers of class org.openjdk.jmh.util.Utils
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+# Warmup Iteration   1: 5524,883 ms/op
+# Warmup Iteration   2: 18304,720 ms/op
+# Warmup Iteration   3: 10709,170 ms/op
+Iteration   1: 2257,365 ms/op
+Iteration   2: 1668,491 ms/op
+Iteration   3: 1682,037 ms/op
+Iteration   4: 3595,588 ms/op
+Iteration   5: 1750,766 ms/op
+Iteration   6: 1792,266 ms/op
+Iteration   7: 1545,300 ms/op
+
+
+Result "ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._010_test_002K_0010K_reentrant_lock_philosophers_with_virtual_threads":
+  2041,688 ±(99.9%) 1624,879 ms/op [Average]
+  (min, avg, max) = (1545,300, 2041,688, 3595,588), stdev = 721,456
+  CI (99.9%): [416,809, 3666,567] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 24.0.1, OpenJDK 64-Bit Server VM, 24.0.1+9-30
+# VM invoker: /Users/mac/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java
+# VM options: --enable-preview
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 10 s each
+# Measurement: 7 iterations, 10 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._020_test_002K_0010K_synchronized_philosophers_with_virtual_threads
+
+# Run progress: 22,73% complete, ETA 00:34:24
+# Fork: 1 of 1
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.openjdk.jmh.util.Utils (file:/Users/mac/.m2/repository/org/openjdk/jmh/jmh-core/1.37/jmh-core-1.37.jar)
+WARNING: Please consider reporting this to the maintainers of class org.openjdk.jmh.util.Utils
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+# Warmup Iteration   1: 1684,005 ms/op
+# Warmup Iteration   2: 1300,278 ms/op
+# Warmup Iteration   3: 1834,202 ms/op
+Iteration   1: 1735,334 ms/op
+Iteration   2: 1470,990 ms/op
+Iteration   3: 1722,554 ms/op
+Iteration   4: 1323,437 ms/op
+Iteration   5: 1641,568 ms/op
+Iteration   6: 1291,524 ms/op
+Iteration   7: 1495,442 ms/op
+
+
+Result "ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._020_test_002K_0010K_synchronized_philosophers_with_virtual_threads":
+  1525,836 ±(99.9%) 406,837 ms/op [Average]
+  (min, avg, max) = (1291,524, 1525,836, 1735,334), stdev = 180,638
+  CI (99.9%): [1118,999, 1932,672] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 24.0.1, OpenJDK 64-Bit Server VM, 24.0.1+9-30
+# VM invoker: /Users/mac/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java
+# VM options: --enable-preview
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 10 s each
+# Measurement: 7 iterations, 10 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._050_test_004K_0010K_reentrant_lock_philosophers_with_virtual_threads
+
+# Run progress: 27,27% complete, ETA 00:31:45
+# Fork: 1 of 1
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.openjdk.jmh.util.Utils (file:/Users/mac/.m2/repository/org/openjdk/jmh/jmh-core/1.37/jmh-core-1.37.jar)
+WARNING: Please consider reporting this to the maintainers of class org.openjdk.jmh.util.Utils
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+# Warmup Iteration   1: 2023,433 ms/op
+# Warmup Iteration   2: 1490,474 ms/op
+# Warmup Iteration   3: 1792,519 ms/op
+Iteration   1: 2286,658 ms/op
+Iteration   2: 1523,037 ms/op
+Iteration   3: 2156,506 ms/op
+Iteration   4: 1725,761 ms/op
+Iteration   5: 1490,813 ms/op
+Iteration   6: 1523,385 ms/op
+Iteration   7: 1711,284 ms/op
+
+
+Result "ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._050_test_004K_0010K_reentrant_lock_philosophers_with_virtual_threads":
+  1773,921 ±(99.9%) 724,790 ms/op [Average]
+  (min, avg, max) = (1490,813, 1773,921, 2286,658), stdev = 321,811
+  CI (99.9%): [1049,131, 2498,710] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 24.0.1, OpenJDK 64-Bit Server VM, 24.0.1+9-30
+# VM invoker: /Users/mac/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java
+# VM options: --enable-preview
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 10 s each
+# Measurement: 7 iterations, 10 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._060_test_004K_0010K_synchronized_philosophers_with_virtual_threads
+
+# Run progress: 31,82% complete, ETA 00:29:31
+# Fork: 1 of 1
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.openjdk.jmh.util.Utils (file:/Users/mac/.m2/repository/org/openjdk/jmh/jmh-core/1.37/jmh-core-1.37.jar)
+WARNING: Please consider reporting this to the maintainers of class org.openjdk.jmh.util.Utils
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+# Warmup Iteration   1: 1461,984 ms/op
+# Warmup Iteration   2: 1430,021 ms/op
+# Warmup Iteration   3: 1775,659 ms/op
+Iteration   1: 1469,437 ms/op
+Iteration   2: 2526,019 ms/op
+Iteration   3: 1827,864 ms/op
+Iteration   4: 2077,775 ms/op
+Iteration   5: 1822,856 ms/op
+Iteration   6: 1545,215 ms/op
+Iteration   7: 1524,081 ms/op
+
+
+Result "ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._060_test_004K_0010K_synchronized_philosophers_with_virtual_threads":
+  1827,606 ±(99.9%) 847,977 ms/op [Average]
+  (min, avg, max) = (1469,437, 1827,606, 2526,019), stdev = 376,507
+  CI (99.9%): [979,629, 2675,584] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 24.0.1, OpenJDK 64-Bit Server VM, 24.0.1+9-30
+# VM invoker: /Users/mac/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java
+# VM options: --enable-preview
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 10 s each
+# Measurement: 7 iterations, 10 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._090_test_002K_020K_reentrant_lock_philosophers_with_virtual_threads
+
+# Run progress: 36,36% complete, ETA 00:27:19
+# Fork: 1 of 1
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.openjdk.jmh.util.Utils (file:/Users/mac/.m2/repository/org/openjdk/jmh/jmh-core/1.37/jmh-core-1.37.jar)
+WARNING: Please consider reporting this to the maintainers of class org.openjdk.jmh.util.Utils
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+# Warmup Iteration   1: 18994,984 ms/op
+# Warmup Iteration   2: 10770,597 ms/op
+# Warmup Iteration   3: 5195,879 ms/op
+Iteration   1: 22813,043 ms/op
+Iteration   2: 17224,895 ms/op
+Iteration   3: 15773,208 ms/op
+Iteration   4: 22037,423 ms/op
+Iteration   5: 8313,532 ms/op
+Iteration   6: 14702,074 ms/op
+Iteration   7: 6161,285 ms/op
+
+
+Result "ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._090_test_002K_020K_reentrant_lock_philosophers_with_virtual_threads":
+  15289,351 ±(99.9%) 14198,266 ms/op [Average]
+  (min, avg, max) = (6161,285, 15289,351, 22813,043), stdev = 6304,118
+  CI (99.9%): [1091,086, 29487,617] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 24.0.1, OpenJDK 64-Bit Server VM, 24.0.1+9-30
+# VM invoker: /Users/mac/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java
+# VM options: --enable-preview
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 10 s each
+# Measurement: 7 iterations, 10 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._100_test_002K_020K_synchronized_philosophers_with_virtual_threads
+
+# Run progress: 40,91% complete, ETA 00:26:50
+# Fork: 1 of 1
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.openjdk.jmh.util.Utils (file:/Users/mac/.m2/repository/org/openjdk/jmh/jmh-core/1.37/jmh-core-1.37.jar)
+WARNING: Please consider reporting this to the maintainers of class org.openjdk.jmh.util.Utils
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+# Warmup Iteration   1: 3806,469 ms/op
+# Warmup Iteration   2: 6122,075 ms/op
+# Warmup Iteration   3: 26137,934 ms/op
+Iteration   1: 23348,013 ms/op
+Iteration   2: 10319,987 ms/op
+Iteration   3: 21324,518 ms/op
+Iteration   4: 12225,942 ms/op
+Iteration   5: 15547,364 ms/op
+Iteration   6: 17186,811 ms/op
+Iteration   7: 13408,458 ms/op
+
+
+Result "ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._100_test_002K_020K_synchronized_philosophers_with_virtual_threads":
+  16194,442 ±(99.9%) 10758,714 ms/op [Average]
+  (min, avg, max) = (10319,987, 16194,442, 23348,013), stdev = 4776,936
+  CI (99.9%): [5435,727, 26953,156] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 24.0.1, OpenJDK 64-Bit Server VM, 24.0.1+9-30
+# VM invoker: /Users/mac/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java
+# VM options: --enable-preview
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 10 s each
+# Measurement: 7 iterations, 10 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._130_test_004K_002K_reentrant_lock_philosophers_with_virtual_threads
+
+# Run progress: 45,45% complete, ETA 00:26:00
+# Fork: 1 of 1
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.openjdk.jmh.util.Utils (file:/Users/mac/.m2/repository/org/openjdk/jmh/jmh-core/1.37/jmh-core-1.37.jar)
+WARNING: Please consider reporting this to the maintainers of class org.openjdk.jmh.util.Utils
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+# Warmup Iteration   1: 7799,572 ms/op
+# Warmup Iteration   2: 18689,439 ms/op
+# Warmup Iteration   3: 51368,859 ms/op
+Iteration   1: 25904,946 ms/op
+Iteration   2: 52098,328 ms/op
+Iteration   3: 55905,653 ms/op
+Iteration   4: 59662,464 ms/op
+Iteration   5: 62731,438 ms/op
+Iteration   6: 56991,626 ms/op
+Iteration   7: 54793,714 ms/op
+
+
+Result "ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._130_test_004K_002K_reentrant_lock_philosophers_with_virtual_threads":
+  52584,024 ±(99.9%) 27590,492 ms/op [Average]
+  (min, avg, max) = (25904,946, 52584,024, 62731,438), stdev = 12250,349
+  CI (99.9%): [24993,532, 80174,516] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 24.0.1, OpenJDK 64-Bit Server VM, 24.0.1+9-30
+# VM invoker: /Users/mac/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java
+# VM options: --enable-preview
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 10 s each
+# Measurement: 7 iterations, 10 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._140_test_004K_020K_synchronized_philosophers_with_virtual_threads
+
+# Run progress: 50,00% complete, ETA 00:29:59
+# Fork: 1 of 1
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.openjdk.jmh.util.Utils (file:/Users/mac/.m2/repository/org/openjdk/jmh/jmh-core/1.37/jmh-core-1.37.jar)
+WARNING: Please consider reporting this to the maintainers of class org.openjdk.jmh.util.Utils
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+# Warmup Iteration   1: 60204,462 ms/op
+# Warmup Iteration   2: 16190,729 ms/op
+# Warmup Iteration   3: 32165,989 ms/op
+Iteration   1: 27511,845 ms/op
+Iteration   2: 48652,857 ms/op
+Iteration   3: 13975,666 ms/op
+Iteration   4: 31448,040 ms/op
+Iteration   5: 39716,874 ms/op
+Iteration   6: 37556,263 ms/op
+Iteration   7: 58344,306 ms/op
+
+
+Result "ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._140_test_004K_020K_synchronized_philosophers_with_virtual_threads":
+  36743,693 ±(99.9%) 32502,400 ms/op [Average]
+  (min, avg, max) = (13975,666, 36743,693, 58344,306), stdev = 14431,267
+  CI (99.9%): [4241,293, 69246,092] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 24.0.1, OpenJDK 64-Bit Server VM, 24.0.1+9-30
+# VM invoker: /Users/mac/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java
+# VM options: --enable-preview
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 10 s each
+# Measurement: 7 iterations, 10 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._142_test_004K_40K_reentrant_lock_philosophers_with_virtual_threads
+
+# Run progress: 54,55% complete, ETA 00:30:17
+# Fork: 1 of 1
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.openjdk.jmh.util.Utils (file:/Users/mac/.m2/repository/org/openjdk/jmh/jmh-core/1.37/jmh-core-1.37.jar)
+WARNING: Please consider reporting this to the maintainers of class org.openjdk.jmh.util.Utils
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+# Warmup Iteration   1: 81854,260 ms/op
+# Warmup Iteration   2: 68421,116 ms/op
+# Warmup Iteration   3: 56571,445 ms/op
+Iteration   1: 62649,225 ms/op
+Iteration   2: 50419,912 ms/op
+Iteration   3: 33355,687 ms/op
+Iteration   4: 41100,802 ms/op
+Iteration   5: 53354,909 ms/op
+Iteration   6: 46338,233 ms/op
+Iteration   7: 56191,278 ms/op
+
+
+Result "ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._142_test_004K_40K_reentrant_lock_philosophers_with_virtual_threads":
+  49058,578 ±(99.9%) 22013,467 ms/op [Average]
+  (min, avg, max) = (33355,687, 49058,578, 62649,225), stdev = 9774,116
+  CI (99.9%): [27045,111, 71072,045] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 24.0.1, OpenJDK 64-Bit Server VM, 24.0.1+9-30
+# VM invoker: /Users/mac/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java
+# VM options: --enable-preview
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 10 s each
+# Measurement: 7 iterations, 10 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._144_test_004K_40K_synchronized_philosophers_with_virtual_threads
+
+# Run progress: 59,09% complete, ETA 00:31:31
+# Fork: 1 of 1
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.openjdk.jmh.util.Utils (file:/Users/mac/.m2/repository/org/openjdk/jmh/jmh-core/1.37/jmh-core-1.37.jar)
+WARNING: Please consider reporting this to the maintainers of class org.openjdk.jmh.util.Utils
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+# Warmup Iteration   1: 315583,935 ms/op
+# Warmup Iteration   2: 303047,506 ms/op
+# Warmup Iteration   3: 238634,312 ms/op
+Iteration   1: 266106,860 ms/op
+Iteration   2: 295770,929 ms/op
+Iteration   3: 222648,911 ms/op
+Iteration   4: 208890,029 ms/op
+Iteration   5: 215533,260 ms/op
+Iteration   6: 213888,749 ms/op
+Iteration   7: 214920,557 ms/op
+
+
+Result "ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._144_test_004K_40K_synchronized_philosophers_with_virtual_threads":
+  233965,614 ±(99.9%) 75347,675 ms/op [Average]
+  (min, avg, max) = (208890,029, 233965,614, 295770,929), stdev = 33454,835
+  CI (99.9%): [158617,939, 309313,289] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 24.0.1, OpenJDK 64-Bit Server VM, 24.0.1+9-30
+# VM invoker: /Users/mac/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java
+# VM options: --enable-preview
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 10 s each
+# Measurement: 7 iterations, 10 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._170_test_008K_0010K_reentrant_lock_philosophers_with_virtual_threads
+
+# Run progress: 63,64% complete, ETA 00:49:46
+# Fork: 1 of 1
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.openjdk.jmh.util.Utils (file:/Users/mac/.m2/repository/org/openjdk/jmh/jmh-core/1.37/jmh-core-1.37.jar)
+WARNING: Please consider reporting this to the maintainers of class org.openjdk.jmh.util.Utils
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+# Warmup Iteration   1: 4073,857 ms/op
+# Warmup Iteration   2: 2067,824 ms/op
+# Warmup Iteration   3: 3194,639 ms/op
+Iteration   1: 2276,440 ms/op
+Iteration   2: 3062,349 ms/op
+Iteration   3: 3704,680 ms/op
+Iteration   4: 4044,943 ms/op
+Iteration   5: 3649,412 ms/op
+Iteration   6: 2961,369 ms/op
+Iteration   7: 1534,152 ms/op
+
+
+Result "ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._170_test_008K_0010K_reentrant_lock_philosophers_with_virtual_threads":
+  3033,335 ±(99.9%) 1989,122 ms/op [Average]
+  (min, avg, max) = (1534,152, 3033,335, 4044,943), stdev = 883,183
+  CI (99.9%): [1044,213, 5022,457] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 24.0.1, OpenJDK 64-Bit Server VM, 24.0.1+9-30
+# VM invoker: /Users/mac/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java
+# VM options: --enable-preview
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 10 s each
+# Measurement: 7 iterations, 10 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._180_test_008K_0010K_synchronized_philosophers_with_virtual_threads
+
+# Run progress: 68,18% complete, ETA 00:41:35
+# Fork: 1 of 1
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.openjdk.jmh.util.Utils (file:/Users/mac/.m2/repository/org/openjdk/jmh/jmh-core/1.37/jmh-core-1.37.jar)
+WARNING: Please consider reporting this to the maintainers of class org.openjdk.jmh.util.Utils
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+# Warmup Iteration   1: 2059,058 ms/op
+# Warmup Iteration   2: 4307,646 ms/op
+# Warmup Iteration   3: 5009,553 ms/op
+Iteration   1: 21537,518 ms/op
+Iteration   2: 10935,611 ms/op
+Iteration   3: 7359,762 ms/op
+Iteration   4: 4541,148 ms/op
+Iteration   5: 5091,429 ms/op
+Iteration   6: 5282,839 ms/op
+Iteration   7: 5191,599 ms/op
+
+
+Result "ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._180_test_008K_0010K_synchronized_philosophers_with_virtual_threads":
+  8562,843 ±(99.9%) 13815,500 ms/op [Average]
+  (min, avg, max) = (4541,148, 8562,843, 21537,518), stdev = 6134,168
+  CI (99.9%): [≈ 0, 22378,344] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 24.0.1, OpenJDK 64-Bit Server VM, 24.0.1+9-30
+# VM invoker: /Users/mac/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java
+# VM options: --enable-preview
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 10 s each
+# Measurement: 7 iterations, 10 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._182_test_008K_020K_reentrant_lock_philosophers_with_virtual_threads
+
+# Run progress: 72,73% complete, ETA 00:34:19
+# Fork: 1 of 1
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.openjdk.jmh.util.Utils (file:/Users/mac/.m2/repository/org/openjdk/jmh/jmh-core/1.37/jmh-core-1.37.jar)
+WARNING: Please consider reporting this to the maintainers of class org.openjdk.jmh.util.Utils
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+# Warmup Iteration   1: 98311,436 ms/op
+# Warmup Iteration   2: 11988,676 ms/op
+# Warmup Iteration   3: 26800,471 ms/op
+Iteration   1: 83372,626 ms/op
+Iteration   2: 76370,991 ms/op
+Iteration   3: 92320,855 ms/op
+Iteration   4: 79189,276 ms/op
+Iteration   5: 100441,343 ms/op
+Iteration   6: 76649,068 ms/op
+Iteration   7: 75819,222 ms/op
+
+
+Result "ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._182_test_008K_020K_reentrant_lock_philosophers_with_virtual_threads":
+  83451,912 ±(99.9%) 21369,437 ms/op [Average]
+  (min, avg, max) = (75819,222, 83451,912, 100441,343), stdev = 9488,163
+  CI (99.9%): [62082,474, 104821,349] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 24.0.1, OpenJDK 64-Bit Server VM, 24.0.1+9-30
+# VM invoker: /Users/mac/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java
+# VM options: --enable-preview
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 10 s each
+# Measurement: 7 iterations, 10 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._184_test_008K_020K_synchronized_philosophers_with_virtual_threads
+
+# Run progress: 77,27% complete, ETA 00:30:35
+# Fork: 1 of 1
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.openjdk.jmh.util.Utils (file:/Users/mac/.m2/repository/org/openjdk/jmh/jmh-core/1.37/jmh-core-1.37.jar)
+WARNING: Please consider reporting this to the maintainers of class org.openjdk.jmh.util.Utils
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+# Warmup Iteration   1: 171125,775 ms/op
+# Warmup Iteration   2: 162717,033 ms/op
+# Warmup Iteration   3: 158221,613 ms/op
+Iteration   1: 181462,746 ms/op
+Iteration   2: 78708,084 ms/op
+Iteration   3: 185853,517 ms/op
+Iteration   4: 177450,053 ms/op
+Iteration   5: 116363,252 ms/op
+Iteration   6: 164935,199 ms/op
+Iteration   7: 179583,330 ms/op
+
+
+Result "ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._184_test_008K_020K_synchronized_philosophers_with_virtual_threads":
+  154908,026 ±(99.9%) 92736,019 ms/op [Average]
+  (min, avg, max) = (78708,084, 154908,026, 185853,517), stdev = 41175,367
+  CI (99.9%): [62172,007, 247644,045] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 24.0.1, OpenJDK 64-Bit Server VM, 24.0.1+9-30
+# VM invoker: /Users/mac/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java
+# VM options: --enable-preview
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 10 s each
+# Measurement: 7 iterations, 10 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._210_test_002K_40K_reentrant_lock_philosophers_with_virtual_threads
+
+# Run progress: 81,82% complete, ETA 00:28:57
+# Fork: 1 of 1
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.openjdk.jmh.util.Utils (file:/Users/mac/.m2/repository/org/openjdk/jmh/jmh-core/1.37/jmh-core-1.37.jar)
+WARNING: Please consider reporting this to the maintainers of class org.openjdk.jmh.util.Utils
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+# Warmup Iteration   1: 28993,636 ms/op
+# Warmup Iteration   2: 26802,078 ms/op
+# Warmup Iteration   3: 24369,817 ms/op
+Iteration   1: 20234,040 ms/op
+Iteration   2: 22851,181 ms/op
+Iteration   3: 26355,099 ms/op
+Iteration   4: 24264,791 ms/op
+Iteration   5: 22848,213 ms/op
+Iteration   6: 25501,824 ms/op
+Iteration   7: 26240,815 ms/op
+
+
+Result "ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._210_test_002K_40K_reentrant_lock_philosophers_with_virtual_threads":
+  24042,280 ±(99.9%) 5011,691 ms/op [Average]
+  (min, avg, max) = (20234,040, 24042,280, 26355,099), stdev = 2225,222
+  CI (99.9%): [19030,590, 29053,971] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 24.0.1, OpenJDK 64-Bit Server VM, 24.0.1+9-30
+# VM invoker: /Users/mac/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java
+# VM options: --enable-preview
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 10 s each
+# Measurement: 7 iterations, 10 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._220_test_002K_40K_synchronized_philosophers_with_virtual_threads
+
+# Run progress: 86,36% complete, ETA 00:21:13
+# Fork: 1 of 1
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.openjdk.jmh.util.Utils (file:/Users/mac/.m2/repository/org/openjdk/jmh/jmh-core/1.37/jmh-core-1.37.jar)
+WARNING: Please consider reporting this to the maintainers of class org.openjdk.jmh.util.Utils
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+# Warmup Iteration   1: 148181,662 ms/op
+# Warmup Iteration   2: 159974,772 ms/op
+# Warmup Iteration   3: 158551,403 ms/op
+Iteration   1: 145507,100 ms/op
+Iteration   2: 146052,958 ms/op
+Iteration   3: 156171,612 ms/op
+Iteration   4: 90685,311 ms/op
+Iteration   5: 132615,156 ms/op
+Iteration   6: 147778,345 ms/op
+Iteration   7: 161411,138 ms/op
+
+
+Result "ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._220_test_002K_40K_synchronized_philosophers_with_virtual_threads":
+  140031,660 ±(99.9%) 53089,822 ms/op [Average]
+  (min, avg, max) = (90685,311, 140031,660, 161411,138), stdev = 23572,210
+  CI (99.9%): [86941,838, 193121,482] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 24.0.1, OpenJDK 64-Bit Server VM, 24.0.1+9-30
+# VM invoker: /Users/mac/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java
+# VM options: --enable-preview
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 10 s each
+# Measurement: 7 iterations, 10 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._250_test_008K_80K_reentrant_lock_philosophers_with_virtual_threads
+
+# Run progress: 90,91% complete, ETA 00:15:51
+# Fork: 1 of 1
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.openjdk.jmh.util.Utils (file:/Users/mac/.m2/repository/org/openjdk/jmh/jmh-core/1.37/jmh-core-1.37.jar)
+WARNING: Please consider reporting this to the maintainers of class org.openjdk.jmh.util.Utils
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+# Warmup Iteration   1: 152527,159 ms/op
+# Warmup Iteration   2: 129942,484 ms/op
+# Warmup Iteration   3: 136022,583 ms/op
+Iteration   1: 98759,356 ms/op
+Iteration   2: 112141,549 ms/op
+Iteration   3: 142733,981 ms/op
+Iteration   4: 152548,997 ms/op
+Iteration   5: 181754,095 ms/op
+Iteration   6: 99566,782 ms/op
+Iteration   7: 122820,671 ms/op
+
+
+Result "ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._250_test_008K_80K_reentrant_lock_philosophers_with_virtual_threads":
+  130046,490 ±(99.9%) 68939,718 ms/op [Average]
+  (min, avg, max) = (98759,356, 130046,490, 181754,095), stdev = 30609,662
+  CI (99.9%): [61106,773, 198986,208] (assumes normal distribution)
+
+
+# JMH version: 1.37
+# VM version: JDK 24.0.1, OpenJDK 64-Bit Server VM, 24.0.1+9-30
+# VM invoker: /Users/mac/Library/Java/JavaVirtualMachines/openjdk-24.0.1/Contents/Home/bin/java
+# VM options: --enable-preview
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 10 s each
+# Measurement: 7 iterations, 10 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled.ScaledBlockingReadingPhilosophersBenchmark._260_test_008K_80K_synchronized_philosophers_with_virtual_threads
+
+# Run progress: 95,45% complete, ETA 00:08:36
+# Fork: 1 of 1
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.openjdk.jmh.util.Utils (file:/Users/mac/.m2/repository/org/openjdk/jmh/jmh-core/1.37/jmh-core-1.37.jar)
+WARNING: Please consider reporting this to the maintainers of class org.openjdk.jmh.util.Utils
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+# Warmup Iteration   1: 1123298,771 ms/op
+# Warmup Iteration   2: 1224090,889 ms/op
+# Warmup Iteration   3:
