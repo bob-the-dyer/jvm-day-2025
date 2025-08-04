@@ -172,45 +172,45 @@ public class UnitedPhilosophersBenchmark {
         test_classical_philosophers_internal(Thread.ofPlatform().factory(), SynchronizedPhilosopher::from, constructActiveWaitingEating(blackhole));
     }
 
-    @Benchmark
-    public void test_verticle_noop_philosophers(Blackhole blackhole) throws InterruptedException {
-        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions());
-    }
+//    @Benchmark
+//    public void test_verticle_noop_philosophers(Blackhole blackhole) throws InterruptedException {
+//        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions());
+//    }
 
-    @Benchmark
-    public void test_sleeping_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
-        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructSleepingEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD));
-    }
+//    @Benchmark
+//    public void test_sleeping_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
+//        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructSleepingEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD));
+//    }
 
-    @Benchmark
-    public void test_ok_http_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
-        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructOkHttpEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD));
-    }
+//    @Benchmark
+//    public void test_ok_http_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
+//        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructOkHttpEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD));
+//    }
 
-    @Benchmark
-    public void test_active_waiting_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
-        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructActiveWaitingEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD));
-    }
+//    @Benchmark
+//    public void test_active_waiting_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
+//        test_verticle_philosophers_internal(VerticlePhilosopher::from, constructActiveWaitingEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD));
+//    }
 
-    @Benchmark
-    public void test_virtual_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
-        test_verticle_philosophers_internal(VirtualVerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD));
-    }
+//    @Benchmark
+//    public void test_virtual_noop_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
+//        test_verticle_philosophers_internal(VirtualVerticlePhilosopher::from, constructNoopEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD));
+//    }
 
-    @Benchmark
-    public void test_virtual_sleeping_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
-        test_verticle_philosophers_internal(VirtualVerticlePhilosopher::from, constructSleepingEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD));
-    }
+//    @Benchmark
+//    public void test_virtual_sleeping_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
+//        test_verticle_philosophers_internal(VirtualVerticlePhilosopher::from, constructSleepingEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD));
+//    }
 
-    @Benchmark
-    public void test_virtual_ok_http_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
-        test_verticle_philosophers_internal(VirtualVerticlePhilosopher::from, constructOkHttpEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD));
-    }
+//    @Benchmark
+//    public void test_virtual_ok_http_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
+//        test_verticle_philosophers_internal(VirtualVerticlePhilosopher::from, constructOkHttpEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD));
+//    }
 
-    @Benchmark
-    public void test_virtual_active_waiting_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
-        test_verticle_philosophers_internal(VirtualVerticlePhilosopher::from, constructActiveWaitingEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD));
-    }
+//    @Benchmark
+//    public void test_virtual_active_waiting_verticle_philosophers(Blackhole blackhole) throws InterruptedException {
+//        test_verticle_philosophers_internal(VirtualVerticlePhilosopher::from, constructActiveWaitingEating(blackhole), new DeploymentOptions().setThreadingModel(VIRTUAL_THREAD));
+//    }
 
     private void test_classical_philosophers_internal(ThreadFactory factory, Function<List<Object>, ? extends Callable<Integer>> philosopherSupplier, Consumer<Integer> eating) throws InterruptedException, BrokenBarrierException {
         List<Chopstick> chopsticks = new ArrayList<>();
@@ -232,26 +232,26 @@ public class UnitedPhilosophersBenchmark {
         }
     }
 
-    private void test_verticle_philosophers_internal(Function<List<Object>, ? extends VerticleBase> philosopherSupplier, Consumer<Integer> eating, DeploymentOptions deploymentOptions) throws InterruptedException {
-        Vertx vertx = Vertx.vertx();
-        CountDownLatch allVerticlesDeployedLatch = new CountDownLatch(PHILOSOPHERS_COUNT_BASE);
-        CountDownLatch allVerticlesUnDeployedLatch = new CountDownLatch(PHILOSOPHERS_COUNT_BASE);
-        CountDownLatch finishEatingLatch = new CountDownLatch(1);
-        for (int i = 0; i < PHILOSOPHERS_COUNT_BASE; i++) {
-            vertx.deployVerticle(philosopherSupplier.apply(List.of(i, eating)), deploymentOptions).onComplete(_ -> allVerticlesDeployedLatch.countDown());
-        }
-        vertx.eventBus().consumer("max_eat_attempts_has_reached", msg -> {
-            System.out.println("finish eating at " + Instant.now() + ", msg: " + msg.body());
-            vertx.deploymentIDs().forEach(deploymentId -> vertx.undeploy(deploymentId).onComplete(_ -> allVerticlesUnDeployedLatch.countDown()));
-            vertx.close().onComplete(_ -> finishEatingLatch.countDown());
-        });
-        allVerticlesDeployedLatch.await();
-        System.out.println("all verticles deployed at " + Instant.now());
-        System.out.println("start eating at " + Instant.now());
-        vertx.eventBus().publish("start_barrier", "Go-go-go!");
-        finishEatingLatch.await();
-        allVerticlesUnDeployedLatch.await();
-    }
+//    private void test_verticle_philosophers_internal(Function<List<Object>, ? extends VerticleBase> philosopherSupplier, Consumer<Integer> eating, DeploymentOptions deploymentOptions) throws InterruptedException {
+//        Vertx vertx = Vertx.vertx();
+//        CountDownLatch allVerticlesDeployedLatch = new CountDownLatch(PHILOSOPHERS_COUNT_BASE);
+//        CountDownLatch allVerticlesUnDeployedLatch = new CountDownLatch(PHILOSOPHERS_COUNT_BASE);
+//        CountDownLatch finishEatingLatch = new CountDownLatch(1);
+//        for (int i = 0; i < PHILOSOPHERS_COUNT_BASE; i++) {
+//            vertx.deployVerticle(philosopherSupplier.apply(List.of(i, eating)), deploymentOptions).onComplete(_ -> allVerticlesDeployedLatch.countDown());
+//        }
+//        vertx.eventBus().consumer("max_eat_attempts_has_reached", msg -> {
+//            System.out.println("finish eating at " + Instant.now() + ", msg: " + msg.body());
+//            vertx.deploymentIDs().forEach(deploymentId -> vertx.undeploy(deploymentId).onComplete(_ -> allVerticlesUnDeployedLatch.countDown()));
+//            vertx.close().onComplete(_ -> finishEatingLatch.countDown());
+//        });
+//        allVerticlesDeployedLatch.await();
+//        System.out.println("all verticles deployed at " + Instant.now());
+//        System.out.println("start eating at " + Instant.now());
+//        vertx.eventBus().publish("start_barrier", "Go-go-go!");
+//        finishEatingLatch.await();
+//        allVerticlesUnDeployedLatch.await();
+//    }
 
     public static void main(String[] args) throws RunnerException {
 

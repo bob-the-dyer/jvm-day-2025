@@ -223,24 +223,24 @@ public class ScaledBlockingReadingPhilosophersBenchmark {
         }
     }
 
-    private void test_verticle_philosophers_internal(BiFunction<List<Object>, Integer, ? extends VerticleBase> philosopherSupplier, Consumer<Integer> eating, DeploymentOptions deploymentOptions, int philosophersMultiplier, int eatingMultiplier) throws InterruptedException {
-        Vertx vertx = Vertx.vertx();
-        CountDownLatch allVerticlesDeployedLatch = new CountDownLatch(PHILOSOPHERS_COUNT_BASE);
-        int philosophersCount = PHILOSOPHERS_COUNT_BASE * philosophersMultiplier;
-        CountDownLatch finishEatingLatch = new CountDownLatch(1);
-        for (int i = 0; i < philosophersCount; i++) {
-            vertx.deployVerticle(philosopherSupplier.apply(List.of(i, eating), eatingMultiplier), deploymentOptions).onComplete(_ -> allVerticlesDeployedLatch.countDown());
-        }
-        vertx.eventBus().consumer("max_eat_attempts_has_reached", msg -> {
-            System.out.println("finish eating at " + Instant.now() + ", msg: " + msg.body());
-            vertx.close().onComplete(_ -> finishEatingLatch.countDown());
-        });
-        allVerticlesDeployedLatch.await();
-        System.out.println("all verticles deployed at " + Instant.now());
-        System.out.println("start eating at " + Instant.now());
-        vertx.eventBus().publish("start_barrier", "Go-go-go!");
-        finishEatingLatch.await();
-    }
+//    private void test_verticle_philosophers_internal(BiFunction<List<Object>, Integer, ? extends VerticleBase> philosopherSupplier, Consumer<Integer> eating, DeploymentOptions deploymentOptions, int philosophersMultiplier, int eatingMultiplier) throws InterruptedException {
+//        Vertx vertx = Vertx.vertx();
+//        CountDownLatch allVerticlesDeployedLatch = new CountDownLatch(PHILOSOPHERS_COUNT_BASE);
+//        int philosophersCount = PHILOSOPHERS_COUNT_BASE * philosophersMultiplier;
+//        CountDownLatch finishEatingLatch = new CountDownLatch(1);
+//        for (int i = 0; i < philosophersCount; i++) {
+//            vertx.deployVerticle(philosopherSupplier.apply(List.of(i, eating), eatingMultiplier), deploymentOptions).onComplete(_ -> allVerticlesDeployedLatch.countDown());
+//        }
+//        vertx.eventBus().consumer("max_eat_attempts_has_reached", msg -> {
+//            System.out.println("finish eating at " + Instant.now() + ", msg: " + msg.body());
+//            vertx.close().onComplete(_ -> finishEatingLatch.countDown());
+//        });
+//        allVerticlesDeployedLatch.await();
+//        System.out.println("all verticles deployed at " + Instant.now());
+//        System.out.println("start eating at " + Instant.now());
+//        vertx.eventBus().publish("start_barrier", "Go-go-go!");
+//        finishEatingLatch.await();
+//    }
 
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
