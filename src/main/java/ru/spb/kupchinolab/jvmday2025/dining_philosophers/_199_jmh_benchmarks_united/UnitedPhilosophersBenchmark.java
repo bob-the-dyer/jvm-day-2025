@@ -1,7 +1,5 @@
 package ru.spb.kupchinolab.jvmday2025.dining_philosophers._199_jmh_benchmarks_united;
 
-import io.vertx.core.DeploymentOptions;
-import io.vertx.core.VerticleBase;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
@@ -18,8 +16,6 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 import ru.spb.kupchinolab.jvmday2025.dining_philosophers.Chopstick;
 import ru.spb.kupchinolab.jvmday2025.dining_philosophers._020_reentrant_pivot.ReentrantPhilosopher;
 import ru.spb.kupchinolab.jvmday2025.dining_philosophers._030_synchronized_pivot.SynchronizedPhilosopher;
-import ru.spb.kupchinolab.jvmday2025.dining_philosophers._100_vertx_pivot.VerticlePhilosopher;
-import ru.spb.kupchinolab.jvmday2025.dining_philosophers._100_vertx_pivot.VirtualVerticlePhilosopher;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,14 +23,12 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static io.vertx.core.ThreadingModel.VIRTUAL_THREAD;
 import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.PHILOSOPHERS_COUNT_BASE;
 
 @BenchmarkMode(Mode.AverageTime)

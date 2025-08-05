@@ -1,8 +1,12 @@
 package ru.spb.kupchinolab.jvmday2025.dining_philosophers._999_jmh_benchmarks_scaled;
 
-import io.vertx.core.DeploymentOptions;
-import io.vertx.core.VerticleBase;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerResponse;
+import okhttp3.ConnectionPool;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
@@ -15,8 +19,9 @@ import ru.spb.kupchinolab.jvmday2025.dining_philosophers._030_synchronized_pivot
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
 import java.nio.file.Path;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -30,26 +35,47 @@ import static ru.spb.kupchinolab.jvmday2025.dining_philosophers.Utils.PHILOSOPHE
 @State(Scope.Thread)
 public class ScaledBlockingReadingPhilosophersBenchmark {
 
-    private static Consumer<Integer> constructBlockingReadingEating(Blackhole blackhole) {
-        return stats -> {
-            try (InputStream in = Path.of("1600B_file.txt").toFile().toURI().toURL().openStream()) { //read sequentially from SSD with speed of 1MB in 1M nanosec
-                byte[] bytes = in.readAllBytes();
-                blackhole.consume(bytes.length);
-                blackhole.consume(stats);
-            } catch (IOException e) {
+    static private Vertx vertx;
+    static private HttpServer server;
+    static private OkHttpClient client;
+    private final static int port = 8007;
+
+    private static Consumer<Integer> constructOkHttpEating(Blackhole blackhole) {
+        return (stats) -> {
+            try {
+                URL url = URI.create("http://127.0.0.1:" + port + "/payload").toURL();
+                Request request = new Request.Builder()
+                        .url(url)
+                        .build();
+                try (Response response = client.newCall(request).execute()) {
+                    String responseAsString = response.body().string();
+                    blackhole.consume(responseAsString);
+                    blackhole.consume(stats);
+                }
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         };
     }
 
     @Benchmark
-    public void _010_test_002K_0010K_reentrant_lock_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_classical_philosophers_internal(ReentrantPhilosopher::from, constructBlockingReadingEating(blackhole), 2, 1);
+    public void _001_test_0001K_0010K_reentrant_lock_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(ReentrantPhilosopher::from, constructOkHttpEating(blackhole), 1, 1);
     }
 
     @Benchmark
-    public void _020_test_002K_0010K_synchronized_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_classical_philosophers_internal(SynchronizedPhilosopher::from, constructBlockingReadingEating(blackhole), 2, 1);
+    public void _002_test_0001K_0010K_synchronized_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(SynchronizedPhilosopher::from, constructOkHttpEating(blackhole), 1, 1);
+    }
+
+    @Benchmark
+    public void _010_test_0010K_0010K_reentrant_lock_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(ReentrantPhilosopher::from, constructOkHttpEating(blackhole), 10, 1);
+    }
+
+    @Benchmark
+    public void _020_test_0010K_0010K_synchronized_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(SynchronizedPhilosopher::from, constructOkHttpEating(blackhole), 10, 1);
     }
 
 //    @Benchmark
@@ -63,13 +89,13 @@ public class ScaledBlockingReadingPhilosophersBenchmark {
 //    }
 
     @Benchmark
-    public void _050_test_004K_0010K_reentrant_lock_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_classical_philosophers_internal(ReentrantPhilosopher::from, constructBlockingReadingEating(blackhole), 4, 1);
+    public void _050_test_0100K_0010K_reentrant_lock_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(ReentrantPhilosopher::from, constructOkHttpEating(blackhole), 100, 1);
     }
 
     @Benchmark
-    public void _060_test_004K_0010K_synchronized_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_classical_philosophers_internal(SynchronizedPhilosopher::from, constructBlockingReadingEating(blackhole), 4, 1);
+    public void _060_test_0100K_0010K_synchronized_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(SynchronizedPhilosopher::from, constructOkHttpEating(blackhole), 100, 1);
     }
 
 //    @Benchmark
@@ -83,13 +109,13 @@ public class ScaledBlockingReadingPhilosophersBenchmark {
 //    }
 
     @Benchmark
-    public void _090_test_002K_020K_reentrant_lock_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_classical_philosophers_internal(ReentrantPhilosopher::from, constructBlockingReadingEating(blackhole), 2, 2);
+    public void _090_test_0010K_0100K_reentrant_lock_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(ReentrantPhilosopher::from, constructOkHttpEating(blackhole), 10, 10);
     }
 
     @Benchmark
-    public void _100_test_002K_020K_synchronized_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_classical_philosophers_internal(SynchronizedPhilosopher::from, constructBlockingReadingEating(blackhole), 2, 2);
+    public void _100_test_0010K_0100K_synchronized_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(SynchronizedPhilosopher::from, constructOkHttpEating(blackhole), 10, 10);
     }
 
 //    @Benchmark
@@ -103,23 +129,23 @@ public class ScaledBlockingReadingPhilosophersBenchmark {
 //    }
 
     @Benchmark
-    public void _130_test_004K_002K_reentrant_lock_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_classical_philosophers_internal(ReentrantPhilosopher::from, constructBlockingReadingEating(blackhole), 4, 2);
+    public void _130_test_0100K_0100K_reentrant_lock_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(ReentrantPhilosopher::from, constructOkHttpEating(blackhole), 100, 10);
     }
 
     @Benchmark
-    public void _140_test_004K_020K_synchronized_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_classical_philosophers_internal(SynchronizedPhilosopher::from, constructBlockingReadingEating(blackhole), 4, 2);
+    public void _140_test_0100K_0100K_synchronized_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(SynchronizedPhilosopher::from, constructOkHttpEating(blackhole), 100, 10);
     }
 
     @Benchmark
-    public void _142_test_004K_40K_reentrant_lock_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_classical_philosophers_internal(ReentrantPhilosopher::from, constructBlockingReadingEating(blackhole), 4, 4);
+    public void _142_test_0100K_1000K_reentrant_lock_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(ReentrantPhilosopher::from, constructOkHttpEating(blackhole), 100, 100);
     }
 
     @Benchmark
-    public void _144_test_004K_40K_synchronized_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_classical_philosophers_internal(SynchronizedPhilosopher::from, constructBlockingReadingEating(blackhole), 4, 4);
+    public void _144_test_0100K_1000K_synchronized_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(SynchronizedPhilosopher::from, constructOkHttpEating(blackhole), 100, 100);
     }
 
 //    @Benchmark
@@ -133,23 +159,23 @@ public class ScaledBlockingReadingPhilosophersBenchmark {
 //    }
 
     @Benchmark
-    public void _170_test_008K_0010K_reentrant_lock_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_classical_philosophers_internal(ReentrantPhilosopher::from, constructBlockingReadingEating(blackhole), 8, 1);
+    public void _170_test_1000K_0010K_reentrant_lock_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(ReentrantPhilosopher::from, constructOkHttpEating(blackhole), 1000, 1);
     }
 
     @Benchmark
-    public void _180_test_008K_0010K_synchronized_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_classical_philosophers_internal(SynchronizedPhilosopher::from, constructBlockingReadingEating(blackhole), 8, 1);
+    public void _180_test_1000K_0010K_synchronized_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(SynchronizedPhilosopher::from, constructOkHttpEating(blackhole), 1000, 1);
     }
 
     @Benchmark
-    public void _182_test_008K_020K_reentrant_lock_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_classical_philosophers_internal(ReentrantPhilosopher::from, constructBlockingReadingEating(blackhole), 8, 2);
+    public void _182_test_1000K_0100K_reentrant_lock_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(ReentrantPhilosopher::from, constructOkHttpEating(blackhole), 1000, 10);
     }
 
     @Benchmark
-    public void _184_test_008K_020K_synchronized_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_classical_philosophers_internal(SynchronizedPhilosopher::from, constructBlockingReadingEating(blackhole), 8, 2);
+    public void _184_test_1000K_0100K_synchronized_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(SynchronizedPhilosopher::from, constructOkHttpEating(blackhole), 1000, 10);
     }
 
 //    @Benchmark
@@ -163,13 +189,13 @@ public class ScaledBlockingReadingPhilosophersBenchmark {
 //    }
 
     @Benchmark
-    public void _210_test_002K_40K_reentrant_lock_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_classical_philosophers_internal(ReentrantPhilosopher::from, constructBlockingReadingEating(blackhole), 2, 4);
+    public void _210_test_0010K_1000K_reentrant_lock_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(ReentrantPhilosopher::from, constructOkHttpEating(blackhole), 10, 100);
     }
 
     @Benchmark
-    public void _220_test_002K_40K_synchronized_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_classical_philosophers_internal(SynchronizedPhilosopher::from, constructBlockingReadingEating(blackhole), 2, 4);
+    public void _220_test_0010K_1000K_synchronized_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(SynchronizedPhilosopher::from, constructOkHttpEating(blackhole), 10, 100);
     }
 
 //    @Benchmark
@@ -183,13 +209,13 @@ public class ScaledBlockingReadingPhilosophersBenchmark {
 //    }
 
     @Benchmark
-    public void _250_test_008K_80K_reentrant_lock_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_classical_philosophers_internal(ReentrantPhilosopher::from, constructBlockingReadingEating(blackhole), 8, 8);
+    public void _250_test_1000K_1000K_reentrant_lock_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(ReentrantPhilosopher::from, constructOkHttpEating(blackhole), 1000, 100);
     }
 
     @Benchmark
-    public void _260_test_008K_80K_synchronized_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
-        test_classical_philosophers_internal(SynchronizedPhilosopher::from, constructBlockingReadingEating(blackhole), 8, 8);
+    public void _260_test_1000K_1000K_synchronized_philosophers_with_virtual_threads(Blackhole blackhole) throws InterruptedException, BrokenBarrierException {
+        test_classical_philosophers_internal(SynchronizedPhilosopher::from, constructOkHttpEating(blackhole), 1000, 100);
     }
 
 //    @Benchmark
@@ -243,14 +269,62 @@ public class ScaledBlockingReadingPhilosophersBenchmark {
 //    }
 
     public static void main(String[] args) throws RunnerException {
+
+        startHttpServer();
+        initHttpClint();
+
         Options opt = new OptionsBuilder()
                 .include(ScaledBlockingReadingPhilosophersBenchmark.class.getSimpleName())
                 .forks(1)
                 .warmupIterations(1)
-                .measurementIterations(2)
+                .measurementIterations(3)
                 .jvmArgs("--enable-preview", "-Xmx4096m")
                 .build();
         new Runner(opt).run();
+
+        stopHttpServer();
+        stopHttpClient();
+
+    }
+
+    private static void startHttpServer() {
+        vertx = Vertx.vertx();
+
+        server = vertx.createHttpServer();
+
+        String responseAsString;
+
+        try (InputStream in = Path.of("1600B_file.txt").toFile().toURI().toURL().openStream()) {
+            byte[] bytes = in.readAllBytes();
+            responseAsString = new String(bytes);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        server.requestHandler(request -> { //any request
+            HttpServerResponse response = request.response();
+            response.putHeader("content-type", "text/plain");
+            response.end(responseAsString); //<<--- here we can play with the size of the response
+        });
+
+        server.listen(port).await();
+    }
+
+    private static void stopHttpServer() {
+        server.close().await();
+        vertx.close().await();
+    }
+
+    private static void initHttpClint() {
+        client = new OkHttpClient.Builder()
+                .connectionPool(new ConnectionPool(500, 5, TimeUnit.MINUTES))
+                .build();
+
+    }
+
+    private static void stopHttpClient() {
+        client.dispatcher().executorService().shutdown();
+        client.connectionPool().evictAll();
     }
 
 }

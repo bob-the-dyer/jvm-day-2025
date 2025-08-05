@@ -57,13 +57,12 @@ public class FatVirtualVerticlePhilosopher extends VerticleBase {
             SharedData sharedData = vertx.sharedData();
             sharedData.withLocalLock("chopstick_" + firstChopstick, () -> {
 //                System.out.println("chopstick_" + firstChopstick + " locked");
-                sharedData.withLocalLock("chopstick_" + secondChopstick, () -> {
+                return sharedData.withLocalLock("chopstick_" + secondChopstick, () -> {
 //                    System.out.println("chopstick_" + firstChopstick + " locked_" + "_chopstick_" + secondChopstick + " locked");
                     updateStats();
-                    return Future.succeededFuture();
-                }).await();
-                return succeededFuture();
-            }).await();
+                    return succeededFuture();
+                });
+            });
         }
     }
 

@@ -528,6 +528,48 @@ https://habrastorage.org/r/w1560/getpro/habr/upload_files/20b/769/22f/20b76922f1
 | vert.x       sleeping virtual  |  3953.206 |  232.746 | ms/op | 
 | synchronized blocking virtual  | 16583.318 | 4071.447 | ms/op | 
 
+Еще одна попытка чисто для jdk
+
+| Benchmark                      |   Score   ±  Error | Units |
+|:-------------------------------|-------------------:|------:|
+| synchronized noop     virtual  |    3.402 ±   0.554 | ms/op | 
+| reentrant    noop     virtual  |    3.786 ±   0.375 | ms/op | 
+| reentrant    ok_http  virtual  |   21.268 ±   0.866 | ms/op | 
+| synchronized ok_http  virtual  |   21.993 ±   2.141 | ms/op | 
+| synchronized ok_http  platform |  120.036 ±  15.304 | ms/op | 
+| reentrant    ok_http  platform |  137.073 ±  32.623 | ms/op | 
+| synchronized noop     platform |  171.570 ±  23.510 | ms/op | 
+| reentrant    active   virtual  |  198.108 ±  17.251 | ms/op | 
+| synchronized active   virtual  |  201.018 ±  17.320 | ms/op | 
+| reentrant    noop     platform |  213.722 ±  25.279 | ms/op | 
+| synchronized active   platform |  455.479 ±  55.032 | ms/op | 
+| reentrant    sleeping platform |  609.585 ±  59.735 | ms/op | 
+| synchronized sleeping platform |  821.443 ±  92.263 | ms/op | 
+| reentrant    sleeping virtual  |  872.009 ± 134.314 | ms/op | 
+| reentrant    active   platform |  947.969 ± 790.412 | ms/op | 
+| synchronized sleeping virtual  | 1191.576 ± 501.751 | ms/op | 
+
+И еще одна попытка чисто для jdk
+
+| Benchmark                                                                                         | Mode | Cnt |    Score     Error | Units |
+|:--------------------------------------------------------------------------------------------------|-----:|----:|-------------------:|------:|
+| UnitedPhilosophersBenchmark.test_reentrant_lock_noop_philosophers_with_virtual_threads            | avgt |   7 |    2.711 ±   0.481 | ms/op |
+| UnitedPhilosophersBenchmark.test_synchronized_noop_philosophers_with_virtual_threads              | avgt |   7 |    2.796 ±   0.191 | ms/op |
+| UnitedPhilosophersBenchmark.test_reentrant_lock_ok_http_philosophers_with_virtual_threads         | avgt |   7 |   19.568 ±   1.888 | ms/op |
+| UnitedPhilosophersBenchmark.test_synchronized_ok_http_philosophers_with_virtual_threads           | avgt |   7 |   20.324 ±   1.739 | ms/op |
+| UnitedPhilosophersBenchmark.test_reentrant_lock_ok_http_philosophers_with_platform_threads        | avgt |   7 |  109.509 ±  15.943 | ms/op |
+| UnitedPhilosophersBenchmark.test_synchronized_ok_http_philosophers_with_platform_threads          | avgt |   7 |  116.772 ±  14.264 | ms/op |
+| UnitedPhilosophersBenchmark.test_reentrant_lock_noop_philosophers_with_platform_threads           | avgt |   7 |  146.225 ±   9.688 | ms/op |
+| UnitedPhilosophersBenchmark.test_synchronized_noop_philosophers_with_platform_threads             | avgt |   7 |  149.077 ±  40.867 | ms/op |
+| UnitedPhilosophersBenchmark.test_reentrant_lock_active_waiting_philosophers_with_virtual_threads  | avgt |   7 |  192.683 ±  19.614 | ms/op |
+| UnitedPhilosophersBenchmark.test_synchronized_active_waiting_philosophers_with_virtual_threads    | avgt |   7 |  198.783 ±  19.466 | ms/op |
+| UnitedPhilosophersBenchmark.test_synchronized_active_waiting_philosophers_with_platform_threads   | avgt |   7 |  392.634 ±  52.271 | ms/op |
+| UnitedPhilosophersBenchmark.test_reentrant_lock_active_waiting_philosophers_with_platform_threads | avgt |   7 |  440.897 ± 147.722 | ms/op |
+| UnitedPhilosophersBenchmark.test_reentrant_lock_sleeping_philosophers_with_platform_threads       | avgt |   7 |  634.206 ±  52.667 | ms/op |
+| UnitedPhilosophersBenchmark.test_synchronized_sleeping_philosophers_with_platform_threads         | avgt |   7 | 1002.991 ± 249.889 | ms/op |
+| UnitedPhilosophersBenchmark.test_reentrant_lock_sleeping_philosophers_with_virtual_threads        | avgt |   7 | 1204.156 ± 224.305 | ms/op |
+| UnitedPhilosophersBenchmark.test_synchronized_sleeping_philosophers_with_virtual_threads          | avgt |   7 | 1319.809 ± 499.265 | ms/op |
+
 Комментарии
 
 - быстрее всего в "классике" либо ничего не делать, либо активно ждать, и где-то рядом болтается ничего не делать в
@@ -619,21 +661,32 @@ vert.x хуже на порядок классики! Погрешности т�
 Так что же получается, "классика" прям молодец и инженеры, которые контрибьютят в жаву не зря едят свой хлеб с Маслоу??!
 Да, возможно, кроме потенциально недофикшеного бага с пинингом, который может оказаться драмматическим!
 
-TODO
-Сделаю скейл для меньшего числа кормлений и фил, т к для таких чисел бенчмарк работает часами, а хочется хоть какую то
-тенденцию на скейле увидеть за приемлимое время. Также размер файла уменьшил в 10раз
+Сделаю скейл для блокирующего чтения по сети. размер файла уменьшил в 10раз
+
+| Benchmark                |     Score ±      Error | Units |
+|:-------------------------|-----------------------:|------:|
+| 0001K 0010K reentrant    |    16.639 ±     78.606 | ms/op |
+| 0001K 0010K synchronized |    12.299 ±     23.337 | ms/op |
+| 0010K 0010K reentrant    |   153.864 ±     75.793 | ms/op |
+| 0010K 0010K synchronized |   182.394 ±    536.973 | ms/op |
+| 0010K 0100K reentrant    |   150.171 ±    474.616 | ms/op |
+| 0010K 0100K synchronized |   174.926 ±    202.954 | ms/op |
+| 0010K 1000K reentrant    |   197.704 ±    308.298 | ms/op |
+| 0010K 1000K synchronized |   178.236 ±    333.246 | ms/op |
+| 0100K 0010K reentrant    |  1542.291 ±   2511.288 | ms/op |
+| 0100K 0010K synchronized |  1766.490 ±   3443.229 | ms/op |
+| 0100K 0100K reentrant    |  1704.856 ±   3530.813 | ms/op |
+| 0100K 0100K synchronized |  1838.388 ±   1682.690 | ms/op |
+| 0100K 1000K reentrant    |  1703.520 ±   3900.612 | ms/op |
+| 0100K 1000K synchronized |  1908.303 ±   6017.006 | ms/op |
+| 1000K 0010K reentrant    | 22066.961 ±  32925.217 | ms/op |
+| 1000K 0010K synchronized | 23521.333 ±  55721.010 | ms/op |
+| 1000K 0100K reentrant    | 25421.230 ± 192726.043 | ms/op |
+| 1000K 0100K synchronized | 24288.554 ±  48552.237 | ms/op |
+| 1000K 1000K reentrant    | 26757.401 ± 177259.781 | ms/op |
+| 1000K 1000K synchronized | 33848.830 ± 172931.769 | ms/op |
 
 Табличка для скалированных философов с блокирующим чтением диска
-
-
-
-Для интеля
-
-
-
-Для АРМа
-
-
 
 #### Критика методологии и трактования результатов замеров
 
